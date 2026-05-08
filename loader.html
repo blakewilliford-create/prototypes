@@ -9,71 +9,9 @@
     <link rel="shortcut icon" href="favicons/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png" />
     <link rel="manifest" href="favicons/site.webmanifest" />
-    <style>
-      :root {
-        --bg: #151a1d;
-        --fg: #fefefe;
-        --glow: #a1f2ff;
-      }
-
-      html,
-      body {
-        height: 100%;
-        margin: 0;
-      }
-
-      body {
-        background:
-          radial-gradient(
-            circle at center,
-            rgba(161, 242, 255, 0.08) 0%,
-            rgba(161, 242, 255, 0) 38%
-          ),
-          var(--bg);
-        color: var(--fg);
-        display: grid;
-        place-items: center;
-        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
-          "Apple Color Emoji", "Segoe UI Emoji";
-      }
-
-      .emblem {
-        width: 100px;
-        height: 100px;
-        opacity: 1;
-        user-select: none;
-        -webkit-user-drag: none;
-      }
-
-      .back-btn {
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 10px 20px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 999px;
-        color: var(--fg);
-        font-family: system-ui, sans-serif;
-        font-size: 13px;
-        font-weight: 300;
-        letter-spacing: 0.12em;
-        text-decoration: none;
-        transition: background 0.2s;
-      }
-
-      .back-btn:hover {
-        background: rgba(255, 255, 255, 0.1);
-      }
-
-      .back-btn svg {
-        flex-shrink: 0;
-      }
-    </style>
+    <link rel="stylesheet" href="css/style.css" />
   </head>
-  <body>
+  <body class="page-loader">
     <a href="index.html" class="back-btn">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>

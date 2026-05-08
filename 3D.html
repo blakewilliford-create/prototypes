@@ -8,32 +8,7 @@
   <link rel="shortcut icon" href="favicons/favicon.ico" />
   <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png" />
   <link rel="manifest" href="favicons/site.webmanifest" />
-  <style>
-    body { margin: 0; overflow: hidden; background: #151a1d; }
-
-    .back-btn {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 20px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 999px;
-      color: #fefefe;
-      font-family: system-ui, sans-serif;
-      font-size: 13px;
-      font-weight: 300;
-      letter-spacing: 0.12em;
-      text-decoration: none;
-      transition: background 0.2s;
-      z-index: 10;
-    }
-
-    .back-btn:hover { background: rgba(255, 255, 255, 0.1); }
-    .back-btn svg { flex-shrink: 0; }
-  </style>
+  <link rel="stylesheet" href="css/style.css" />
 
   <script type="importmap">
   {
@@ -44,7 +19,7 @@
   }
   </script>
 </head>
-<body>
+<body class="page-canvas">
 <a href="index.html" class="back-btn">
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -197,6 +172,57 @@ const material = new THREE.ShaderMaterial({
   depthWrite: false
 });
 
+// ----- AGENT MATERIAL -----
+const gu = { time: { value: 0 } };
+
+const agentMaterial = new THREE.PointsMaterial({
+  color: "#4FA7B8",
+  size: 1.0,
+  sizeAttenuation: false,
+  transparent: true,
+  depthWrite: false,
+  onBeforeCompile: shader => {
+    shader.uniforms.time = gu.time;
+    shader.vertexShader = `
+    uniform float time;
+    varying float vSinVal;
+    ${shader.vertexShader.replace('uniform float size;', 'attribute float size;')}
+    `.replace(
+      `#include <begin_vertex>`,
+      `#include <begin_vertex>
+        vec3 wPos = vec3(modelMatrix * vec4(position, 1.));
+      `
+    ).replace(
+      `gl_PointSize = size;`,
+      `
+      float t = time * 1.;
+      wPos.y -= t;
+      float sinVal = sin(mod(wPos.y * 3., PI2)) * 0.5 + 0.5;
+      vSinVal = sinVal;
+      float depth = -mvPosition.z;
+      float sizeChange = 1. + sinVal * 3.;
+      gl_PointSize = size * (400.0 / depth) * sizeChange;`
+    );
+    shader.fragmentShader = `
+    varying float vSinVal;
+    ${shader.fragmentShader}
+    `.replace(
+      `#include <clipping_planes_fragment>`,
+      `#include <clipping_planes_fragment>
+        float dist = length(gl_PointCoord.xy - 0.5);
+        if (dist > 0.5) discard;
+      `
+    ).replace(
+      `#include <alphatest_fragment>`,
+      `#include <alphatest_fragment>
+        diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0, 0.8, 0.9), vSinVal);
+        float f = smoothstep(0.5, 0.1, dist);
+        diffuseColor.a = f;
+      `
+    );
+  }
+});
+
 const points = new THREE.Points(geometry, material);
 scene.add(points);
 
@@ -208,6 +234,7 @@ function animate() {
   requestAnimationFrame(animate);
 
   const t = clock.getElapsedTime();
+  gu.time.value = t;
   const pos = geometry.attributes.position;
 
   for (let i = 0; i < pos.count; i++) {
@@ -233,6 +260,11 @@ animate();
 
 // ----- GUI -----
 const gui = new GUI();
+
+const materialToggle = { agentMaterial: false };
+gui.add(materialToggle, 'agentMaterial').name('glow').onChange(v => {
+  points.material = v ? agentMaterial : material;
+});
 
 const wavesFolder = gui.addFolder('Waves');
 wavesFolder.add(waveParams, 'speed', 0, 2).onChange(v => waveParams.speed = v);

@@ -8,107 +8,7 @@
   <link rel="shortcut icon" href="favicons/favicon.ico" />
   <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png" />
   <link rel="manifest" href="favicons/site.webmanifest" />
-  <style>
-    body { margin: 0; overflow: hidden; background: #151a1d; }
-
-    #login-overlay {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-      pointer-events: none;
-    }
-
-    #login-card {
-      pointer-events: all;
-      background: rgba(255, 255, 255, 0.01);
-      -webkit-backdrop-filter: blur(50px);
-      backdrop-filter: blur(50px);
-      border: 0px solid rgba(255, 255, 255, 0.15);
-      border-radius: 16px;
-      padding: 48px 40px 40px;
-      width: 300px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 24px;
-    }
-
-    #login-card img {
-      width: 160px;
-      height: auto;
-    }
-
-    #login-fields {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    #login-fields input {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 0px solid rgba(255, 255, 255, 0.2);
-      border-radius: 8px;
-      color: #fff;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    #login-fields input::placeholder {
-      color: rgba(255, 255, 255, 0.4);
-    }
-
-    #login-fields input:focus {
-      border-color: rgba(0, 255, 255, 0.5);
-    }
-
-    #login-fields button {
-      margin-top: 4px;
-      width: 100%;
-      padding: 12px;
-      background: #04767E;
-      border: 0px solid rgba(0, 255, 255, 0.35);
-      border-radius: 8px;
-      color: #fff;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    #login-fields button:hover {
-      background: #389BA2;
-    }
-
-    .back-btn {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 20px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 999px;
-      color: #fefefe;
-      font-family: system-ui, sans-serif;
-      font-size: 13px;
-      font-weight: 300;
-      letter-spacing: 0.12em;
-      text-decoration: none;
-      transition: background 0.2s;
-      z-index: 20;
-    }
-
-    .back-btn:hover { background: rgba(255, 255, 255, 0.1); }
-    .back-btn svg { flex-shrink: 0; }
-  </style>
+  <link rel="stylesheet" href="css/style.css" />
 
   <script type="importmap">
   {
@@ -119,7 +19,7 @@
   }
   </script>
 </head>
-<body>
+<body class="page-canvas">
 <a href="index.html" class="back-btn">
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>

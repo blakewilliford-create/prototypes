@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wave Particles + Bloom + Orbit</title>
+  <link rel="icon" type="image/png" href="favicons/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="favicons/favicon.svg" />
+  <link rel="shortcut icon" href="favicons/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png" />
+  <link rel="manifest" href="favicons/site.webmanifest" />
+  <link rel="stylesheet" href="css/style.css" />
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body class="page-canvas">
+<a href="index.html" class="back-btn">
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  Back
+</a>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { MeshSurfaceSampler } from 'three/addons/math/MeshSurfaceSampler.js';
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+
+console.clear();
+
+let scene = new THREE.Scene();
+scene.background = new THREE.Color(0x151a1d);
+let camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 1, 1000);
+let renderer = new THREE.WebGLRenderer({
+  antialias: true
+});
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+window.addEventListener("resize", event => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+})
+
+let controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+let light = new THREE.DirectionalLight(0xffffff, 0.5);
+light.position.setScalar(1);
+scene.add(light, new THREE.AmbientLight(0xffffff, 0.5));
+
+let gu = {
+  time: {value: 0}
+}
+
+
+let g = new THREE.SphereGeometry(10,10,3);
+let o = new THREE.Mesh(g, new THREE.MeshBasicMaterial);
+let sampler = new MeshSurfaceSampler(o).build();
+let sampledGeometry = new THREE.BufferGeometry().setFromPoints(new Array(10000).fill().map(_ => {
+  let p = new THREE.Vector3();
+  sampler.sample(p);
+  return p;
+}));
+
+let m = new THREE.PointsMaterial({
+    color: "#4FA7B8",
+    size: 0.03,
+    transparent: true,
+    depthWrite: false,
+    onBeforeCompile: shader => {
+        shader.uniforms.time = gu.time;
+        shader.vertexShader = `
+        uniform float time;
+        varying float vSinVal;
+        ${shader.vertexShader}
+        `.replace(
+        `#include <begin_vertex>`,
+        `#include <begin_vertex>
+            vec3 wPos = vec3(modelMatrix * vec4(position, 1.));
+        `
+        ).replace(
+        `gl_PointSize = size;`,
+        `
+        float t = time * 1.;
+        wPos.y -= t;
+        float sinVal = sin(mod(wPos.y * 3., PI2)) * 0.5 + 0.5;
+        vSinVal = sinVal;
+        float sizeChange = 1. + sinVal * 3.;
+        gl_PointSize = size * sizeChange;`
+        );
+
+        shader.fragmentShader = `
+        varying float vSinVal;
+        ${shader.fragmentShader}
+        `.replace(
+        `#include <clipping_planes_fragment>`,
+        `#include <clipping_planes_fragment>
+            float dist = length(gl_PointCoord.xy - 0.5);
+            if (dist > 0.5) discard;
+        `
+        ).replace(
+        `#include <alphatest_fragment>`,
+        `#include <alphatest_fragment>
+            diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0, 0.8, 0.9), vSinVal);
+            float f = smoothstep(0.5, 0.1, dist);
+            diffuseColor.a = f;
+        `
+        );
+    }
+})
+
+// instantiate a loader
+const loader = new OBJLoader();
+loader.load('./3D/femaleHead.obj',
+(obj) => {
+    let material = m;
+    let mesh = new THREE.Points(obj.children[0].geometry, material)
+    mesh.position.y = -10;
+    mesh.rotation.x = Math.PI / 2.2;
+    mesh.rotation.y = Math.PI;
+    scene.add(mesh);
+
+    var bbox = new THREE.Box3().setFromObject(mesh);
+    var center = new THREE.Vector3();
+    bbox.getCenter(center);
+    var size = new THREE.Vector3();
+    bbox.getSize(size);
+
+    var boundingBoxSize = Math.max(size.x, size.y, size.z);
+    var cameraDistance = boundingBoxSize / Math.tan(Math.PI * camera.fov / 360);
+
+    camera.position.copy(center);
+    camera.position.z += cameraDistance * 0.6;
+    camera.position.y += 5;
+    camera.lookAt(center);
+},
+(xhr) => {
+    console.log(xhr)
+},
+(err) => {
+    console.error("loading .obj went wrong, ", err)
+})
+
+let clock = new THREE.Clock();
+
+renderer.setAnimationLoop((_) => {
+  let t = clock.getElapsedTime();
+  gu.time.value = t;
+  controls.update();
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>

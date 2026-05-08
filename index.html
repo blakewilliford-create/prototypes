@@ -9,80 +9,7 @@
     <link rel="shortcut icon" href="favicons/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png" />
     <link rel="manifest" href="favicons/site.webmanifest" />
-    <style>
-      :root {
-        --bg: #151a1d;
-        --fg: #fefefe;
-        --glow: #a1f2ff;
-      }
-
-      html, body {
-        height: 100%;
-        margin: 0;
-        background: var(--bg);
-        overflow: hidden;
-      }
-
-      canvas {
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-      }
-
-      #ui {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding-top: 64px;
-      }
-
-      #logo {
-        width: 180px;
-        height: auto;
-      }
-
-      #wordmark {
-        margin-top: 16px;
-        color: var(--fg);
-        font-family: system-ui, sans-serif;
-        font-size: 18px;
-        font-weight: 200;
-        letter-spacing: 0.6em;
-        text-transform: uppercase;
-        opacity: 0.6;
-      }
-
-      #nav {
-        margin-top: 40px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        width: 220px;
-      }
-
-      #nav a {
-        display: block;
-        padding: 10px 24px;
-        background: rgba(255, 255, 255, 0.05);
-        -webkit-backdrop-filter: blur(50px);
-        backdrop-filter: blur(50px);
-        border-radius: 999px;
-        color: var(--fg);
-        font-family: system-ui, sans-serif;
-        font-size: 13px;
-        font-weight: 300;
-        letter-spacing: 0.12em;
-        text-decoration: none;
-        text-align: center;
-        transition: background 0.2s;
-      }
-
-      #nav a:hover {
-        background: rgba(255, 255, 255, 0.1);
-      }
-    </style>
+    <link rel="stylesheet" href="css/style.css" />
 
     <script type="importmap">
     {
@@ -93,7 +20,7 @@
     }
     </script>
   </head>
-  <body>
+  <body class="page-canvas">
     <div id="ui">
       <img id="logo" src="SVGs/Logo.svg" alt="Logo" />
       <div id="wordmark">Design</div>
@@ -103,6 +30,7 @@
         <a href="3D.html">3D</a>
         <a href="login.html">Login</a>
         <a href="dashboard.html">Dashboard</a>
+        <a href="agent.html">Agent</a>
       </nav>
     </div>
 
