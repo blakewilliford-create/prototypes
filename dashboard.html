@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link rel="icon" type="image/png" href="favicons/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="favicons/favicon.svg" />
+    <link rel="shortcut icon" href="favicons/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png" />
+    <link rel="manifest" href="favicons/site.webmanifest" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      :root {
+        --bg:      #151a1d;
+        --surface: rgba(255, 255, 255, 0.05);
+        --border:  rgba(255, 255, 255, 0.08);
+        --fg:      #fefefe;
+        --muted:   rgba(255, 255, 255, 0.4);
+        --primary: #04767E;
+        --primary-light: rgba(4, 118, 126, 0.25);
+      }
+
+      html, body {
+        height: 100%;
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: system-ui, sans-serif;
+        font-size: 14px;
+      }
+
+      /* ----- LAYOUT ----- */
+      body {
+        overflow-y: auto;
+      }
+
+      .main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 80px 32px 64px;
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+      }
+
+      /* ----- TOPBAR ----- */
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .topbar h1 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 400;
+        letter-spacing: 0.02em;
+      }
+
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .badge {
+        padding: 5px 14px;
+        border-radius: 999px;
+        background: var(--primary-light);
+        color: var(--fg);
+        font-size: 12px;
+        font-weight: 400;
+        border: 1px solid var(--primary);
+        letter-spacing: 0.04em;
+      }
+
+      /* ----- STAT CARDS ----- */
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 0px solid var(--border);
+        border-radius: 12px;
+        padding: 20px 22px;
+      }
+
+      .stat-label {
+        font-size: 11px;
+        font-weight: 400;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 10px;
+      }
+
+      .stat-value {
+        font-size: 28px;
+        font-weight: 300;
+        letter-spacing: -0.01em;
+        color: var(--fg);
+      }
+
+      .stat-delta {
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--primary);
+      }
+
+      /* ----- CHART GRID ----- */
+      .chart-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 16px;
+      }
+
+      .chart-grid-bottom {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .card-title {
+        font-size: 12px;
+        font-weight: 400;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 18px;
+      }
+
+      .chart-wrap {
+        position: relative;
+        width: 100%;
+      }
+
+      /* ----- TABLE ----- */
+      .table-wrap { overflow-x: auto; }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+
+      th {
+        text-align: left;
+        font-size: 11px;
+        font-weight: 400;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+        padding: 0 12px 12px 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      td {
+        padding: 11px 12px 11px 0;
+        border-bottom: 1px solid var(--border);
+        color: var(--fg);
+        font-weight: 300;
+      }
+
+      tr:last-child td { border-bottom: none; }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+      }
+
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--primary);
+      }
+
+      .dot.warn { background: #e0a040; }
+      .dot.off  { background: rgba(255,255,255,0.2); }
+
+      /* ----- BACK BTN ----- */
+      .back-btn {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 999px;
+        color: var(--fg);
+        font-size: 13px;
+        font-weight: 300;
+        letter-spacing: 0.12em;
+        text-decoration: none;
+        transition: background 0.2s;
+        z-index: 10;
+      }
+
+      .back-btn:hover { background: rgba(255,255,255,0.1); }
+    </style>
+  </head>
+  <body>
+      <main class="main">
+        <div class="topbar">
+          <h1>Trial Overview</h1>
+          <div class="topbar-right">
+            <span class="badge">Enrolling</span>
+          </div>
+        </div>
+
+        <!-- STAT CARDS -->
+        <div class="stat-grid">
+          <div class="card">
+            <div class="stat-label">Enrolled Patients</div>
+            <div class="stat-value">1,284</div>
+            <div class="stat-delta">↑ 47 this week</div>
+          </div>
+          <div class="card">
+            <div class="stat-label">Active Sites</div>
+            <div class="stat-value">38</div>
+            <div class="stat-delta">↑ 3 new this month</div>
+          </div>
+          <div class="card">
+            <div class="stat-label">Protocol Adherence</div>
+            <div class="stat-value">97.3%</div>
+            <div class="stat-delta">↑ 1.2% vs last period</div>
+          </div>
+          <div class="card">
+            <div class="stat-label">Adverse Events</div>
+            <div class="stat-value">12</div>
+            <div class="stat-delta">2 under review</div>
+          </div>
+        </div>
+
+        <!-- MAIN CHARTS -->
+        <div class="chart-grid">
+          <div class="card">
+            <div class="card-title">Cumulative enrollment</div>
+            <div class="chart-wrap"><canvas id="lineChart"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Trial phase breakdown</div>
+            <div class="chart-wrap"><canvas id="doughnutChart"></canvas></div>
+          </div>
+        </div>
+
+        <!-- BOTTOM CHARTS + TABLE -->
+        <div class="chart-grid-bottom">
+          <div class="card">
+            <div class="card-title">Monthly screenings</div>
+            <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Recent events</div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Event</th>
+                    <th>Site</th>
+                    <th>Status</th>
+                    <th>Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Patient enrolled</td>
+                    <td>Site 14 — Boston</td>
+                    <td><span class="status"><span class="dot"></span>Confirmed</span></td>
+                    <td>18m ago</td>
+                  </tr>
+                  <tr>
+                    <td>Adverse event</td>
+                    <td>Site 07 — Berlin</td>
+                    <td><span class="status"><span class="dot warn"></span>Under review</span></td>
+                    <td>1h ago</td>
+                  </tr>
+                  <tr>
+                    <td>Data lock</td>
+                    <td>Site 22 — Toronto</td>
+                    <td><span class="status"><span class="dot"></span>Complete</span></td>
+                    <td>3h ago</td>
+                  </tr>
+                  <tr>
+                    <td>Protocol amendment</td>
+                    <td>All sites</td>
+                    <td><span class="status"><span class="dot off"></span>Pending IRB</span></td>
+                    <td>1d ago</td>
+                  </tr>
+                  <tr>
+                    <td>Site activated</td>
+                    <td>Site 38 — Sydney</td>
+                    <td><span class="status"><span class="dot"></span>Confirmed</span></td>
+                    <td>2d ago</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+
+    <a href="index.html" class="back-btn">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back
+    </a>
+
+    <script>
+      const PRIMARY      = '#04767E';
+      const PRIMARY_DIM  = 'rgba(4,118,126,0.35)';
+      const GRID_COLOR   = 'rgba(255,255,255,0.06)';
+      const TICK_COLOR   = 'rgba(255,255,255,0.35)';
+
+      Chart.defaults.color = TICK_COLOR;
+      Chart.defaults.borderColor = GRID_COLOR;
+      Chart.defaults.font.family = 'system-ui, sans-serif';
+      Chart.defaults.font.size   = 11;
+
+      // LINE — cumulative enrollment
+      new Chart(document.getElementById('lineChart'), {
+        type: 'line',
+        data: {
+          labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+          datasets: [{
+            label: 'Enrolled',
+            data: [48, 115, 198, 310, 422, 561, 673, 784, 902, 1034, 1162, 1284],
+            borderColor: PRIMARY,
+            backgroundColor: 'rgba(4,118,126,0.12)',
+            borderWidth: 2,
+            pointRadius: 3,
+            pointBackgroundColor: PRIMARY,
+            fill: true,
+            tension: 0.4,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: GRID_COLOR } },
+            y: { grid: { color: GRID_COLOR }, beginAtZero: true }
+          }
+        }
+      });
+
+      // DOUGHNUT — trial phases
+      new Chart(document.getElementById('doughnutChart'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Phase I', 'Phase II', 'Phase III', 'Phase IV'],
+          datasets: [{
+            data: [8, 14, 11, 5],
+            backgroundColor: [
+              PRIMARY,
+              'rgba(4,118,126,0.55)',
+              'rgba(4,118,126,0.3)',
+              'rgba(4,118,126,0.15)',
+            ],
+            borderColor: 'rgba(255,255,255,0.06)',
+            borderWidth: 1,
+          }]
+        },
+        options: {
+          responsive: true,
+          cutout: '68%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { padding: 16, boxWidth: 10, boxHeight: 10 }
+            }
+          }
+        }
+      });
+
+      // BAR — monthly screenings
+      new Chart(document.getElementById('barChart'), {
+        type: 'bar',
+        data: {
+          labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+          datasets: [{
+            label: 'Screened',
+            data: [74, 98, 112, 143, 130, 168, 155, 172, 190, 184, 210, 198],
+            backgroundColor: PRIMARY_DIM,
+            borderColor: PRIMARY,
+            borderWidth: 1,
+            borderRadius: 4,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false } },
+            y: { grid: { color: GRID_COLOR }, beginAtZero: true }
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

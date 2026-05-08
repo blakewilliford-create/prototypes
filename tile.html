@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tiled Emblem</title>
+    <link rel="icon" type="image/png" href="favicons/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="favicons/favicon.svg" />
+    <link rel="shortcut icon" href="favicons/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png" />
+    <link rel="manifest" href="favicons/site.webmanifest" /> 
+    <style>
+      :root {
+        --bg: #151a1d;
+        --tile-size: 100px;
+        --gap: 6px;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+
+      body {
+        background: var(--bg);
+      }
+
+      .row {
+        position: fixed;
+        top: 0;
+        left: 0;
+        display: flex;
+        gap: var(--gap);
+        padding: var(--gap);
+        pointer-events: none;
+        user-select: none;
+      }
+
+      .row img {
+        width: var(--tile-size);
+        height: var(--tile-size);
+        display: block;
+        opacity: 0.05;
+      }
+      .back-btn {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 999px;
+        color: #fefefe;
+        font-family: system-ui, sans-serif;
+        font-size: 13px;
+        font-weight: 300;
+        letter-spacing: 0.12em;
+        text-decoration: none;
+        transition: background 0.2s;
+        z-index: 10;
+      }
+
+      .back-btn:hover { background: rgba(255, 255, 255, 0.1); }
+      .back-btn svg { flex-shrink: 0; }
+    </style>
+  </head>
+  <body>
+    <a href="index.html" class="back-btn">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back
+    </a>
+    <div id="row" aria-hidden="true"></div>
+
+    <script>
+      const TILE_SRC = "SVGs/emblemPure.svg";
+
+      for (let i = 0; i < 12; i++) {
+        let offsetX = i * 78;
+        if (i % 2 === 0) {
+          offsetY = 0;
+        } else {
+          offsetY = -54;
+        }
+
+        buildRow(offsetX,offsetY);
+      }
+
+      function buildRow(offsetX, offsetY) {
+        const row = document.createElement("div");
+        row.className = "row";
+        const styles = getComputedStyle(document.documentElement);
+        const tileSize = parseFloat(styles.getPropertyValue("--tile-size")) || 100;
+        const gap = parseFloat(styles.getPropertyValue("--gap")) || 6;
+        row.style.top = offsetX+"px";
+        row.style.left = offsetY+"px";
+
+        const usableWidth = window.innerWidth - gap * 2; // matches padding
+        const step = tileSize + gap;
+        const count = Math.max(1, Math.ceil((usableWidth + gap) / step));
+
+        document.body.appendChild(row);
+
+        for (let i = 0; i < count; i++) {
+          const img = new Image();
+          img.src = TILE_SRC;
+          img.alt = ""; 
+          img.decoding = "async";
+          img.draggable = false;
+          row.appendChild(img);
+        } 
+      }
+    
+      
+      addEventListener("resize", buildRow);
+    </script>
+  </body>
+</html>
