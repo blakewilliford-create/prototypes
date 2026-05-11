@@ -1,0 +1,31 @@
+/* =============================================================================
+   L2 — ROLES / ELEVATION
+   Spatial component values for box-shadow construction.
+   Token names mirror Figma's Elevation Roles collection.
+   ============================================================================= */
+
+:root {
+  --brc-elevation-elevation0-y: var(--brc-scale-scale0);
+  --brc-elevation-elevation0-blur: var(--brc-scale-scale0);
+  --brc-elevation-elevation0-spread: var(--brc-scale-scale0);
+
+  --brc-elevation-elevation1-y: var(--brc-scale-scale1); /*  2px */
+  --brc-elevation-elevation1-blur: var(--brc-scale-scale2); /*  4px */
+  --brc-elevation-elevation1-spread: var(--brc-scale-scale0);
+
+  --brc-elevation-elevation2-y: var(--brc-scale-scale1); /*  2px */
+  --brc-elevation-elevation2-blur: var(--brc-scale-scale4); /*  8px */
+  --brc-elevation-elevation2-spread: var(--brc-scale-scale0);
+
+  --brc-elevation-elevation3-y: var(--brc-scale-scale2); /*  4px */
+  --brc-elevation-elevation3-blur: var(--brc-scale-scale6); /* 12px */
+  --brc-elevation-elevation3-spread: var(--brc-scale-scale0);
+
+  --brc-elevation-elevation4-y: var(--brc-scale-scale4); /*  8px */
+  --brc-elevation-elevation4-blur: var(--brc-scale-scale10); /* 24px */
+  --brc-elevation-elevation4-spread: var(--brc-scale-negative-scale1); /* -2px */
+
+  --brc-elevation-elevation5-y: var(--brc-scale-scale6); /* 12px */
+  --brc-elevation-elevation5-blur: var(--brc-scale-scale11); /* 32px */
+  --brc-elevation-elevation5-spread: var(--brc-scale-negative-scale1); /* -2px */
+}

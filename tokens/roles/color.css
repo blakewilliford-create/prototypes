@@ -1,0 +1,545 @@
+/* =============================================================================
+   L2 — ROLES / COLOR
+   Semantic color aliases. Dark mode is default (:root).
+   Light mode overrides via [data-theme="light"].
+   ============================================================================= */
+
+:root {
+  color-scheme: dark;
+
+  --brc-color-alpha: var(--brc-color-base-gray-0-alpha2);
+
+  /* ── Neutral ──────────────────────────────────────────────────────────────*/
+  --brc-color-neutral-background: var(--brc-color-base-gray-850-alpha6);
+  --brc-color-neutral-backgroundInverse: var(--brc-color-base-gray-50);
+  --brc-color-neutral-backgroundStrong: var(--brc-color-base-gray-900);
+  --brc-color-neutral-backgroundSubtle: var(--brc-color-base-gray-750);
+
+  --brc-color-neutral-border: var(--brc-color-base-gray-600);
+  --brc-color-neutral-borderMuted: var(--brc-color-base-gray-850-alpha7);
+  --brc-color-neutral-borderStrong: var(--brc-color-base-gray-300);
+  --brc-color-neutral-borderSubtle: var(--brc-color-base-gray-800);
+
+  --brc-color-neutral-foreground: var(--brc-color-base-gray-25);
+  --brc-color-neutral-foregroundInverse: var(--brc-color-base-gray-1000);
+  --brc-color-neutral-foregroundMuted: var(--brc-color-base-gray-400);
+  --brc-color-neutral-foregroundStrong: var(--brc-color-base-gray-0);
+  --brc-color-neutral-foregroundSubtle: var(--brc-color-base-gray-150);
+
+  --brc-color-neutral-surface: var(--brc-color-base-gray-800);
+  --brc-color-neutral-surfaceInverse: var(--brc-color-base-gray-25);
+  --brc-color-neutral-surfaceMuted: var(--brc-color-base-gray-850-alpha6);
+  --brc-color-neutral-surfaceStrong: var(--brc-color-base-gray-900);
+  --brc-color-neutral-surfaceSubtle: var(--brc-color-base-gray-700);
+
+  /* ── Interactive / Accent ────────────────────────────────────────────────*/
+  --brc-color-interactive-accent-default-background: var(--brc-color-turquoise-600);
+  --brc-color-interactive-accent-default-backgroundInverse: var(--brc-color-turquoise-500-alpha1);
+  --brc-color-interactive-accent-default-border: var(--brc-color-turquoise-700);
+  --brc-color-interactive-accent-default-borderInverse: var(--brc-color-turquoise-700);
+  --brc-color-interactive-accent-default-foreground: var(--brc-color-base-gray-800);
+  --brc-color-interactive-accent-default-foregroundInverse: var(--brc-color-turquoise-300);
+
+  --brc-color-interactive-accent-hover-background: var(--brc-color-turquoise-400);
+  --brc-color-interactive-accent-hover-backgroundInverse: var(--brc-color-base-gray-850);
+  --brc-color-interactive-accent-hover-border: var(--brc-color-turquoise-200);
+  --brc-color-interactive-accent-hover-borderInverse: var(--brc-color-turquoise-200);
+  --brc-color-interactive-accent-hover-foreground: var(--brc-color-base-gray-800);
+  --brc-color-interactive-accent-hover-foregroundInverse: var(--brc-color-turquoise-400);
+
+  --brc-color-interactive-accent-active-background: var(--brc-color-turquoise-700);
+  --brc-color-interactive-accent-active-backgroundInverse: var(--brc-color-base-gray-700);
+  --brc-color-interactive-accent-active-border: var(--brc-color-turquoise-200);
+  --brc-color-interactive-accent-active-borderInverse: var(--brc-color-turquoise-200);
+  --brc-color-interactive-accent-active-foreground: var(--brc-color-base-gray-25);
+  --brc-color-interactive-accent-active-foregroundInverse: var(--brc-color-turquoise-700);
+
+  --brc-color-interactive-accent-focus-background: var(--brc-color-turquoise-500);
+  --brc-color-interactive-accent-focus-backgroundInverse: var(--brc-color-base-gray-700);
+  --brc-color-interactive-accent-focus-border: var(--brc-color-turquoise-600);
+  --brc-color-interactive-accent-focus-borderInverse: var(--brc-color-turquoise-600);
+  --brc-color-interactive-accent-focus-foreground: var(--brc-color-base-gray-800);
+  --brc-color-interactive-accent-focus-foregroundInverse: var(--brc-color-turquoise-100);
+
+  --brc-color-interactive-accent-disabled-background: var(--brc-color-turquoise-900);
+  --brc-color-interactive-accent-disabled-backgroundInverse: var(--brc-color-turquoise-500-alpha1);
+  --brc-color-interactive-accent-disabled-border: var(--brc-color-turquoise-700);
+  --brc-color-interactive-accent-disabled-borderInverse: var(--brc-color-turquoise-700);
+  --brc-color-interactive-accent-disabled-foreground: var(--brc-color-base-gray-300);
+  --brc-color-interactive-accent-disabled-foregroundInverse: var(--brc-color-base-gray-400);
+
+  --brc-color-interactive-accent-loading-background: var(--brc-color-turquoise-600);
+  --brc-color-interactive-accent-loading-backgroundInverse: var(--brc-color-turquoise-500-alpha1);
+  --brc-color-interactive-accent-loading-border: var(--brc-color-turquoise-700);
+  --brc-color-interactive-accent-loading-borderInverse: var(--brc-color-turquoise-700);
+  --brc-color-interactive-accent-loading-foreground: var(--brc-color-base-gray-800);
+  --brc-color-interactive-accent-loading-foregroundInverse: var(--brc-color-turquoise-300);
+
+  /* ── Interactive / Primary ───────────────────────────────────────────────*/
+  --brc-color-interactive-primary-default-background: var(--brc-color-teal-600);
+  --brc-color-interactive-primary-default-backgroundInverse: var(--brc-color-teal-600-alpha1);
+  --brc-color-interactive-primary-default-border: var(--brc-color-teal-700);
+  --brc-color-interactive-primary-default-borderInverse: var(--brc-color-teal-700);
+  --brc-color-interactive-primary-default-foreground: var(--brc-color-base-gray-25);
+  --brc-color-interactive-primary-default-foregroundInverse: var(--brc-color-teal-300);
+
+  --brc-color-interactive-primary-hover-background: var(--brc-color-teal-400);
+  --brc-color-interactive-primary-hover-backgroundInverse: var(--brc-color-teal-600-alpha2);
+  --brc-color-interactive-primary-hover-border: var(--brc-color-teal-200);
+  --brc-color-interactive-primary-hover-borderInverse: var(--brc-color-teal-200);
+  --brc-color-interactive-primary-hover-foreground: var(--brc-color-base-gray-25);
+  --brc-color-interactive-primary-hover-foregroundInverse: var(--brc-color-teal-400);
+
+  --brc-color-interactive-primary-active-background: var(--brc-color-teal-900);
+  --brc-color-interactive-primary-active-backgroundInverse: var(--brc-color-teal-600-alpha3);
+  --brc-color-interactive-primary-active-border: var(--brc-color-teal-200);
+  --brc-color-interactive-primary-active-borderInverse: var(--brc-color-teal-300);
+  --brc-color-interactive-primary-active-foreground: var(--brc-color-base-gray-25);
+  --brc-color-interactive-primary-active-foregroundInverse: var(--brc-color-teal-300);
+
+  --brc-color-interactive-primary-focus-background: var(--brc-color-teal-500);
+  --brc-color-interactive-primary-focus-backgroundInverse: var(--brc-color-base-gray-700);
+  --brc-color-interactive-primary-focus-border: var(--brc-color-teal-600);
+  --brc-color-interactive-primary-focus-borderInverse: var(--brc-color-teal-600);
+  --brc-color-interactive-primary-focus-foreground: var(--brc-color-base-gray-25);
+  --brc-color-interactive-primary-focus-foregroundInverse: var(--brc-color-teal-100);
+
+  --brc-color-interactive-primary-disabled-background: var(--brc-color-teal-900);
+  --brc-color-interactive-primary-disabled-backgroundInverse: var(--brc-color-base-gray-850);
+  --brc-color-interactive-primary-disabled-border: var(--brc-color-teal-700);
+  --brc-color-interactive-primary-disabled-borderInverse: var(--brc-color-teal-700);
+  --brc-color-interactive-primary-disabled-foreground: var(--brc-color-base-gray-400);
+  --brc-color-interactive-primary-disabled-foregroundInverse: var(--brc-color-base-gray-400);
+
+  --brc-color-interactive-primary-loading-background: var(--brc-color-teal-600);
+  --brc-color-interactive-primary-loading-backgroundInverse: var(--brc-color-teal-600-alpha1);
+  --brc-color-interactive-primary-loading-border: var(--brc-color-teal-700);
+  --brc-color-interactive-primary-loading-borderInverse: var(--brc-color-teal-700);
+  --brc-color-interactive-primary-loading-foreground: var(--brc-color-base-gray-25);
+  --brc-color-interactive-primary-loading-foregroundInverse: var(--brc-color-teal-300);
+
+  /* ── Interactive / Secondary ─────────────────────────────────────────────*/
+  --brc-color-interactive-secondary-default-background: var(--brc-color-gray-600);
+  --brc-color-interactive-secondary-default-backgroundInverse: var(
+    --brc-color-base-gray-500-alpha3
+  );
+  --brc-color-interactive-secondary-default-border: var(--brc-color-gray-700);
+  --brc-color-interactive-secondary-default-borderInverse: var(--brc-color-gray-700);
+  --brc-color-interactive-secondary-default-foreground: var(--brc-color-base-gray-25);
+  --brc-color-interactive-secondary-default-foregroundInverse: var(--brc-color-base-gray-25);
+
+  --brc-color-interactive-secondary-hover-background: var(--brc-color-gray-400);
+  --brc-color-interactive-secondary-hover-backgroundInverse: var(--brc-color-gray-500-alpha3);
+  --brc-color-interactive-secondary-hover-border: var(--brc-color-gray-200);
+  --brc-color-interactive-secondary-hover-borderInverse: var(--brc-color-gray-200);
+  --brc-color-interactive-secondary-hover-foreground: var(--brc-color-base-gray-25);
+  --brc-color-interactive-secondary-hover-foregroundInverse: var(--brc-color-base-gray-25);
+
+  --brc-color-interactive-secondary-active-background: var(--brc-color-gray-700);
+  --brc-color-interactive-secondary-active-backgroundInverse: var(--brc-color-gray-500-alpha5);
+  --brc-color-interactive-secondary-active-border: var(--brc-color-gray-200);
+  --brc-color-interactive-secondary-active-borderInverse: var(--brc-color-gray-200);
+  --brc-color-interactive-secondary-active-foreground: var(--brc-color-base-gray-25);
+  --brc-color-interactive-secondary-active-foregroundInverse: var(--brc-color-base-gray-25);
+
+  --brc-color-interactive-secondary-focus-background: var(--brc-color-gray-500);
+  --brc-color-interactive-secondary-focus-backgroundInverse: var(--brc-color-base-gray-700);
+  --brc-color-interactive-secondary-focus-border: var(--brc-color-gray-600);
+  --brc-color-interactive-secondary-focus-borderInverse: var(--brc-color-gray-600);
+  --brc-color-interactive-secondary-focus-foreground: var(--brc-color-base-gray-25);
+  --brc-color-interactive-secondary-focus-foregroundInverse: var(--brc-color-base-gray-25);
+
+  --brc-color-interactive-secondary-disabled-background: var(--brc-color-gray-900);
+  --brc-color-interactive-secondary-disabled-backgroundInverse: var(
+    --brc-color-base-gray-500-alpha1
+  );
+  --brc-color-interactive-secondary-disabled-border: var(--brc-color-gray-700);
+  --brc-color-interactive-secondary-disabled-borderInverse: var(--brc-color-gray-700);
+  --brc-color-interactive-secondary-disabled-foreground: var(--brc-color-base-gray-400);
+  --brc-color-interactive-secondary-disabled-foregroundInverse: var(--brc-color-base-gray-400);
+
+  --brc-color-interactive-secondary-loading-background: var(--brc-color-gray-600);
+  --brc-color-interactive-secondary-loading-backgroundInverse: var(
+    --brc-color-base-gray-500-alpha3
+  );
+  --brc-color-interactive-secondary-loading-border: var(--brc-color-gray-700);
+  --brc-color-interactive-secondary-loading-borderInverse: var(--brc-color-gray-700);
+  --brc-color-interactive-secondary-loading-foreground: var(--brc-color-base-gray-25);
+  --brc-color-interactive-secondary-loading-foregroundInverse: var(--brc-color-base-gray-25);
+
+  /* ── Interactive / Destructive ───────────────────────────────────────────*/
+  --brc-color-interactive-destructive-default-background: var(--brc-color-red-600);
+  --brc-color-interactive-destructive-default-backgroundInverse: var(--brc-color-red-500-alpha2);
+  --brc-color-interactive-destructive-default-border: var(--brc-color-red-700);
+  --brc-color-interactive-destructive-default-borderInverse: var(--brc-color-red-500);
+  --brc-color-interactive-destructive-default-foreground: var(--brc-color-base-gray-25);
+  --brc-color-interactive-destructive-default-foregroundInverse: var(--brc-color-red-500);
+
+  --brc-color-interactive-destructive-hover-background: var(--brc-color-red-700);
+  --brc-color-interactive-destructive-hover-backgroundInverse: var(--brc-color-red-500-alpha4);
+  --brc-color-interactive-destructive-hover-border: var(--brc-color-red-600);
+  --brc-color-interactive-destructive-hover-borderInverse: var(--brc-color-red-500);
+  --brc-color-interactive-destructive-hover-foreground: var(--brc-color-base-gray-25);
+  --brc-color-interactive-destructive-hover-foregroundInverse: var(--brc-color-red-400);
+
+  --brc-color-interactive-destructive-active-background: var(--brc-color-red-700);
+  --brc-color-interactive-destructive-active-backgroundInverse: var(--brc-color-red-500-alpha3);
+  --brc-color-interactive-destructive-active-border: var(--brc-color-red-700);
+  --brc-color-interactive-destructive-active-borderInverse: var(--brc-color-red-700);
+  --brc-color-interactive-destructive-active-foreground: var(--brc-color-base-gray-25);
+  --brc-color-interactive-destructive-active-foregroundInverse: var(--brc-color-red-400);
+
+  --brc-color-interactive-destructive-focus-background: var(--brc-color-red-600);
+  --brc-color-interactive-destructive-focus-backgroundInverse: var(--brc-color-base-gray-700);
+  --brc-color-interactive-destructive-focus-border: var(--brc-color-red-400);
+  --brc-color-interactive-destructive-focus-borderInverse: var(--brc-color-red-600);
+  --brc-color-interactive-destructive-focus-foreground: var(--brc-color-base-gray-25);
+  --brc-color-interactive-destructive-focus-foregroundInverse: var(--brc-color-red-400);
+
+  --brc-color-interactive-destructive-disabled-background: var(--brc-color-red-900);
+  --brc-color-interactive-destructive-disabled-backgroundInverse: var(--brc-color-red-500-alpha1);
+  --brc-color-interactive-destructive-disabled-border: var(--brc-color-red-900);
+  --brc-color-interactive-destructive-disabled-borderInverse: var(--brc-color-red-900);
+  --brc-color-interactive-destructive-disabled-foreground: var(--brc-color-base-gray-400);
+  --brc-color-interactive-destructive-disabled-foregroundInverse: var(--brc-color-base-gray-400);
+
+  --brc-color-interactive-destructive-loading-background: var(--brc-color-red-600);
+  --brc-color-interactive-destructive-loading-backgroundInverse: var(--brc-color-red-500-alpha2);
+  --brc-color-interactive-destructive-loading-border: var(--brc-color-red-700);
+  --brc-color-interactive-destructive-loading-borderInverse: var(--brc-color-red-500);
+  --brc-color-interactive-destructive-loading-foreground: var(--brc-color-base-gray-25);
+  --brc-color-interactive-destructive-loading-foregroundInverse: var(--brc-color-red-500);
+
+  /* ── Intent / Actionable ─────────────────────────────────────────────────*/
+  --brc-color-intent-actionable-background: var(--brc-color-turquoise-500-alpha4);
+  --brc-color-intent-actionable-backgroundInverse: var(--brc-color-turquoise-500-alpha1);
+  --brc-color-intent-actionable-backgroundStrong: var(--brc-color-turquoise-600);
+  --brc-color-intent-actionable-border: var(--brc-color-turquoise-500-alpha4);
+  --brc-color-intent-actionable-borderInverse: var(--brc-color-turquoise-700);
+  --brc-color-intent-actionable-borderStrong: var(--brc-color-turquoise-400);
+  --brc-color-intent-actionable-foreground: var(--brc-color-base-gray-700);
+  --brc-color-intent-actionable-foregroundInverse: var(--brc-color-turquoise-400);
+  --brc-color-intent-actionable-foregroundStrong: var(--brc-color-base-gray-850);
+  --brc-color-intent-actionable-foregroundSubtle: var(--brc-color-turquoise-200);
+  --brc-color-intent-actionable-surface: var(--brc-color-turquoise-200);
+
+  /* ── Intent / Neutral ────────────────────────────────────────────────────*/
+  --brc-color-intent-neutral-background: var(--brc-color-gray-500-alpha2);
+  --brc-color-intent-neutral-backgroundInverse: var(--brc-color-gray-500-alpha1);
+  --brc-color-intent-neutral-backgroundStrong: var(--brc-color-gray-400);
+  --brc-color-intent-neutral-border: var(--brc-color-gray-500-alpha5);
+  --brc-color-intent-neutral-borderInverse: var(--brc-color-gray-400);
+  --brc-color-intent-neutral-borderStrong: var(--brc-color-gray-300);
+  --brc-color-intent-neutral-foreground: var(--brc-color-gray-50);
+  --brc-color-intent-neutral-foregroundInverse: var(--brc-color-base-gray-100);
+  --brc-color-intent-neutral-foregroundStrong: var(--brc-color-base-gray-850);
+  --brc-color-intent-neutral-foregroundSubtle: var(--brc-color-base-gray-150);
+  --brc-color-intent-neutral-surface: var(--brc-color-gray-200);
+
+  /* ── Intent / Critical ───────────────────────────────────────────────────*/
+  --brc-color-intent-critical-background: var(--brc-color-red-500-alpha4);
+  --brc-color-intent-critical-backgroundInverse: var(--brc-color-red-500-alpha1);
+  --brc-color-intent-critical-backgroundStrong: var(--brc-color-red-400);
+  --brc-color-intent-critical-border: var(--brc-color-red-500-alpha4);
+  --brc-color-intent-critical-borderInverse: var(--brc-color-red-500);
+  --brc-color-intent-critical-borderStrong: var(--brc-color-red-500);
+  --brc-color-intent-critical-foreground: var(--brc-color-base-gray-700);
+  --brc-color-intent-critical-foregroundInverse: var(--brc-color-red-500);
+  --brc-color-intent-critical-foregroundStrong: var(--brc-color-base-gray-850);
+  --brc-color-intent-critical-foregroundSubtle: var(--brc-color-red-200);
+  --brc-color-intent-critical-surface: var(--brc-color-red-200);
+
+  /* ── Intent / Warning ────────────────────────────────────────────────────*/
+  --brc-color-intent-warning-background: var(--brc-color-yellow-500-alpha4);
+  --brc-color-intent-warning-backgroundInverse: var(--brc-color-yellow-500-alpha1);
+  --brc-color-intent-warning-backgroundStrong: var(--brc-color-yellow-300);
+  --brc-color-intent-warning-border: var(--brc-color-yellow-500-alpha4);
+  --brc-color-intent-warning-borderInverse: var(--brc-color-yellow-300);
+  --brc-color-intent-warning-borderStrong: var(--brc-color-yellow-500);
+  --brc-color-intent-warning-foreground: var(--brc-color-base-gray-700);
+  --brc-color-intent-warning-foregroundInverse: var(--brc-color-yellow-400);
+  --brc-color-intent-warning-foregroundStrong: var(--brc-color-base-gray-850);
+  --brc-color-intent-warning-foregroundSubtle: var(--brc-color-yellow-100);
+  --brc-color-intent-warning-surface: var(--brc-color-yellow-200);
+
+  /* ── Intent / Info ───────────────────────────────────────────────────────*/
+  --brc-color-intent-info-background: var(--brc-color-blue-500-alpha4);
+  --brc-color-intent-info-backgroundInverse: var(--brc-color-blue-500-alpha1);
+  --brc-color-intent-info-backgroundStrong: var(--brc-color-blue-400);
+  --brc-color-intent-info-border: var(--brc-color-blue-500-alpha4);
+  --brc-color-intent-info-borderInverse: var(--brc-color-blue-500);
+  --brc-color-intent-info-borderStrong: var(--brc-color-blue-500);
+  --brc-color-intent-info-foreground: var(--brc-color-base-gray-700);
+  --brc-color-intent-info-foregroundInverse: var(--brc-color-blue-400);
+  --brc-color-intent-info-foregroundStrong: var(--brc-color-base-gray-850);
+  --brc-color-intent-info-foregroundSubtle: var(--brc-color-blue-200);
+  --brc-color-intent-info-surface: var(--brc-color-blue-200);
+
+  /* ── Intent / Positive ───────────────────────────────────────────────────*/
+  --brc-color-intent-positive-background: var(--brc-color-green-500-alpha4);
+  --brc-color-intent-positive-backgroundInverse: var(--brc-color-green-500-alpha1);
+  --brc-color-intent-positive-backgroundStrong: var(--brc-color-green-300);
+  --brc-color-intent-positive-border: var(--brc-color-green-500-alpha4);
+  --brc-color-intent-positive-borderInverse: var(--brc-color-green-300);
+  --brc-color-intent-positive-borderStrong: var(--brc-color-green-500);
+  --brc-color-intent-positive-foreground: var(--brc-color-base-gray-700);
+  --brc-color-intent-positive-foregroundInverse: var(--brc-color-green-400);
+  --brc-color-intent-positive-foregroundStrong: var(--brc-color-base-gray-850);
+  --brc-color-intent-positive-foregroundSubtle: var(--brc-color-green-100);
+  --brc-color-intent-positive-surface: var(--brc-color-green-200);
+}
+
+/* =============================================================================
+   LIGHT MODE OVERRIDES
+   ============================================================================= */
+
+[data-theme='light'] {
+  color-scheme: light;
+
+  --brc-color-alpha: var(--brc-color-base-sage-500-alpha4);
+
+  /* ── Neutral ────────────────────────────────────────────────────────────── */
+  --brc-color-neutral-background: var(--brc-color-base-sage-25);
+  --brc-color-neutral-backgroundInverse: var(--brc-color-base-gray-1000);
+  --brc-color-neutral-backgroundStrong: var(--brc-color-base-gray-1000);
+  --brc-color-neutral-backgroundSubtle: var(--brc-color-base-gray-1000);
+
+  --brc-color-neutral-border: var(--brc-color-base-sage-200);
+  --brc-color-neutral-borderMuted: var(--brc-color-base-sage-200);
+  --brc-color-neutral-borderStrong: var(--brc-color-base-sage-500);
+  --brc-color-neutral-borderSubtle: var(--brc-color-base-sage-150);
+
+  --brc-color-neutral-foreground: var(--brc-color-base-gray-700);
+  --brc-color-neutral-foregroundInverse: var(--brc-color-base-gray-500);
+  --brc-color-neutral-foregroundMuted: var(--brc-color-base-sage-850);
+  --brc-color-neutral-foregroundStrong: var(--brc-color-base-gray-1000);
+  --brc-color-neutral-foregroundSubtle: var(--brc-color-base-gray-500);
+
+  --brc-color-neutral-surface: var(--brc-color-base-sage-75);
+  --brc-color-neutral-surfaceInverse: var(--brc-color-base-gray-850);
+  --brc-color-neutral-surfaceMuted: var(--brc-color-base-sage-150);
+  --brc-color-neutral-surfaceStrong: var(--brc-color-base-sage-300);
+  --brc-color-neutral-surfaceSubtle: var(--brc-color-base-sage-50);
+
+  /* ── Interactive / Accent ─────────────────────────────────────────────── */
+  --brc-color-interactive-accent-default-background: var(--brc-color-turquoise-500);
+  --brc-color-interactive-accent-default-backgroundInverse: var(--brc-color-base-gray-800);
+  --brc-color-interactive-accent-default-border: var(--brc-color-turquoise-400);
+  --brc-color-interactive-accent-default-borderInverse: var(--brc-color-turquoise-400);
+  --brc-color-interactive-accent-default-foreground: var(--brc-color-base-gray-50);
+  --brc-color-interactive-accent-default-foregroundInverse: var(--brc-color-turquoise-300);
+
+  --brc-color-interactive-accent-hover-background: var(--brc-color-turquoise-500);
+  --brc-color-interactive-accent-hover-backgroundInverse: var(--brc-color-base-gray-900);
+  --brc-color-interactive-accent-hover-border: var(--brc-color-turquoise-300);
+  --brc-color-interactive-accent-hover-borderInverse: var(--brc-color-turquoise-300);
+  --brc-color-interactive-accent-hover-foreground: var(--brc-color-base-gray-800);
+  --brc-color-interactive-accent-hover-foregroundInverse: var(--brc-color-turquoise-500);
+
+  --brc-color-interactive-accent-active-background: var(--brc-color-turquoise-700);
+  --brc-color-interactive-accent-active-backgroundInverse: var(--brc-color-turquoise-900);
+  --brc-color-interactive-accent-active-border: var(--brc-color-turquoise-300);
+  --brc-color-interactive-accent-active-borderInverse: var(--brc-color-turquoise-300);
+  --brc-color-interactive-accent-active-foreground: var(--brc-color-base-gray-0);
+  --brc-color-interactive-accent-active-foregroundInverse: var(--brc-color-turquoise-700);
+
+  --brc-color-interactive-accent-focus-background: var(--brc-color-turquoise-500);
+  --brc-color-interactive-accent-focus-backgroundInverse: var(--brc-color-base-gray-800);
+  --brc-color-interactive-accent-focus-border: var(--brc-color-turquoise-700);
+  --brc-color-interactive-accent-focus-borderInverse: var(--brc-color-turquoise-700);
+  --brc-color-interactive-accent-focus-foreground: var(--brc-color-base-gray-0);
+  --brc-color-interactive-accent-focus-foregroundInverse: var(--brc-color-turquoise-100);
+
+  --brc-color-interactive-accent-disabled-background: var(--brc-color-turquoise-900);
+  --brc-color-interactive-accent-disabled-backgroundInverse: var(--brc-color-base-gray-800);
+  --brc-color-interactive-accent-disabled-border: var(--brc-color-turquoise-700);
+  --brc-color-interactive-accent-disabled-borderInverse: var(--brc-color-turquoise-700);
+  --brc-color-interactive-accent-disabled-foreground: var(--brc-color-base-gray-300);
+  --brc-color-interactive-accent-disabled-foregroundInverse: var(--brc-color-base-gray-300);
+
+  /* ── Interactive / Primary ────────────────────────────────────────────── */
+  --brc-color-interactive-primary-default-background: var(--brc-color-teal-500);
+  --brc-color-interactive-primary-default-backgroundInverse: var(--brc-color-base-gray-25);
+  --brc-color-interactive-primary-default-border: var(--brc-color-teal-300);
+  --brc-color-interactive-primary-default-borderInverse: var(--brc-color-teal-300);
+  --brc-color-interactive-primary-default-foreground: var(--brc-color-base-gray-25);
+  --brc-color-interactive-primary-default-foregroundInverse: var(--brc-color-teal-300);
+
+  --brc-color-interactive-primary-hover-background: var(--brc-color-teal-400);
+  --brc-color-interactive-primary-hover-backgroundInverse: var(--brc-color-base-gray-900);
+  --brc-color-interactive-primary-hover-border: var(--brc-color-teal-200);
+  --brc-color-interactive-primary-hover-borderInverse: var(--brc-color-teal-200);
+  --brc-color-interactive-primary-hover-foreground: var(--brc-color-base-gray-25);
+  --brc-color-interactive-primary-hover-foregroundInverse: var(--brc-color-teal-400);
+
+  --brc-color-interactive-primary-active-background: var(--brc-color-teal-700);
+  --brc-color-interactive-primary-active-backgroundInverse: var(--brc-color-teal-900);
+  --brc-color-interactive-primary-active-border: var(--brc-color-teal-300);
+  --brc-color-interactive-primary-active-borderInverse: var(--brc-color-teal-300);
+  --brc-color-interactive-primary-active-foreground: var(--brc-color-base-gray-25);
+  --brc-color-interactive-primary-active-foregroundInverse: var(--brc-color-teal-700);
+
+  --brc-color-interactive-primary-focus-background: var(--brc-color-teal-500);
+  --brc-color-interactive-primary-focus-backgroundInverse: var(--brc-color-base-gray-800);
+  --brc-color-interactive-primary-focus-border: var(--brc-color-teal-700);
+  --brc-color-interactive-primary-focus-borderInverse: var(--brc-color-teal-700);
+  --brc-color-interactive-primary-focus-foreground: var(--brc-color-base-gray-25);
+  --brc-color-interactive-primary-focus-foregroundInverse: var(--brc-color-teal-100);
+
+  --brc-color-interactive-primary-disabled-background: var(--brc-color-teal-900);
+  --brc-color-interactive-primary-disabled-backgroundInverse: var(--brc-color-base-gray-800);
+  --brc-color-interactive-primary-disabled-border: var(--brc-color-teal-700);
+  --brc-color-interactive-primary-disabled-borderInverse: var(--brc-color-teal-700);
+  --brc-color-interactive-primary-disabled-foreground: var(--brc-color-base-gray-300);
+  --brc-color-interactive-primary-disabled-foregroundInverse: var(--brc-color-base-gray-300);
+
+  /* ── Interactive / Secondary ──────────────────────────────────────────── */
+  --brc-color-interactive-secondary-default-background: var(--brc-color-gray-500);
+  --brc-color-interactive-secondary-default-backgroundInverse: var(--brc-color-base-sage-25);
+  --brc-color-interactive-secondary-default-border: var(--brc-color-gray-500);
+  --brc-color-interactive-secondary-default-borderInverse: var(--brc-color-gray-500);
+  --brc-color-interactive-secondary-default-foreground: var(--brc-color-base-sage-25);
+  --brc-color-interactive-secondary-default-foregroundInverse: var(--brc-color-base-gray-700);
+
+  --brc-color-interactive-secondary-hover-background: var(--brc-color-gray-500);
+  --brc-color-interactive-secondary-hover-backgroundInverse: var(--brc-color-base-sage-50);
+  --brc-color-interactive-secondary-hover-border: var(--brc-color-gray-500);
+  --brc-color-interactive-secondary-hover-borderInverse: var(--brc-color-base-sage-0);
+  --brc-color-interactive-secondary-hover-foreground: var(--brc-color-base-gray-900);
+  --brc-color-interactive-secondary-hover-foregroundInverse: var(--brc-color-base-gray-850);
+
+  --brc-color-interactive-secondary-active-background: var(--brc-color-gray-700);
+  --brc-color-interactive-secondary-active-backgroundInverse: var(--brc-color-gray-900);
+  --brc-color-interactive-secondary-active-border: var(--brc-color-gray-400);
+  --brc-color-interactive-secondary-active-borderInverse: var(--brc-color-gray-400);
+  --brc-color-interactive-secondary-active-foreground: var(--brc-color-base-sage-25);
+  --brc-color-interactive-secondary-active-foregroundInverse: var(--brc-color-gray-700);
+
+  --brc-color-interactive-secondary-focus-background: var(--brc-color-gray-500);
+  --brc-color-interactive-secondary-focus-backgroundInverse: var(--brc-color-base-gray-800);
+  --brc-color-interactive-secondary-focus-border: var(--brc-color-gray-700);
+  --brc-color-interactive-secondary-focus-borderInverse: var(--brc-color-base-sage-0);
+  --brc-color-interactive-secondary-focus-foreground: var(--brc-color-base-sage-25);
+  --brc-color-interactive-secondary-focus-foregroundInverse: var(--brc-color-gray-500);
+
+  --brc-color-interactive-secondary-disabled-background: var(--brc-color-gray-900);
+  --brc-color-interactive-secondary-disabled-backgroundInverse: var(--brc-color-base-sage-25);
+  --brc-color-interactive-secondary-disabled-border: var(--brc-color-gray-100);
+  --brc-color-interactive-secondary-disabled-borderInverse: var(--brc-color-base-sage-0);
+  --brc-color-interactive-secondary-disabled-foreground: var(--brc-color-base-gray-200);
+  --brc-color-interactive-secondary-disabled-foregroundInverse: var(--brc-color-base-gray-400);
+
+  /* ── Interactive / Destructive ──────────────────────────────────────────── */
+  --brc-color-interactive-destructive-default-background: var(--brc-color-red-600);
+  --brc-color-interactive-destructive-default-backgroundInverse: var(--brc-color-red-500-alpha3);
+  --brc-color-interactive-destructive-default-border: var(--brc-color-red-700);
+  --brc-color-interactive-destructive-default-borderInverse: var(--brc-color-red-500);
+  --brc-color-interactive-destructive-default-foreground: var(--brc-color-base-sage-25);
+  --brc-color-interactive-destructive-default-foregroundInverse: var(--brc-color-red-600);
+
+  --brc-color-interactive-destructive-hover-background: var(--brc-color-red-700);
+  --brc-color-interactive-destructive-hover-backgroundInverse: var(--brc-color-red-500-alpha3);
+  --brc-color-interactive-destructive-hover-border: var(--brc-color-red-200);
+  --brc-color-interactive-destructive-hover-borderInverse: var(--brc-color-base-sage-0);
+  --brc-color-interactive-destructive-hover-foreground: var(--brc-color-base-gray-900);
+  --brc-color-interactive-destructive-hover-foregroundInverse: var(--brc-color-red-600);
+
+  --brc-color-interactive-destructive-active-background: var(--brc-color-red-900);
+  --brc-color-interactive-destructive-active-backgroundInverse: var(--brc-color-red-500-alpha5);
+  --brc-color-interactive-destructive-active-border: var(--brc-color-red-400);
+  --brc-color-interactive-destructive-active-borderInverse: var(--brc-color-red-400);
+  --brc-color-interactive-destructive-active-foreground: var(--brc-color-base-sage-25);
+  --brc-color-interactive-destructive-active-foregroundInverse: var(--brc-color-red-600);
+
+  --brc-color-interactive-destructive-focus-background: var(--brc-color-red-500);
+  --brc-color-interactive-destructive-focus-backgroundInverse: var(--brc-color-base-gray-25);
+  --brc-color-interactive-destructive-focus-border: var(--brc-color-red-700);
+  --brc-color-interactive-destructive-focus-borderInverse: var(--brc-color-red-600);
+  --brc-color-interactive-destructive-focus-foreground: var(--brc-color-base-sage-25);
+  --brc-color-interactive-destructive-focus-foregroundInverse: var(--brc-color-red-600);
+
+  --brc-color-interactive-destructive-disabled-background: var(--brc-color-red-900);
+  --brc-color-interactive-destructive-disabled-backgroundInverse: var(--brc-color-red-500-alpha1);
+  --brc-color-interactive-destructive-disabled-border: var(--brc-color-red-700);
+  --brc-color-interactive-destructive-disabled-borderInverse: var(--brc-color-base-sage-0);
+  --brc-color-interactive-destructive-disabled-foreground: var(--brc-color-base-gray-200);
+  --brc-color-interactive-destructive-disabled-foregroundInverse: var(--brc-color-base-gray-400);
+
+  /* ── Intent / Actionable ─────────────────────────────────────────────── */
+  --brc-color-intent-actionable-background: var(--brc-color-turquoise-500);
+  --brc-color-intent-actionable-backgroundInverse: var(--brc-color-base-gray-800);
+  --brc-color-intent-actionable-backgroundStrong: var(--brc-color-base-gray-800);
+  --brc-color-intent-actionable-border: var(--brc-color-turquoise-400);
+  --brc-color-intent-actionable-borderInverse: var(--brc-color-turquoise-400);
+  --brc-color-intent-actionable-borderStrong: var(--brc-color-turquoise-900);
+  --brc-color-intent-actionable-foreground: var(--brc-color-base-gray-700);
+  --brc-color-intent-actionable-foregroundInverse: var(--brc-color-turquoise-50);
+  --brc-color-intent-actionable-foregroundStrong: var(--brc-color-base-gray-850);
+  --brc-color-intent-actionable-foregroundSubtle: var(--brc-color-turquoise-100);
+  --brc-color-intent-actionable-surface: var(--brc-color-turquoise-200);
+
+  /* ── Intent / Neutral ────────────────────────────────────────────────── */
+  --brc-color-intent-neutral-background: var(--brc-color-gray-400);
+  --brc-color-intent-neutral-backgroundInverse: var(--brc-color-base-gray-800);
+  --brc-color-intent-neutral-backgroundStrong: var(--brc-color-base-gray-800);
+  --brc-color-intent-neutral-border: var(--brc-color-gray-400);
+  --brc-color-intent-neutral-borderInverse: var(--brc-color-gray-400);
+  --brc-color-intent-neutral-borderStrong: var(--brc-color-gray-700);
+  --brc-color-intent-neutral-foreground: var(--brc-color-gray-700);
+  --brc-color-intent-neutral-foregroundInverse: var(--brc-color-base-gray-200);
+  --brc-color-intent-neutral-foregroundStrong: var(--brc-color-base-gray-850);
+  --brc-color-intent-neutral-foregroundSubtle: var(--brc-color-gray-300);
+  --brc-color-intent-neutral-surface: var(--brc-color-gray-200);
+
+  /* ── Intent / Critical ───────────────────────────────────────────────── */
+  --brc-color-intent-critical-background: var(--brc-color-red-400);
+  --brc-color-intent-critical-backgroundInverse: var(--brc-color-base-gray-800);
+  --brc-color-intent-critical-backgroundStrong: var(--brc-color-base-gray-800);
+  --brc-color-intent-critical-border: var(--brc-color-red-400);
+  --brc-color-intent-critical-borderInverse: var(--brc-color-red-400);
+  --brc-color-intent-critical-borderStrong: var(--brc-color-red-600);
+  --brc-color-intent-critical-foreground: var(--brc-color-base-gray-700);
+  --brc-color-intent-critical-foregroundInverse: var(--brc-color-red-50);
+  --brc-color-intent-critical-foregroundStrong: var(--brc-color-base-gray-850);
+  --brc-color-intent-critical-foregroundSubtle: var(--brc-color-red-200);
+  --brc-color-intent-critical-surface: var(--brc-color-red-200);
+
+  /* ── Intent / Warning ────────────────────────────────────────────────── */
+  --brc-color-intent-warning-background: var(--brc-color-yellow-400);
+  --brc-color-intent-warning-backgroundInverse: var(--brc-color-base-gray-800);
+  --brc-color-intent-warning-backgroundStrong: var(--brc-color-base-gray-800);
+  --brc-color-intent-warning-border: var(--brc-color-yellow-400);
+  --brc-color-intent-warning-borderInverse: var(--brc-color-yellow-400);
+  --brc-color-intent-warning-borderStrong: var(--brc-color-yellow-500);
+  --brc-color-intent-warning-foreground: var(--brc-color-base-gray-700);
+  --brc-color-intent-warning-foregroundInverse: var(--brc-color-yellow-50);
+  --brc-color-intent-warning-foregroundStrong: var(--brc-color-base-gray-850);
+  --brc-color-intent-warning-foregroundSubtle: var(--brc-color-yellow-100);
+  --brc-color-intent-warning-surface: var(--brc-color-yellow-50);
+
+  /* ── Intent / Info ───────────────────────────────────────────────────── */
+  --brc-color-intent-info-background: var(--brc-color-blue-400);
+  --brc-color-intent-info-backgroundInverse: var(--brc-color-base-gray-800);
+  --brc-color-intent-info-backgroundStrong: var(--brc-color-base-gray-800);
+  --brc-color-intent-info-border: var(--brc-color-blue-400);
+  --brc-color-intent-info-borderInverse: var(--brc-color-blue-400);
+  --brc-color-intent-info-borderStrong: var(--brc-color-blue-700);
+  --brc-color-intent-info-foreground: var(--brc-color-base-gray-700);
+  --brc-color-intent-info-foregroundInverse: var(--brc-color-blue-50);
+  --brc-color-intent-info-foregroundStrong: var(--brc-color-base-gray-850);
+  --brc-color-intent-info-foregroundSubtle: var(--brc-color-blue-100);
+  --brc-color-intent-info-surface: var(--brc-color-blue-200);
+
+  /* ── Intent / Positive ───────────────────────────────────────────────── */
+  --brc-color-intent-positive-background: var(--brc-color-green-400);
+  --brc-color-intent-positive-backgroundInverse: var(--brc-color-base-gray-800);
+  --brc-color-intent-positive-backgroundStrong: var(--brc-color-base-gray-800);
+  --brc-color-intent-positive-border: var(--brc-color-green-400);
+  --brc-color-intent-positive-borderInverse: var(--brc-color-green-400);
+  --brc-color-intent-positive-borderStrong: var(--brc-color-green-500);
+  --brc-color-intent-positive-foreground: var(--brc-color-base-gray-700);
+  --brc-color-intent-positive-foregroundInverse: var(--brc-color-green-50);
+  --brc-color-intent-positive-foregroundStrong: var(--brc-color-base-gray-850);
+  --brc-color-intent-positive-foregroundSubtle: var(--brc-color-green-100);
+  --brc-color-intent-positive-surface: var(--brc-color-green-50);
+}

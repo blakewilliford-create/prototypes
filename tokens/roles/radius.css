@@ -1,0 +1,19 @@
+/* =============================================================================
+   L2 — ROLES / RADIUS
+   Role names match Figma's Radius Roles collection.
+   ============================================================================= */
+
+:root {
+  --brc-radius-radius0: var(--brc-scale-scale0); /*   0px */
+  --brc-radius-radius1: var(--brc-scale-scale1); /*   2px */
+  --brc-radius-radius2: var(--brc-scale-scale2); /*   4px */
+  --brc-radius-radius3: var(--brc-scale-scale3); /*   6px */
+  --brc-radius-radius4: var(--brc-scale-scale4); /*   8px */
+  --brc-radius-radius5: var(--brc-scale-scale5); /*  10px */
+  --brc-radius-radius6: var(--brc-scale-scale6); /*  12px */
+  --brc-radius-radius7: var(--brc-scale-scale7); /*  14px */
+  --brc-radius-radius8: var(--brc-scale-scale8); /*  16px */
+  --brc-radius-radius9: var(--brc-scale-scale9); /*  20px */
+  --brc-radius-radius10: var(--brc-scale-scale10); /*  24px */
+  --brc-radius-radiusRound: var(--brc-scale-scale24); /* 256px — pill/circle */
+}

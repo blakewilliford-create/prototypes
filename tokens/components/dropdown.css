@@ -1,0 +1,29 @@
+/* =============================================================================
+   L3 — COMPONENT / DROPDOWN
+   ============================================================================= */
+
+:root {
+  /* ── Item colors (shared by menuItem and selectItem) ────────────────────── */
+  --brc-dropdown-item-color-default-foreground: var(--brc-color-neutral-foreground);
+  --brc-dropdown-item-color-hover-background: var(
+    --brc-color-interactive-secondary-active-backgroundInverse
+  );
+  --brc-dropdown-item-color-hover-foreground: var(--brc-color-neutral-foreground);
+  --brc-dropdown-item-color-selected-background: var(--brc-color-neutral-surfaceMuted);
+  --brc-dropdown-item-color-selected-foreground: var(--brc-color-neutral-foregroundStrong);
+
+  /* ── Select item ────────────────────────────────────────────────────────── */
+  --brc-dropdown-selectItem-height: var(--brc-space-inset6); /* 24px */
+  --brc-dropdown-selectItem-radius: var(--brc-radius-radius4); /*  8px */
+
+  /* ── Menu item ──────────────────────────────────────────────────────────── */
+  --brc-dropdown-menuItem-height: var(--brc-space-inset7); /* 32px */
+  --brc-dropdown-menuItem-radius: var(--brc-radius-radius5); /* 10px */
+
+  /* ── Dropdown container ─────────────────────────────────────────────────── */
+  --brc-dropdown-dropdown-maxHeight: var(--brc-scale-large-scale27); /* 384px */
+  --brc-dropdown-dropdown-color-background: var(
+    --brc-color-interactive-secondary-hover-backgroundInverse
+  );
+  --brc-dropdown-dropdown-color-divider: var(--brc-color-neutral-border);
+}

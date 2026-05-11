@@ -1,0 +1,11 @@
+/* =============================================================================
+   L2 — ROLES (SEMANTIC)
+   The decision layer. Maps primitives to intent.
+   Only references L1 primitives via var(). Never hardcoded values.
+   ============================================================================= */
+
+@import './color.css';
+@import './elevation.css';
+@import './radius.css';
+@import './space.css';
+@import './typography.css';

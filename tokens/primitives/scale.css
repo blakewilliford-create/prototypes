@@ -1,0 +1,47 @@
+/* =============================================================================
+   L1 — PRIMITIVES / SCALE
+   Shared geometric scale. Used by space, radius, and elevation roles.
+   Ramp: 0 | 2 | 4 | 6 | 8 | 10 | 12 | 14 | 16 | 20 | 24 | 32 | 40 | 48 | 56
+         | 64 | 72 | 80 | 96 | 112 | 128 | 160 | 192 | 224 | 256
+   ============================================================================= */
+
+:root {
+  --brc-scale-scale0: 0px;
+  --brc-scale-scale1: 2px;
+  --brc-scale-scale2: 4px;
+  --brc-scale-scale3: 6px;
+  --brc-scale-scale4: 8px;
+  --brc-scale-scale5: 10px;
+  --brc-scale-scale6: 12px;
+  --brc-scale-scale7: 14px;
+  --brc-scale-scale8: 16px;
+  --brc-scale-scale9: 20px;
+  --brc-scale-scale10: 24px;
+  --brc-scale-scale11: 32px;
+  --brc-scale-scale12: 40px;
+  --brc-scale-scale13: 48px;
+  --brc-scale-scale14: 56px;
+  --brc-scale-scale15: 64px;
+  --brc-scale-scale16: 72px;
+  --brc-scale-scale17: 80px;
+  --brc-scale-scale18: 96px;
+  --brc-scale-scale19: 112px;
+  --brc-scale-scale20: 128px;
+  --brc-scale-scale21: 160px;
+  --brc-scale-scale22: 192px;
+  --brc-scale-scale23: 224px;
+  --brc-scale-scale24: 256px;
+
+  /* ── Negative ──────────────────────────────────────────────────────────── */
+  --brc-scale-negative-scale1: -2px;
+  --brc-scale-negative-scale2: -4px;
+  --brc-scale-negative-scale3: -8px;
+  --brc-scale-negative-scale4: -12px;
+
+  /* ── Large ─────────────────────────────────────────────────────────────── */
+  --brc-scale-large-scale22: 288px;
+  --brc-scale-large-scale23: 320px;
+  --brc-scale-large-scale27: 384px;
+  --brc-scale-large-scale28: 512px;
+  --brc-scale-large-scale29: 640px;
+}

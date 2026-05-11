@@ -1,0 +1,70 @@
+/* =============================================================================
+   L3 — COMPONENT / BUTTON
+   ============================================================================= */
+
+:root {
+  /* ── Sizing ─────────────────────────────────────────────────────────────── */
+  --brc-button-size1-height: var(--brc-space-inset6); /*  24px */
+  --brc-button-size1-radius: var(--brc-radius-radius4); /*   8px */
+  --brc-button-size2-height: var(--brc-space-inset7); /*  32px */
+  --brc-button-size2-radius: var(--brc-radius-radius5); /*  10px */
+  --brc-button-size3-height: var(--brc-space-inset8); /*  40px */
+  --brc-button-size3-radius: var(--brc-radius-radius6); /*  12px */
+  --brc-button-size4-height: var(--brc-space-inset9); /*  48px */
+  --brc-button-size4-radius: var(--brc-radius-radius7); /*  14px */
+
+  /* ── Icon Button Sizing ──────────────────────────────────────────────────── */
+  --brc-button-iconButton-size1-width: var(--brc-space-inset6); /*  24px */
+  --brc-button-iconButton-size2-width: var(--brc-space-inset7); /*  32px */
+  --brc-button-iconButton-size3-width: var(--brc-space-inset8); /*  40px */
+  --brc-button-iconButton-size4-width: var(--brc-space-inset9); /*  48px */
+
+  /* ── FAB Button Sizing ───────────────────────────────────────────────────── */
+  --brc-button-fabButton-size: var(--brc-scale-scale16); /* 72px */
+
+  /* ── FAB Button Color / Default ─────────────────────────────────────────── */
+  --brc-button-fabButton-color-default-iconBackground: var(--brc-color-teal-600-alpha4);
+  --brc-button-fabButton-color-default-text: var(--brc-color-neutral-foreground);
+  --brc-button-fabButton-color-default-textBackground: var(--brc-color-base-gray-850-alpha5);
+  --brc-button-fabButton-color-default-icon-step1: var(--brc-color-turquoise-500);
+  --brc-button-fabButton-color-default-icon-step2: var(--brc-color-turquoise-700);
+
+  /* ── FAB Button Color / Hover ────────────────────────────────────────────── */
+  --brc-button-fabButton-color-hover-iconBackground: var(--brc-color-teal-900-alpha7);
+  --brc-button-fabButton-color-hover-text: var(--brc-color-neutral-foreground);
+  --brc-button-fabButton-color-hover-textBackground: var(--brc-color-base-gray-850-alpha5);
+  --brc-button-fabButton-color-hover-icon-step1: var(--brc-color-turquoise-500);
+  --brc-button-fabButton-color-hover-icon-step2: var(--brc-color-turquoise-700);
+
+  /* ── FAB Button Color / Active ───────────────────────────────────────────── */
+  --brc-button-fabButton-color-active-iconBackground: var(--brc-color-teal-900-alpha7);
+  --brc-button-fabButton-color-active-text: var(--brc-color-neutral-foreground);
+  --brc-button-fabButton-color-active-textBackground: var(--brc-color-base-gray-850-alpha5);
+  --brc-button-fabButton-color-active-icon-step1: var(--brc-color-turquoise-500);
+  --brc-button-fabButton-color-active-icon-step2: var(--brc-color-turquoise-700);
+
+  /* ── FAB Button Color / Disabled ─────────────────────────────────────────── */
+  --brc-button-fabButton-color-disabled-iconBackground: var(--brc-color-base-gray-850-alpha4);
+  --brc-button-fabButton-color-disabled-text: var(--brc-color-neutral-foreground);
+  --brc-button-fabButton-color-disabled-textBackground: var(--brc-color-base-gray-850-alpha5);
+  --brc-button-fabButton-color-disabled-icon-step1: var(--brc-color-base-gray-200);
+  --brc-button-fabButton-color-disabled-icon-step2: var(--brc-color-base-gray-400);
+
+  /* ── FAB Button Color / Loading ──────────────────────────────────────────── */
+  --brc-button-fabButton-color-loading-iconBackground: var(--brc-color-turquoise-500-alpha4);
+  --brc-button-fabButton-color-loading-text: var(--brc-color-neutral-foreground);
+  --brc-button-fabButton-color-loading-textBackground: var(--brc-color-base-gray-850-alpha5);
+  --brc-button-fabButton-color-loading-icon-step1: var(--brc-color-turquoise-500);
+  --brc-button-fabButton-color-loading-icon-step2: var(--brc-color-turquoise-700);
+
+  /* ── FAB Button Color / Notification ─────────────────────────────────────── */
+  --brc-button-fabButton-color-notification-iconBackground: var(--brc-color-teal-900-alpha7);
+  --brc-button-fabButton-color-notification-text: var(--brc-color-neutral-foreground);
+  --brc-button-fabButton-color-notification-textBackground: var(--brc-color-base-gray-850-alpha5);
+  --brc-button-fabButton-color-notification-icon-step1: var(--brc-color-turquoise-500);
+  --brc-button-fabButton-color-notification-icon-step2: var(--brc-color-turquoise-700);
+
+  /* ── Radio Button ────────────────────────────────────────────────────────── */
+  --brc-button-radioButton-size: var(--brc-scale-scale7); /*  14px */
+  --brc-button-radioButton-radius: var(--brc-radius-radiusRound); /* 256px */
+}

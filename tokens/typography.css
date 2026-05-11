@@ -1,0 +1,267 @@
+/* =============================================================================
+   TYPOGRAPHY UTILITY CLASSES
+   Consumes L2 role tokens. font-size, line-height, and letter-spacing are
+   class-level (shared across weights); font-weight is set per class.
+   Because --brc-typography-* tokens are overridden in @media blocks in roles.css,
+   every class here is automatically responsive — no additional @media needed.
+
+   Class naming: .brc-{class}-{weight}
+   ============================================================================= */
+
+/* ── Display1 ─────────────────────────────────────────────────────────────── */
+
+.brc-display1-bold {
+  font-size: var(--brc-typography-fontSize-display1);
+  line-height: var(--brc-typography-lineHeight-display1);
+  letter-spacing: var(--brc-typography-letterSpacing-display1);
+  font-weight: var(--brc-typography-fontWeight-bold);
+}
+
+.brc-display1-regular {
+  font-size: var(--brc-typography-fontSize-display1);
+  line-height: var(--brc-typography-lineHeight-display1);
+  letter-spacing: var(--brc-typography-letterSpacing-display1);
+  font-weight: var(--brc-typography-fontWeight-regular);
+}
+
+.brc-display1-light {
+  font-size: var(--brc-typography-fontSize-display1);
+  line-height: var(--brc-typography-lineHeight-display1);
+  letter-spacing: var(--brc-typography-letterSpacing-display1);
+  font-weight: var(--brc-typography-fontWeight-light);
+}
+
+/* ── Display2 ─────────────────────────────────────────────────────────────── */
+
+.brc-display2-bold {
+  font-size: var(--brc-typography-fontSize-display2);
+  line-height: var(--brc-typography-lineHeight-display2);
+  letter-spacing: var(--brc-typography-letterSpacing-display2);
+  font-weight: var(--brc-typography-fontWeight-bold);
+}
+
+.brc-display2-regular {
+  font-size: var(--brc-typography-fontSize-display2);
+  line-height: var(--brc-typography-lineHeight-display2);
+  letter-spacing: var(--brc-typography-letterSpacing-display2);
+  font-weight: var(--brc-typography-fontWeight-regular);
+}
+
+.brc-display2-light {
+  font-size: var(--brc-typography-fontSize-display2);
+  line-height: var(--brc-typography-lineHeight-display2);
+  letter-spacing: var(--brc-typography-letterSpacing-display2);
+  font-weight: var(--brc-typography-fontWeight-light);
+}
+
+/* ── Headline1 ────────────────────────────────────────────────────────────── */
+
+.brc-headline1-bold {
+  font-size: var(--brc-typography-fontSize-headline1);
+  line-height: var(--brc-typography-lineHeight-headline1);
+  letter-spacing: var(--brc-typography-letterSpacing-headline1);
+  font-weight: var(--brc-typography-fontWeight-bold);
+}
+
+.brc-headline1-regular {
+  font-size: var(--brc-typography-fontSize-headline1);
+  line-height: var(--brc-typography-lineHeight-headline1);
+  letter-spacing: var(--brc-typography-letterSpacing-headline1);
+  font-weight: var(--brc-typography-fontWeight-regular);
+}
+
+/* ── Headline2 ────────────────────────────────────────────────────────────── */
+
+.brc-headline2-bold {
+  font-size: var(--brc-typography-fontSize-headline2);
+  line-height: var(--brc-typography-lineHeight-headline2);
+  letter-spacing: var(--brc-typography-letterSpacing-headline2);
+  font-weight: var(--brc-typography-fontWeight-bold);
+}
+
+.brc-headline2-regular {
+  font-size: var(--brc-typography-fontSize-headline2);
+  line-height: var(--brc-typography-lineHeight-headline2);
+  letter-spacing: var(--brc-typography-letterSpacing-headline2);
+  font-weight: var(--brc-typography-fontWeight-regular);
+}
+
+/* ── Title1 ───────────────────────────────────────────────────────────────── */
+
+.brc-title1-bold {
+  font-size: var(--brc-typography-fontSize-title1);
+  line-height: var(--brc-typography-lineHeight-title1);
+  letter-spacing: var(--brc-typography-letterSpacing-title1);
+  font-weight: var(--brc-typography-fontWeight-bold);
+}
+
+.brc-title1-medium {
+  font-size: var(--brc-typography-fontSize-title1);
+  line-height: var(--brc-typography-lineHeight-title1);
+  letter-spacing: var(--brc-typography-letterSpacing-title1);
+  font-weight: var(--brc-typography-fontWeight-medium);
+}
+
+/* ── Title2 ───────────────────────────────────────────────────────────────── */
+
+.brc-title2-bold {
+  font-size: var(--brc-typography-fontSize-title2);
+  line-height: var(--brc-typography-lineHeight-title2);
+  letter-spacing: var(--brc-typography-letterSpacing-title2);
+  font-weight: var(--brc-typography-fontWeight-bold);
+}
+
+.brc-title2-medium {
+  font-size: var(--brc-typography-fontSize-title2);
+  line-height: var(--brc-typography-lineHeight-title2);
+  letter-spacing: var(--brc-typography-letterSpacing-title2);
+  font-weight: var(--brc-typography-fontWeight-medium);
+}
+
+/* ── Body1 ────────────────────────────────────────────────────────────────── */
+
+.brc-body1-bold {
+  font-size: var(--brc-typography-fontSize-body1);
+  line-height: var(--brc-typography-lineHeight-body1);
+  letter-spacing: var(--brc-typography-letterSpacing-body1);
+  font-weight: var(--brc-typography-fontWeight-bold);
+}
+
+.brc-body1-medium {
+  font-size: var(--brc-typography-fontSize-body1);
+  line-height: var(--brc-typography-lineHeight-body1);
+  letter-spacing: var(--brc-typography-letterSpacing-body1);
+  font-weight: var(--brc-typography-fontWeight-medium);
+}
+
+.brc-body1-regular {
+  font-size: var(--brc-typography-fontSize-body1);
+  line-height: var(--brc-typography-lineHeight-body1);
+  letter-spacing: var(--brc-typography-letterSpacing-body1);
+  font-weight: var(--brc-typography-fontWeight-regular);
+}
+
+.brc-body1-italic {
+  font-size: var(--brc-typography-fontSize-body1);
+  line-height: var(--brc-typography-lineHeight-body1);
+  letter-spacing: var(--brc-typography-letterSpacing-body1);
+  font-weight: var(--brc-typography-fontWeight-regular);
+  font-style: italic;
+}
+
+/* ── Body2 ────────────────────────────────────────────────────────────────── */
+
+.brc-body2-bold {
+  font-size: var(--brc-typography-fontSize-body2);
+  line-height: var(--brc-typography-lineHeight-body2);
+  letter-spacing: var(--brc-typography-letterSpacing-body2);
+  font-weight: var(--brc-typography-fontWeight-bold);
+}
+
+.brc-body2-regular {
+  font-size: var(--brc-typography-fontSize-body2);
+  line-height: var(--brc-typography-lineHeight-body2);
+  letter-spacing: var(--brc-typography-letterSpacing-body2);
+  font-weight: var(--brc-typography-fontWeight-regular);
+}
+
+.brc-body2-italic {
+  font-size: var(--brc-typography-fontSize-body2);
+  line-height: var(--brc-typography-lineHeight-body2);
+  letter-spacing: var(--brc-typography-letterSpacing-body2);
+  font-weight: var(--brc-typography-fontWeight-regular);
+  font-style: italic;
+}
+
+/* ── Body3 ────────────────────────────────────────────────────────────────── */
+
+.brc-body3-bold {
+  font-size: var(--brc-typography-fontSize-body3);
+  line-height: var(--brc-typography-lineHeight-body3);
+  letter-spacing: var(--brc-typography-letterSpacing-body3);
+  font-weight: var(--brc-typography-fontWeight-bold);
+}
+
+.brc-body3-regular {
+  font-size: var(--brc-typography-fontSize-body3);
+  line-height: var(--brc-typography-lineHeight-body3);
+  letter-spacing: var(--brc-typography-letterSpacing-body3);
+  font-weight: var(--brc-typography-fontWeight-regular);
+}
+
+.brc-body3-italic {
+  font-size: var(--brc-typography-fontSize-body3);
+  line-height: var(--brc-typography-lineHeight-body3);
+  letter-spacing: var(--brc-typography-letterSpacing-body3);
+  font-weight: var(--brc-typography-fontWeight-regular);
+  font-style: italic;
+}
+
+/* ── Label1 ───────────────────────────────────────────────────────────────── */
+
+.brc-label1-bold {
+  font-size: var(--brc-typography-fontSize-label1);
+  line-height: var(--brc-typography-lineHeight-label1);
+  letter-spacing: var(--brc-typography-letterSpacing-label1);
+  font-weight: var(--brc-typography-fontWeight-bold);
+}
+
+.brc-label1-medium {
+  font-size: var(--brc-typography-fontSize-label1);
+  line-height: var(--brc-typography-lineHeight-label1);
+  letter-spacing: var(--brc-typography-letterSpacing-label1);
+  font-weight: var(--brc-typography-fontWeight-medium);
+}
+
+.brc-label1-regular {
+  font-size: var(--brc-typography-fontSize-label1);
+  line-height: var(--brc-typography-lineHeight-label1);
+  letter-spacing: var(--brc-typography-letterSpacing-label1);
+  font-weight: var(--brc-typography-fontWeight-regular);
+}
+
+/* ── Label2 ───────────────────────────────────────────────────────────────── */
+
+.brc-label2-bold {
+  font-size: var(--brc-typography-fontSize-label2);
+  line-height: var(--brc-typography-lineHeight-label2);
+  letter-spacing: var(--brc-typography-letterSpacing-label2);
+  font-weight: var(--brc-typography-fontWeight-bold);
+}
+
+.brc-label2-medium {
+  font-size: var(--brc-typography-fontSize-label2);
+  line-height: var(--brc-typography-lineHeight-label2);
+  letter-spacing: var(--brc-typography-letterSpacing-label2);
+  font-weight: var(--brc-typography-fontWeight-medium);
+}
+
+.brc-label2-regular {
+  font-size: var(--brc-typography-fontSize-label2);
+  line-height: var(--brc-typography-lineHeight-label2);
+  letter-spacing: var(--brc-typography-letterSpacing-label2);
+  font-weight: var(--brc-typography-fontWeight-regular);
+}
+
+/* ── Label3 ───────────────────────────────────────────────────────────────── */
+
+.brc-label3-bold {
+  font-size: var(--brc-typography-fontSize-label3);
+  line-height: var(--brc-typography-lineHeight-label3);
+  letter-spacing: var(--brc-typography-letterSpacing-label3);
+  font-weight: var(--brc-typography-fontWeight-bold);
+}
+
+.brc-label3-medium {
+  font-size: var(--brc-typography-fontSize-label3);
+  line-height: var(--brc-typography-lineHeight-label3);
+  letter-spacing: var(--brc-typography-letterSpacing-label3);
+  font-weight: var(--brc-typography-fontWeight-medium);
+}
+
+.brc-label3-regular {
+  font-size: var(--brc-typography-fontSize-label3);
+  line-height: var(--brc-typography-lineHeight-label3);
+  letter-spacing: var(--brc-typography-letterSpacing-label3);
+  font-weight: var(--brc-typography-fontWeight-regular);
+}

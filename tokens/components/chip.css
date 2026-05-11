@@ -1,0 +1,13 @@
+/* =============================================================================
+   L3 — COMPONENT / CHIP
+   ============================================================================= */
+
+:root {
+  /* ── Sizes ──────────────────────────────────────────────────────────────── */
+  --brc-chip-size1-height: var(--brc-scale-scale9); /* 20px */
+  --brc-chip-size1-radius: var(--brc-radius-radius6); /* 12px */
+  --brc-chip-size2-height: var(--brc-scale-scale10); /* 24px */
+  --brc-chip-size2-radius: var(--brc-radius-radius6); /* 12px */
+  --brc-chip-size3-height: var(--brc-scale-scale11); /* 32px */
+  --brc-chip-size3-radius: var(--brc-radius-radius8); /* 16px */
+}

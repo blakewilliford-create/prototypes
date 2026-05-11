@@ -1,0 +1,264 @@
+/* =============================================================================
+   L1 — PRIMITIVES / COLOR
+   Raw color scales. Never referenced directly by components.
+   Alpha variants: --brc-color-{collection}-{step}-alpha{n}
+   Alpha scale: alpha1=5% · alpha2=12% · alpha3=25% · alpha4=33% · alpha5=50% · alpha6=66% · alpha7=75% · alpha8=88%
+   ============================================================================= */
+
+:root {
+  /* ── Base / Gray ──────────────────────────────────────────────────────────
+     Warm ambient neutral; foreground / page-level tokens.
+  ─────────────────────────────────────────────────────────────────────────*/
+  --brc-color-base-gray-0: #fafafa;
+  --brc-color-base-gray-0-alpha1: rgba(250, 250, 250, 0.05);
+  --brc-color-base-gray-0-alpha2: rgba(250, 250, 250, 0.12);
+  --brc-color-base-gray-0-alpha3: rgba(250, 250, 250, 0.25);
+  --brc-color-base-gray-0-alpha4: rgba(250, 250, 250, 0.33);
+  --brc-color-base-gray-0-alpha5: rgba(250, 250, 250, 0.5);
+  --brc-color-base-gray-0-alpha6: rgba(250, 250, 250, 0.66);
+  --brc-color-base-gray-0-alpha7: rgba(250, 250, 250, 0.75);
+  --brc-color-base-gray-0-alpha8: rgba(250, 250, 250, 0.88);
+  --brc-color-base-gray-25: #f5f5f5;
+  --brc-color-base-gray-50: #eceded;
+  --brc-color-base-gray-75: #e2e4e4;
+  --brc-color-base-gray-100: #cbcdcd;
+  --brc-color-base-gray-150: #c4c6c6;
+  --brc-color-base-gray-200: #a8aaab;
+  --brc-color-base-gray-300: #8b8e8e;
+  --brc-color-base-gray-400: #686c6d;
+  --brc-color-base-gray-500: #424748;
+  --brc-color-base-gray-500-alpha1: rgba(66, 71, 72, 0.05);
+  --brc-color-base-gray-500-alpha2: rgba(66, 71, 72, 0.12);
+  --brc-color-base-gray-500-alpha3: rgba(66, 71, 72, 0.25);
+  --brc-color-base-gray-500-alpha4: rgba(66, 71, 72, 0.33);
+  --brc-color-base-gray-500-alpha5: rgba(66, 71, 72, 0.5);
+  --brc-color-base-gray-500-alpha6: rgba(66, 71, 72, 0.66);
+  --brc-color-base-gray-500-alpha7: rgba(66, 71, 72, 0.75);
+  --brc-color-base-gray-500-alpha8: rgba(66, 71, 72, 0.88);
+  --brc-color-base-gray-600: #3c4142;
+  --brc-color-base-gray-700: #2f3233;
+  --brc-color-base-gray-750: #282c2e;
+  --brc-color-base-gray-800: #242728;
+  --brc-color-base-gray-800-alpha1: rgba(36, 39, 40, 0.05);
+  --brc-color-base-gray-800-alpha2: rgba(36, 39, 40, 0.12);
+  --brc-color-base-gray-800-alpha3: rgba(36, 39, 40, 0.25);
+  --brc-color-base-gray-800-alpha4: rgba(36, 39, 40, 0.33);
+  --brc-color-base-gray-800-alpha5: rgba(36, 39, 40, 0.5);
+  --brc-color-base-gray-800-alpha6: rgba(36, 39, 40, 0.66);
+  --brc-color-base-gray-800-alpha7: rgba(36, 39, 40, 0.75);
+  --brc-color-base-gray-800-alpha8: rgba(36, 39, 40, 0.88);
+  --brc-color-base-gray-850: #1c1e1e;
+  --brc-color-base-gray-850-alpha1: rgba(28, 30, 30, 0.05);
+  --brc-color-base-gray-850-alpha2: rgba(28, 30, 30, 0.12);
+  --brc-color-base-gray-850-alpha3: rgba(28, 30, 30, 0.25);
+  --brc-color-base-gray-850-alpha4: rgba(28, 30, 30, 0.33);
+  --brc-color-base-gray-850-alpha5: rgba(28, 30, 30, 0.5);
+  --brc-color-base-gray-850-alpha6: rgba(28, 30, 30, 0.66);
+  --brc-color-base-gray-850-alpha7: rgba(28, 30, 30, 0.75);
+  --brc-color-base-gray-900: #161818;
+  --brc-color-base-gray-1000: #070808;
+  --brc-color-base-gray-1000-alpha1: rgba(7, 8, 8, 0.05);
+  --brc-color-base-gray-1000-alpha2: rgba(7, 8, 8, 0.12);
+  --brc-color-base-gray-1000-alpha3: rgba(7, 8, 8, 0.25);
+  --brc-color-base-gray-1000-alpha4: rgba(7, 8, 8, 0.33);
+  --brc-color-base-gray-1000-alpha5: rgba(7, 8, 8, 0.5);
+  --brc-color-base-gray-1000-alpha6: rgba(7, 8, 8, 0.66);
+  --brc-color-base-gray-1000-alpha7: rgba(7, 8, 8, 0.75);
+  --brc-color-base-gray-1000-alpha8: rgba(7, 8, 8, 0.88);
+
+  /* ── Base / Sage ──────────────────────────────────────────────────────────
+     Teal-tinted cool neutral.
+  ─────────────────────────────────────────────────────────────────────────*/
+  --brc-color-base-sage-0: #f8fbfc;
+  --brc-color-base-sage-0-alpha1: rgba(248, 251, 252, 0.05);
+  --brc-color-base-sage-0-alpha2: rgba(248, 251, 252, 0.12);
+  --brc-color-base-sage-0-alpha3: rgba(248, 251, 252, 0.25);
+  --brc-color-base-sage-0-alpha4: rgba(248, 251, 252, 0.33);
+  --brc-color-base-sage-0-alpha5: rgba(248, 251, 252, 0.5);
+  --brc-color-base-sage-0-alpha6: rgba(248, 251, 252, 0.66);
+  --brc-color-base-sage-0-alpha7: rgba(248, 251, 252, 0.75);
+  --brc-color-base-sage-0-alpha8: rgba(248, 251, 252, 0.88);
+  --brc-color-base-sage-25: #f5fafa;
+  --brc-color-base-sage-50: #eef6f6;
+  --brc-color-base-sage-75: #e8f2f3;
+  --brc-color-base-sage-100: #e4f0f1;
+  --brc-color-base-sage-150: #ddedee;
+  --brc-color-base-sage-200: #d7e9ea;
+  --brc-color-base-sage-300: #cde4e5;
+  --brc-color-base-sage-400: #bcdbdc;
+  --brc-color-base-sage-500: #abd1d3;
+  --brc-color-base-sage-500-alpha1: rgba(171, 209, 211, 0.05);
+  --brc-color-base-sage-500-alpha2: rgba(171, 209, 211, 0.12);
+  --brc-color-base-sage-500-alpha3: rgba(171, 209, 211, 0.25);
+  --brc-color-base-sage-500-alpha4: rgba(171, 209, 211, 0.33);
+  --brc-color-base-sage-500-alpha5: rgba(171, 209, 211, 0.5);
+  --brc-color-base-sage-500-alpha6: rgba(171, 209, 211, 0.66);
+  --brc-color-base-sage-500-alpha7: rgba(171, 209, 211, 0.75);
+  --brc-color-base-sage-500-alpha8: rgba(171, 209, 211, 0.88);
+  --brc-color-base-sage-600: #9ac8cb;
+  --brc-color-base-sage-700: #8abfc2;
+  --brc-color-base-sage-800: #79b6b9;
+  --brc-color-base-sage-800-alpha1: rgba(121, 182, 185, 0.05);
+  --brc-color-base-sage-800-alpha2: rgba(121, 182, 185, 0.12);
+  --brc-color-base-sage-800-alpha3: rgba(121, 182, 185, 0.25);
+  --brc-color-base-sage-800-alpha4: rgba(121, 182, 185, 0.33);
+  --brc-color-base-sage-800-alpha5: rgba(121, 182, 185, 0.5);
+  --brc-color-base-sage-800-alpha6: rgba(121, 182, 185, 0.66);
+  --brc-color-base-sage-800-alpha7: rgba(121, 182, 185, 0.75);
+  --brc-color-base-sage-800-alpha8: rgba(121, 182, 185, 0.88);
+  --brc-color-base-sage-850: #68adb0;
+  --brc-color-base-sage-900: #57a4a8;
+  --brc-color-base-sage-1000: #467e81;
+  --brc-color-base-sage-1000-alpha1: rgba(70, 126, 129, 0.05);
+  --brc-color-base-sage-1000-alpha2: rgba(70, 126, 129, 0.12);
+  --brc-color-base-sage-1000-alpha3: rgba(70, 126, 129, 0.25);
+  --brc-color-base-sage-1000-alpha4: rgba(70, 126, 129, 0.33);
+  --brc-color-base-sage-1000-alpha5: rgba(70, 126, 129, 0.5);
+  --brc-color-base-sage-1000-alpha6: rgba(70, 126, 129, 0.66);
+  --brc-color-base-sage-1000-alpha7: rgba(70, 126, 129, 0.75);
+  --brc-color-base-sage-1000-alpha8: rgba(70, 126, 129, 0.88);
+
+  /* ── Blue ─────────────────────────────────────────────────────────────────*/
+  --brc-color-blue-50: #edf2fc;
+  --brc-color-blue-100: #dbe7fa;
+  --brc-color-blue-200: #ceddf8;
+  --brc-color-blue-300: #c5d7f7;
+  --brc-color-blue-400: #a3c0f2;
+  --brc-color-blue-500: #5f92e9;
+  --brc-color-blue-500-alpha1: rgba(95, 146, 233, 0.05);
+  --brc-color-blue-500-alpha2: rgba(95, 146, 233, 0.12);
+  --brc-color-blue-500-alpha3: rgba(95, 146, 233, 0.25);
+  --brc-color-blue-500-alpha4: rgba(95, 146, 233, 0.33);
+  --brc-color-blue-500-alpha5: rgba(95, 146, 233, 0.5);
+  --brc-color-blue-500-alpha6: rgba(95, 146, 233, 0.66);
+  --brc-color-blue-500-alpha7: rgba(95, 146, 233, 0.75);
+  --brc-color-blue-500-alpha8: rgba(95, 146, 233, 0.88);
+  --brc-color-blue-600: #2e71e2;
+  --brc-color-blue-700: #1953b6;
+  --brc-color-blue-900: #0e2e65;
+
+  /* ── Gray ─────────────────────────────────────────────────────────────────*/
+  --brc-color-gray-50: #edeeef;
+  --brc-color-gray-100: #c6cacc;
+  --brc-color-gray-200: #a3aaad;
+  --brc-color-gray-300: #848c90;
+  --brc-color-gray-400: #6c757b;
+  --brc-color-gray-500: #515f67;
+  --brc-color-gray-500-alpha1: rgba(81, 95, 103, 0.05);
+  --brc-color-gray-500-alpha2: rgba(81, 95, 103, 0.12);
+  --brc-color-gray-500-alpha3: rgba(81, 95, 103, 0.25);
+  --brc-color-gray-500-alpha4: rgba(81, 95, 103, 0.33);
+  --brc-color-gray-500-alpha5: rgba(81, 95, 103, 0.5);
+  --brc-color-gray-500-alpha6: rgba(81, 95, 103, 0.66);
+  --brc-color-gray-500-alpha7: rgba(81, 95, 103, 0.75);
+  --brc-color-gray-500-alpha8: rgba(81, 95, 103, 0.88);
+  --brc-color-gray-600: #414c52;
+  --brc-color-gray-700: #323b40;
+  --brc-color-gray-900: #1e2326;
+
+  /* ── Green ────────────────────────────────────────────────────────────────*/
+  --brc-color-green-50: #dffbf2;
+  --brc-color-green-100: #b3f5df;
+  --brc-color-green-200: #93f1d1;
+  --brc-color-green-300: #71ecc3;
+  --brc-color-green-400: #1dd99a;
+  --brc-color-green-500: #16a676;
+  --brc-color-green-500-alpha1: rgba(22, 166, 118, 0.05);
+  --brc-color-green-500-alpha2: rgba(22, 166, 118, 0.12);
+  --brc-color-green-500-alpha3: rgba(22, 166, 118, 0.25);
+  --brc-color-green-500-alpha4: rgba(22, 166, 118, 0.33);
+  --brc-color-green-500-alpha5: rgba(22, 166, 118, 0.5);
+  --brc-color-green-500-alpha6: rgba(22, 166, 118, 0.66);
+  --brc-color-green-500-alpha7: rgba(22, 166, 118, 0.75);
+  --brc-color-green-500-alpha8: rgba(22, 166, 118, 0.88);
+  --brc-color-green-600: #12855f;
+  --brc-color-green-700: #0d6547;
+  --brc-color-green-900: #073828;
+
+  /* ── Red ──────────────────────────────────────────────────────────────────*/
+  --brc-color-red-50: #fdf1f1;
+  --brc-color-red-100: #fce5e4;
+  --brc-color-red-200: #f9d3d2;
+  --brc-color-red-300: #f8cccb;
+  --brc-color-red-400: #f4adac;
+  --brc-color-red-500: #eb6866;
+  --brc-color-red-500-alpha1: rgba(235, 105, 104, 0.05);
+  --brc-color-red-500-alpha2: rgba(235, 105, 104, 0.12);
+  --brc-color-red-500-alpha3: rgba(235, 105, 104, 0.25);
+  --brc-color-red-500-alpha4: rgba(235, 105, 104, 0.33);
+  --brc-color-red-500-alpha5: rgba(235, 105, 104, 0.5);
+  --brc-color-red-500-alpha6: rgba(235, 105, 104, 0.66);
+  --brc-color-red-500-alpha7: rgba(235, 105, 104, 0.75);
+  --brc-color-red-500-alpha8: rgba(235, 105, 104, 0.88);
+  --brc-color-red-600: #e22725;
+  --brc-color-red-700: #af1817;
+  --brc-color-red-900: #630e0d;
+
+  /* ── Teal ─────────────────────────────────────────────────────────────────*/
+  --brc-color-teal-50: #e6f3f3;
+  --brc-color-teal-100: #b2d8da;
+  --brc-color-teal-200: #89c4c7;
+  --brc-color-teal-300: #58abb0;
+  --brc-color-teal-400: #379ba1;
+  --brc-color-teal-500: #058289;
+  --brc-color-teal-500-alpha1: rgba(5, 130, 137, 0.05);
+  --brc-color-teal-500-alpha2: rgba(5, 130, 137, 0.12);
+  --brc-color-teal-500-alpha3: rgba(5, 130, 137, 0.25);
+  --brc-color-teal-500-alpha4: rgba(5, 130, 137, 0.33);
+  --brc-color-teal-500-alpha5: rgba(5, 130, 137, 0.5);
+  --brc-color-teal-500-alpha6: rgba(5, 130, 137, 0.66);
+  --brc-color-teal-500-alpha7: rgba(5, 130, 137, 0.75);
+  --brc-color-teal-500-alpha8: rgba(5, 130, 137, 0.88);
+  --brc-color-teal-600: #05767d;
+  --brc-color-teal-600-alpha1: rgba(5, 118, 125, 0.05);
+  --brc-color-teal-600-alpha2: rgba(5, 118, 125, 0.12);
+  --brc-color-teal-600-alpha3: rgba(5, 118, 125, 0.25);
+  --brc-color-teal-600-alpha4: rgba(5, 118, 125, 0.33);
+  --brc-color-teal-600-alpha5: rgba(5, 118, 125, 0.5);
+  --brc-color-teal-600-alpha6: rgba(5, 118, 125, 0.66);
+  --brc-color-teal-600-alpha7: rgba(5, 118, 125, 0.75);
+  --brc-color-teal-700: #045c61;
+  --brc-color-teal-900: #02373a;
+  --brc-color-teal-900-alpha1: rgba(2, 55, 58, 0.05);
+  --brc-color-teal-900-alpha2: rgba(2, 55, 58, 0.12);
+  --brc-color-teal-900-alpha7: rgba(2, 55, 58, 0.75);
+  --brc-color-teal-900-alpha8: rgba(2, 55, 58, 0.88);
+
+  /* ── Turquoise ────────────────────────────────────────────────────────────*/
+  --brc-color-turquoise-50: #ebfdfe;
+  --brc-color-turquoise-100: #c0f9fd;
+  --brc-color-turquoise-200: #99f4fa;
+  --brc-color-turquoise-300: #77f2fa;
+  --brc-color-turquoise-400: #5df0f9;
+  --brc-color-turquoise-500: #34ecf7;
+  --brc-color-turquoise-500-alpha1: rgba(52, 236, 247, 0.05);
+  --brc-color-turquoise-500-alpha2: rgba(52, 236, 247, 0.12);
+  --brc-color-turquoise-500-alpha3: rgba(52, 236, 247, 0.25);
+  --brc-color-turquoise-500-alpha4: rgba(52, 236, 247, 0.33);
+  --brc-color-turquoise-500-alpha5: rgba(52, 236, 247, 0.5);
+  --brc-color-turquoise-500-alpha6: rgba(52, 236, 247, 0.66);
+  --brc-color-turquoise-500-alpha7: rgba(52, 236, 247, 0.75);
+  --brc-color-turquoise-500-alpha8: rgba(52, 236, 247, 0.88);
+  --brc-color-turquoise-600: #2fd7e1;
+  --brc-color-turquoise-700: #25a8af;
+  --brc-color-turquoise-900: #166368;
+
+  /* ── Yellow ───────────────────────────────────────────────────────────────*/
+  --brc-color-yellow-50: #fbf6e0;
+  --brc-color-yellow-100: #f7eec4;
+  --brc-color-yellow-200: #f0df93;
+  --brc-color-yellow-300: #ecd674;
+  --brc-color-yellow-400: #dfbd1f;
+  --brc-color-yellow-500: #ab9117;
+  --brc-color-yellow-500-alpha1: rgba(171, 145, 23, 0.05);
+  --brc-color-yellow-500-alpha2: rgba(171, 145, 23, 0.12);
+  --brc-color-yellow-500-alpha3: rgba(171, 145, 23, 0.25);
+  --brc-color-yellow-500-alpha4: rgba(171, 145, 23, 0.33);
+  --brc-color-yellow-500-alpha5: rgba(171, 145, 23, 0.5);
+  --brc-color-yellow-500-alpha6: rgba(171, 145, 23, 0.66);
+  --brc-color-yellow-500-alpha7: rgba(171, 145, 23, 0.75);
+  --brc-color-yellow-500-alpha8: rgba(171, 145, 23, 0.88);
+  --brc-color-yellow-600: #897413;
+  --brc-color-yellow-700: #67570e;
+  --brc-color-yellow-900: #393008;
+}

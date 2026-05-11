@@ -1,0 +1,18 @@
+/* =============================================================================
+   L2 — ROLES / SPACE
+   Inset spacing roles. Token names mirror Figma's Space Roles collection.
+   ============================================================================= */
+
+:root {
+  --brc-space-inset0: var(--brc-scale-scale0); /*  0px */
+  --brc-space-inset1: var(--brc-scale-scale1); /*  2px */
+  --brc-space-inset2: var(--brc-scale-scale2); /*  4px */
+  --brc-space-inset3: var(--brc-scale-scale4); /*  8px */
+  --brc-space-inset4: var(--brc-scale-scale6); /* 12px */
+  --brc-space-inset5: var(--brc-scale-scale8); /* 16px */
+  --brc-space-inset6: var(--brc-scale-scale10); /* 24px */
+  --brc-space-inset7: var(--brc-scale-scale11); /* 32px */
+  --brc-space-inset8: var(--brc-scale-scale12); /* 40px */
+  --brc-space-inset9: var(--brc-scale-scale13); /* 48px */
+  --brc-space-inset10: var(--brc-scale-scale15); /* 64px */
+}

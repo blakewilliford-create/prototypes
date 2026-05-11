@@ -1,0 +1,32 @@
+/* =============================================================================
+   L3 — COMPONENT / DATA TABLE
+   ============================================================================= */
+
+:root {
+  /* ── Table colors ───────────────────────────────────────────────────────── */
+  --brc-dataTable-color-background: var(--brc-color-neutral-surfaceMuted);
+  --brc-dataTable-color-border: var(--brc-color-intent-neutral-border);
+  --brc-dataTable-color-title: var(--brc-color-neutral-foreground);
+  --brc-dataTable-color-subtitle: var(--brc-color-neutral-foregroundSubtle);
+
+  /* ── Row heights ────────────────────────────────────────────────────────── */
+  --brc-dataTable-row-condensed: var(--brc-space-inset9); /* 48px */
+  --brc-dataTable-row-default: var(--brc-space-inset10); /* 64px */
+
+  /* ── Row colors ─────────────────────────────────────────────────────────── */
+  --brc-dataTable-row-color-header-background: var(--brc-color-neutral-surface);
+  --brc-dataTable-row-color-header-border: var(--brc-color-intent-neutral-border);
+  --brc-dataTable-row-hover-background: var(--brc-color-base-gray-0-alpha1);
+  --brc-dataTable-row-odd-background: var(
+    --brc-color-interactive-secondary-default-backgroundInverse
+  );
+  --brc-dataTable-row-selected-background: var(
+    --brc-color-interactive-primary-active-backgroundInverse
+  );
+  --brc-dataTable-row-selected-border: var(--brc-color-intent-actionable-border);
+
+  /* ── Paginator ──────────────────────────────────────────────────────────── */
+  --brc-dataTable-paginator-color-icon: var(--brc-color-neutral-foreground);
+  --brc-dataTable-paginator-color-text: var(--brc-color-neutral-foreground);
+  --brc-dataTable-paginator-color-divider: var(--brc-color-neutral-foreground);
+}

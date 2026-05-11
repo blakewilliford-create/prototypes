@@ -1,0 +1,23 @@
+/* =============================================================================
+   L1 — PRIMITIVES / TYPOGRAPHY
+   15-step harmonic font-size ramp engineered for high-density SaaS: 9px → 88px.
+   font{n} names mirror Figma token names.
+   ============================================================================= */
+
+:root {
+  --brc-typography-font1: 9px;
+  --brc-typography-font2: 11px;
+  --brc-typography-font3: 12px;
+  --brc-typography-font4: 14px;
+  --brc-typography-font5: 16px;
+  --brc-typography-font6: 18px;
+  --brc-typography-font7: 22px;
+  --brc-typography-font8: 28px;
+  --brc-typography-font9: 36px;
+  --brc-typography-font10: 44px;
+  --brc-typography-font11: 52px;
+  --brc-typography-font12: 60px;
+  --brc-typography-font13: 72px;
+  --brc-typography-font14: 80px;
+  --brc-typography-font15: 88px;
+}

@@ -1,0 +1,241 @@
+/* =============================================================================
+   L2 — ROLES / TYPOGRAPHY
+   Responsive typography role tokens. Consumed by src/tokens/typography.css
+   utility classes. Naming: --brc-typography-{property}-{style}
+   ============================================================================= */
+
+/* ── Font family and weight roles ─────────────────────────────────────────── */
+:root {
+  --brc-typography-fontFamily-body: 'Geist Sans', sans-serif;
+
+  --brc-typography-fontWeight-light: 300;
+  --brc-typography-fontWeight-regular: 400;
+  --brc-typography-fontWeight-medium: 500;
+  --brc-typography-fontWeight-bold: 700;
+}
+
+/* ── Mobile base (≤767px) ──────────────────────────────────────────────────── */
+:root {
+  --brc-typography-fontSize-display1: var(--brc-typography-font9);
+  --brc-typography-lineHeight-display1: var(--brc-typography-font10);
+  --brc-typography-letterSpacing-display1: -0.5px;
+
+  --brc-typography-fontSize-display2: var(--brc-typography-font8);
+  --brc-typography-lineHeight-display2: var(--brc-typography-font9);
+  --brc-typography-letterSpacing-display2: -0.4px;
+
+  --brc-typography-fontSize-headline1: var(--brc-typography-font7);
+  --brc-typography-lineHeight-headline1: var(--brc-typography-font8);
+  --brc-typography-letterSpacing-headline1: -0.1px;
+
+  --brc-typography-fontSize-headline2: var(--brc-typography-font6);
+  --brc-typography-lineHeight-headline2: var(--brc-typography-font7);
+  --brc-typography-letterSpacing-headline2: 0px;
+
+  --brc-typography-fontSize-title1: var(--brc-typography-font6);
+  --brc-typography-lineHeight-title1: var(--brc-typography-font7);
+  --brc-typography-letterSpacing-title1: 0.1px;
+
+  --brc-typography-fontSize-title2: var(--brc-typography-font5);
+  --brc-typography-lineHeight-title2: var(--brc-typography-font6);
+  --brc-typography-letterSpacing-title2: 0.15px;
+
+  --brc-typography-fontSize-title3: var(--brc-typography-font5);
+  --brc-typography-lineHeight-title3: var(--brc-typography-font6);
+  --brc-typography-letterSpacing-title3: 0.15px;
+
+  --brc-typography-fontSize-body1: var(--brc-typography-font5);
+  --brc-typography-lineHeight-body1: var(--brc-typography-font7);
+  --brc-typography-letterSpacing-body1: 0.15px;
+
+  --brc-typography-fontSize-body2: var(--brc-typography-font4);
+  --brc-typography-lineHeight-body2: var(--brc-typography-font6);
+  --brc-typography-letterSpacing-body2: 0.2px;
+
+  --brc-typography-fontSize-body3: var(--brc-typography-font3);
+  --brc-typography-lineHeight-body3: var(--brc-typography-font5);
+  --brc-typography-letterSpacing-body3: 0.3px;
+
+  --brc-typography-fontSize-label1: var(--brc-typography-font3);
+  --brc-typography-lineHeight-label1: var(--brc-typography-font5);
+  --brc-typography-letterSpacing-label1: 0.25px;
+
+  --brc-typography-fontSize-label2: var(--brc-typography-font2);
+  --brc-typography-lineHeight-label2: var(--brc-typography-font3);
+  --brc-typography-letterSpacing-label2: 0.5px;
+
+  --brc-typography-fontSize-label3: var(--brc-typography-font1);
+  --brc-typography-lineHeight-label3: var(--brc-typography-font2);
+  --brc-typography-letterSpacing-label3: 0.6px;
+}
+
+/* ── Tablet (768px–1023px) ─────────────────────────────────────────────────── */
+@media (min-width: 768px) {
+  :root {
+    --brc-typography-fontSize-display1: var(--brc-typography-font10);
+    --brc-typography-lineHeight-display1: var(--brc-typography-font11);
+    --brc-typography-letterSpacing-display1: -0.8px;
+
+    --brc-typography-fontSize-display2: var(--brc-typography-font9);
+    --brc-typography-lineHeight-display2: var(--brc-typography-font10);
+    --brc-typography-letterSpacing-display2: -0.6px;
+
+    --brc-typography-fontSize-headline1: var(--brc-typography-font8);
+    --brc-typography-lineHeight-headline1: var(--brc-typography-font9);
+    --brc-typography-letterSpacing-headline1: -0.2px;
+
+    --brc-typography-fontSize-headline2: var(--brc-typography-font7);
+    --brc-typography-lineHeight-headline2: var(--brc-typography-font8);
+    --brc-typography-letterSpacing-headline2: 0px;
+
+    --brc-typography-fontSize-title1: var(--brc-typography-font6);
+    --brc-typography-lineHeight-title1: var(--brc-typography-font7);
+    --brc-typography-letterSpacing-title1: 0.05px;
+
+    --brc-typography-fontSize-title2: var(--brc-typography-font5);
+    --brc-typography-lineHeight-title2: var(--brc-typography-font6);
+    --brc-typography-letterSpacing-title2: 0.1px;
+
+    --brc-typography-fontSize-title3: var(--brc-typography-font3);
+    --brc-typography-lineHeight-title3: var(--brc-typography-font5);
+    --brc-typography-letterSpacing-title3: 0.1px;
+
+    --brc-typography-fontSize-body1: var(--brc-typography-font5);
+    --brc-typography-lineHeight-body1: var(--brc-typography-font7);
+    --brc-typography-letterSpacing-body1: 0.1px;
+
+    --brc-typography-fontSize-body2: var(--brc-typography-font4);
+    --brc-typography-lineHeight-body2: var(--brc-typography-font6);
+    --brc-typography-letterSpacing-body2: 0.15px;
+
+    --brc-typography-fontSize-body3: var(--brc-typography-font3);
+    --brc-typography-lineHeight-body3: var(--brc-typography-font5);
+    --brc-typography-letterSpacing-body3: 0.25px;
+
+    --brc-typography-fontSize-label1: var(--brc-typography-font3);
+    --brc-typography-lineHeight-label1: var(--brc-typography-font5);
+    --brc-typography-letterSpacing-label1: 0.2px;
+
+    --brc-typography-fontSize-label2: var(--brc-typography-font2);
+    --brc-typography-lineHeight-label2: var(--brc-typography-font4);
+    --brc-typography-letterSpacing-label2: 0.45px;
+
+    --brc-typography-fontSize-label3: var(--brc-typography-font1);
+    --brc-typography-lineHeight-label3: var(--brc-typography-font3);
+    --brc-typography-letterSpacing-label3: 0.55px;
+  }
+}
+
+/* ── Laptop (1024px–1439px) ────────────────────────────────────────────────── */
+@media (min-width: 1024px) {
+  :root {
+    --brc-typography-fontSize-display1: var(--brc-typography-font11);
+    --brc-typography-lineHeight-display1: var(--brc-typography-font12);
+    --brc-typography-letterSpacing-display1: -1px;
+
+    --brc-typography-fontSize-display2: var(--brc-typography-font10);
+    --brc-typography-lineHeight-display2: var(--brc-typography-font11);
+    --brc-typography-letterSpacing-display2: -0.8px;
+
+    --brc-typography-fontSize-headline1: var(--brc-typography-font8);
+    --brc-typography-lineHeight-headline1: var(--brc-typography-font9);
+    --brc-typography-letterSpacing-headline1: -0.3px;
+
+    --brc-typography-fontSize-headline2: var(--brc-typography-font7);
+    --brc-typography-lineHeight-headline2: var(--brc-typography-font8);
+    --brc-typography-letterSpacing-headline2: -0.1px;
+
+    --brc-typography-fontSize-title1: var(--brc-typography-font6);
+    --brc-typography-lineHeight-title1: var(--brc-typography-font7);
+    --brc-typography-letterSpacing-title1: 0px;
+
+    --brc-typography-fontSize-title2: var(--brc-typography-font5);
+    --brc-typography-lineHeight-title2: var(--brc-typography-font6);
+    --brc-typography-letterSpacing-title2: 0.05px;
+
+    --brc-typography-fontSize-title3: var(--brc-typography-font3);
+    --brc-typography-lineHeight-title3: var(--brc-typography-font5);
+    --brc-typography-letterSpacing-title3: 0.05px;
+
+    --brc-typography-fontSize-body1: var(--brc-typography-font5);
+    --brc-typography-lineHeight-body1: var(--brc-typography-font7);
+    --brc-typography-letterSpacing-body1: 0px;
+
+    --brc-typography-fontSize-body2: var(--brc-typography-font4);
+    --brc-typography-lineHeight-body2: var(--brc-typography-font6);
+    --brc-typography-letterSpacing-body2: 0.1px;
+
+    --brc-typography-fontSize-body3: var(--brc-typography-font3);
+    --brc-typography-lineHeight-body3: var(--brc-typography-font5);
+    --brc-typography-letterSpacing-body3: 0.2px;
+
+    --brc-typography-fontSize-label1: var(--brc-typography-font3);
+    --brc-typography-lineHeight-label1: var(--brc-typography-font5);
+    --brc-typography-letterSpacing-label1: 0.2px;
+
+    --brc-typography-fontSize-label2: var(--brc-typography-font2);
+    --brc-typography-lineHeight-label2: var(--brc-typography-font4);
+    --brc-typography-letterSpacing-label2: 0.44px;
+
+    --brc-typography-fontSize-label3: var(--brc-typography-font1);
+    --brc-typography-lineHeight-label3: var(--brc-typography-font3);
+    --brc-typography-letterSpacing-label3: 0.55px;
+  }
+}
+
+/* ── Desktop (≥1440px) ─────────────────────────────────────────────────────── */
+@media (min-width: 1440px) {
+  :root {
+    --brc-typography-fontSize-display1: var(--brc-typography-font12);
+    --brc-typography-lineHeight-display1: var(--brc-typography-font13);
+    --brc-typography-letterSpacing-display1: -1.2px;
+
+    --brc-typography-fontSize-display2: var(--brc-typography-font11);
+    --brc-typography-lineHeight-display2: var(--brc-typography-font12);
+    --brc-typography-letterSpacing-display2: -1px;
+
+    --brc-typography-fontSize-headline1: var(--brc-typography-font9);
+    --brc-typography-lineHeight-headline1: var(--brc-typography-font10);
+    --brc-typography-letterSpacing-headline1: -0.4px;
+
+    --brc-typography-fontSize-headline2: var(--brc-typography-font8);
+    --brc-typography-lineHeight-headline2: var(--brc-typography-font9);
+    --brc-typography-letterSpacing-headline2: -0.2px;
+
+    --brc-typography-fontSize-title1: var(--brc-typography-font7);
+    --brc-typography-lineHeight-title1: var(--brc-typography-font8);
+    --brc-typography-letterSpacing-title1: 0px;
+
+    --brc-typography-fontSize-title2: var(--brc-typography-font6);
+    --brc-typography-lineHeight-title2: var(--brc-typography-font7);
+    --brc-typography-letterSpacing-title2: 0px;
+
+    --brc-typography-fontSize-title3: var(--brc-typography-font4);
+    --brc-typography-lineHeight-title3: var(--brc-typography-font6);
+    --brc-typography-letterSpacing-title3: 0px;
+
+    --brc-typography-fontSize-body1: var(--brc-typography-font5);
+    --brc-typography-lineHeight-body1: var(--brc-typography-font7);
+    --brc-typography-letterSpacing-body1: 0px;
+
+    --brc-typography-fontSize-body2: var(--brc-typography-font4);
+    --brc-typography-lineHeight-body2: var(--brc-typography-font6);
+    --brc-typography-letterSpacing-body2: 0px;
+
+    --brc-typography-fontSize-body3: var(--brc-typography-font3);
+    --brc-typography-lineHeight-body3: var(--brc-typography-font5);
+    --brc-typography-letterSpacing-body3: 0.15px;
+
+    --brc-typography-fontSize-label1: var(--brc-typography-font3);
+    --brc-typography-lineHeight-label1: var(--brc-typography-font5);
+    --brc-typography-letterSpacing-label1: 0.15px;
+
+    --brc-typography-fontSize-label2: var(--brc-typography-font2);
+    --brc-typography-lineHeight-label2: var(--brc-typography-font4);
+    --brc-typography-letterSpacing-label2: 0.4px;
+
+    --brc-typography-fontSize-label3: var(--brc-typography-font1);
+    --brc-typography-lineHeight-label3: var(--brc-typography-font3);
+    --brc-typography-letterSpacing-label3: 0.5px;
+  }
+}
