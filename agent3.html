@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wave Particles + Bloom + Orbit</title>
+  <link rel="icon" type="image/png" href="favicons/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="favicons/favicon.svg" />
+  <link rel="shortcut icon" href="favicons/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png" />
+  <link rel="manifest" href="favicons/site.webmanifest" />
+  <link rel="stylesheet" href="css/style.css" />
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body class="page-canvas">
+<div style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;z-index:10;">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:360px;">
+  <p id="ui-heading" style="margin:0;color:#fff;font-size:24px;font-family:sans-serif;">How can I help you?</p>
+  <div id="response-box" style="display:none;pointer-events:all;width:400px;max-width:90vw;padding:16px 24px;border-radius:16px;background:#25292c;color:#fff;font-size:15px;font-family:sans-serif;line-height:1.6;max-height:40vh;overflow-y:auto;white-space:pre-wrap;word-break:break-word;"></div>
+  <div style="pointer-events:all;display:flex;align-items:center;gap:10px;width:400px;max-width:90vw;">
+    <input id="ask-input" type="text" placeholder="Ask anything..." style="flex:1;min-width:0;padding:14px 24px;border:none;border-radius:9999px;background:rgba(255,255,255,0.05);color:#dff;font-size:16px;font-family:sans-serif;outline:none;" />
+    <button id="ask-submit" style="flex-shrink:0;width:48px;height:48px;border-radius:50%;border:none;background:#4AABB3;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px 4px rgba(74,171,179,0.35);">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 3L12 9L6 15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+  </div>
+</div>
+
+<script>
+const ANTHROPIC_API_KEY = 'YOUR_API_KEY_HERE';
+
+const input = document.getElementById('ask-input');
+const responseBox = document.getElementById('response-box');
+const heading = document.getElementById('ui-heading');
+const submitBtn = document.getElementById('ask-submit');
+
+async function handleSubmit() {
+  if (!input.value.trim()) return;
+  const prompt = input.value.trim();
+  input.value = '';
+  input.disabled = true;
+
+  heading.style.display = 'none';
+  responseBox.style.display = 'block';
+  responseBox.textContent = '';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-7',
+        max_tokens: 1024,
+        stream: true,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      responseBox.textContent = `Error: ${err?.error?.message || res.statusText}`;
+      input.disabled = false;
+      return;
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') continue;
+        try {
+          const event = JSON.parse(data);
+          if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta') {
+            responseBox.textContent += event.delta.text;
+            responseBox.scrollTop = responseBox.scrollHeight;
+          }
+        } catch {}
+      }
+    }
+  } catch (err) {
+    responseBox.textContent = `Error: ${err.message}`;
+  }
+
+  input.disabled = false;
+  input.focus();
+}
+
+input.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSubmit(); });
+submitBtn.addEventListener('click', handleSubmit);
+</script>
+
+<a href="index.html" class="back-btn">
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  Back
+</a>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { MeshSurfaceSampler } from 'three/addons/math/MeshSurfaceSampler.js';
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+
+console.clear();
+
+let scene = new THREE.Scene();
+let bgTex = null;
+function fitBg() {
+  if (!bgTex?.image) return;
+  const imgAspect = bgTex.image.width / bgTex.image.height;
+  const winAspect = innerWidth / innerHeight;
+  if (winAspect > imgAspect) {
+    bgTex.repeat.set(1, imgAspect / winAspect);
+    bgTex.offset.set(0, (1 - imgAspect / winAspect) / 2);
+  } else {
+    bgTex.repeat.set(winAspect / imgAspect, 1);
+    bgTex.offset.set((1 - winAspect / imgAspect) / 2, 0);
+  }
+}
+new THREE.TextureLoader().load('./images/bg.png', tex => {
+  bgTex = tex;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  scene.background = tex;
+  fitBg();
+});
+let camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 1, 1000);
+let renderer = new THREE.WebGLRenderer({
+  antialias: true
+});
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+window.addEventListener("resize", event => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  fitBg();
+})
+
+let controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.enableRotate = false;
+controls.enableZoom = false;
+controls.enablePan = false;
+
+let light = new THREE.DirectionalLight(0xffffff, 0.5);
+light.position.setScalar(1);
+scene.add(light, new THREE.AmbientLight(0xffffff, 0.5));
+
+let gu = {
+  time: {value: 0}
+}
+
+
+let g = new THREE.SphereGeometry(10,10,3);
+let o = new THREE.Mesh(g, new THREE.MeshBasicMaterial);
+let sampler = new MeshSurfaceSampler(o).build();
+let sampledGeometry = new THREE.BufferGeometry().setFromPoints(new Array(10000).fill().map(_ => {
+  let p = new THREE.Vector3();
+  sampler.sample(p);
+  return p;
+}));
+
+let m = new THREE.PointsMaterial({
+    color: "#4FA7B8",
+    size: 0.08,
+    transparent: true,
+    depthWrite: false,
+    onBeforeCompile: shader => {
+        shader.uniforms.time = gu.time;
+        shader.vertexShader = `
+        uniform float time;
+        varying float vSinVal;
+        ${shader.vertexShader}
+        `.replace(
+        `#include <begin_vertex>`,
+        `#include <begin_vertex>
+            vec3 wPos = vec3(modelMatrix * vec4(position, 1.));
+        `
+        ).replace(
+        `gl_PointSize = size;`,
+        `
+        float t = time * 1.;
+        wPos.y -= t;
+        float sinVal = sin(mod(wPos.y * 3., PI2)) * 0.5 + 0.5;
+        vSinVal = sinVal;
+        float sizeChange = 1. + sinVal * 3.;
+        gl_PointSize = size * sizeChange;`
+        );
+
+        shader.fragmentShader = `
+        varying float vSinVal;
+        ${shader.fragmentShader}
+        `.replace(
+        `#include <clipping_planes_fragment>`,
+        `#include <clipping_planes_fragment>
+            float dist = length(gl_PointCoord.xy - 0.5);
+            if (dist > 0.5) discard;
+        `
+        ).replace(
+        `#include <alphatest_fragment>`,
+        `#include <alphatest_fragment>
+            diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0, 0.8, 0.9), vSinVal);
+            float f = smoothstep(0.5, 0.1, dist);
+            diffuseColor.a = f;
+        `
+        );
+    }
+})
+
+/* // Background particle mesh
+const BG_COUNT = 120;
+const BG_SPREAD = 20;
+const BG_CONNECT_DIST = 4;
+const MAX_LINES = BG_COUNT * 10;
+
+const bgPos = new Float32Array(BG_COUNT * 3);
+const bgVel = new Float32Array(BG_COUNT * 3);
+for (let i = 0; i < BG_COUNT; i++) {
+    bgPos[i*3]   = (Math.random() - 0.5) * BG_SPREAD;
+    bgPos[i*3+1] = (Math.random() - 0.5) * BG_SPREAD;
+    bgPos[i*3+2] = (Math.random() - 0.5) * BG_SPREAD;
+    bgVel[i*3]   = (Math.random() - 0.5) * 0.015;
+    bgVel[i*3+1] = (Math.random() - 0.5) * 0.015;
+    bgVel[i*3+2] = (Math.random() - 0.5) * 0.015;
+}
+
+const bgGeo = new THREE.BufferGeometry();
+bgGeo.setAttribute('position', new THREE.BufferAttribute(bgPos, 3));
+scene.add(new THREE.Points(bgGeo, m));
+
+const bgLinePos = new Float32Array(MAX_LINES * 6);
+const bgLineGeo = new THREE.BufferGeometry();
+bgLineGeo.setAttribute('position', new THREE.BufferAttribute(bgLinePos, 3));
+bgLineGeo.setDrawRange(0, 0);
+const bgLineMat = new THREE.LineBasicMaterial({
+    color: "#4FA7B8", transparent: true, opacity: 0.2, depthWrite: false
+});
+scene.add(new THREE.LineSegments(bgLineGeo, bgLineMat));
+*/
+
+// instantiate a loader
+const loader = new OBJLoader();
+loader.load('./3D/basicHead.obj',
+(obj) => {
+    let geo;
+    obj.traverse(child => { if (!geo && child.isMesh) geo = child.geometry; });
+    if (!geo) { console.error('No geometry found in OBJ'); return; }
+
+    let lineMat = new THREE.LineBasicMaterial({
+        color: "#4FA7B8",
+        transparent: true,
+        depthWrite: false,
+        onBeforeCompile: shader => {
+            shader.uniforms.time = gu.time;
+            shader.vertexShader = `
+            uniform float time;
+            varying float vSinVal;
+            ${shader.vertexShader}
+            `.replace(
+            `#include <begin_vertex>`,
+            `#include <begin_vertex>
+                vec3 wPos = vec3(modelMatrix * vec4(position, 1.));
+                float t = time * 1.;
+                wPos.y -= t;
+                float sinVal = sin(mod(wPos.y * 3., PI2)) * 0.5 + 0.5;
+                vSinVal = sinVal;
+            `
+            );
+            shader.fragmentShader = `
+            varying float vSinVal;
+            ${shader.fragmentShader}
+            `.replace(
+            `#include <alphatest_fragment>`,
+            `#include <alphatest_fragment>
+                diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0, 0.8, 0.9), vSinVal);
+                diffuseColor.a *= 0.6;
+            `
+            );
+        }
+    });
+
+    const group = new THREE.Group();
+    group.rotation.y = Math.PI*.5;
+    group.add(new THREE.Points(geo, m));
+    group.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), lineMat));
+    scene.add(group);
+
+    var bbox = new THREE.Box3().setFromObject(group);
+    var center = new THREE.Vector3();
+    bbox.getCenter(center);
+    var size = new THREE.Vector3();
+    bbox.getSize(size);
+
+    var boundingBoxSize = Math.max(size.x, size.y, size.z);
+    var cameraDistance = boundingBoxSize / Math.tan(Math.PI * camera.fov / 360);
+
+    camera.position.copy(center);
+    camera.position.z += cameraDistance * 2;
+    camera.lookAt(center);
+    controls.target.copy(center);
+},
+(xhr) => {
+    console.log(xhr)
+},
+(err) => {
+    console.error("loading .obj went wrong, ", err)
+})
+
+let clock = new THREE.Clock();
+
+renderer.setAnimationLoop((_) => {
+  let t = clock.getElapsedTime();
+  gu.time.value = t;
+  controls.update();
+
+  /* // Move bg particles and bounce off bounds
+  const h = BG_SPREAD / 2;
+  for (let i = 0; i < BG_COUNT; i++) {
+    bgPos[i*3]   += bgVel[i*3];
+    bgPos[i*3+1] += bgVel[i*3+1];
+    bgPos[i*3+2] += bgVel[i*3+2];
+    if (Math.abs(bgPos[i*3])   > h) bgVel[i*3]   *= -1;
+    if (Math.abs(bgPos[i*3+1]) > h) bgVel[i*3+1] *= -1;
+    if (Math.abs(bgPos[i*3+2]) > h) bgVel[i*3+2] *= -1;
+  }
+  bgGeo.attributes.position.needsUpdate = true;
+
+  // Rebuild connections between nearby particles
+  let li = 0;
+  const d2 = BG_CONNECT_DIST * BG_CONNECT_DIST;
+  for (let i = 0; i < BG_COUNT && li < MAX_LINES; i++) {
+    for (let j = i + 1; j < BG_COUNT && li < MAX_LINES; j++) {
+      const dx = bgPos[i*3] - bgPos[j*3];
+      const dy = bgPos[i*3+1] - bgPos[j*3+1];
+      const dz = bgPos[i*3+2] - bgPos[j*3+2];
+      if (dx*dx + dy*dy + dz*dz < d2) {
+        bgLinePos[li*6]   = bgPos[i*3];   bgLinePos[li*6+1] = bgPos[i*3+1]; bgLinePos[li*6+2] = bgPos[i*3+2];
+        bgLinePos[li*6+3] = bgPos[j*3];   bgLinePos[li*6+4] = bgPos[j*3+1]; bgLinePos[li*6+5] = bgPos[j*3+2];
+        li++;
+      }
+    }
+  }
+  bgLineGeo.attributes.position.needsUpdate = true;
+  bgLineGeo.setDrawRange(0, li * 2);
+  */
+
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>
