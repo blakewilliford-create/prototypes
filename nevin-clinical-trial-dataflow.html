@@ -1,0 +1,1586 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1400" />
+<title>Clinical Trials Data Flow — System &amp; Tool Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300&family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --paper:    #F4EFE6;
+  --paper-2:  #EDE7DC;
+  --ink:      #15171A;
+  --ink-2:    #3A3D42;
+  --ink-3:    #7A7F88;
+  --ink-4:    #B0B5BD;
+  --rule:     #D8D2C8;
+  --manual:   #D94A1F;
+  --manual-lt:#F0C4B5;
+  --auto:     #3A3D42;
+  --auto-lt:  #C8CACF;
+
+  /* layer tints */
+  --site-bg:  #EDE4D7;
+  --coll-bg:  #DEE8E2;
+  --ops-bg:   #E3DCE9;
+  --reg-bg:   #EBE0D8;
+
+  --drawer-w: 380px;
+  --header-h: 64px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ── HEADER ───────────────────────────────── */
+header {
+  position: sticky; top: 0; z-index: 50;
+  height: var(--header-h);
+  background: var(--paper);
+  border-bottom: 1.5px solid var(--rule);
+  display: flex; align-items: center;
+  padding: 0 40px;
+  gap: 32px;
+}
+.brand {
+  display: flex; align-items: baseline; gap: 12px;
+}
+.brand-title {
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -.3px;
+  color: var(--ink);
+}
+.brand-sub {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+
+/* ── CANVAS WRAPPER ───────────────────────── */
+.canvas-wrap {
+  padding: 40px 40px 0;
+  overflow-x: auto;
+}
+
+/* ── LEGEND ───────────────────────────────── */
+.legend {
+  display: flex; align-items: center; gap: 24px;
+  margin-bottom: 24px;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity .2s;
+}
+.legend-line {
+  width: 36px; height: 2px; flex-shrink: 0;
+}
+.legend-line.auto { background: var(--auto); }
+.legend-line.manual {
+  background: transparent;
+  border-top: 2px dashed var(--manual);
+}
+.legend-item.dimmed { opacity: .3; }
+
+/* ── DIAGRAM ──────────────────────────────── */
+.diagram {
+  position: relative;
+  width: 1240px;
+  margin: 0 auto;
+}
+
+/* SVG edges */
+#edges-svg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── GROUPING BOX (Data & Analytics Workbench) ── */
+.group-box {
+  position: absolute;
+  border: 1.5px dashed var(--ink-3);
+  border-radius: 10px;
+  background: transparent;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.group-box.visible { opacity: 0.55; }
+.group-box-tab {
+  position: absolute;
+  top: -10px;
+  right: 14px;
+  background: var(--paper);
+  border: 1px solid var(--ink-3);
+  border-radius: 4px;
+  padding: 2px 8px 3px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background .15s, color .15s, border-color .15s;
+  white-space: nowrap;
+}
+.group-box-tab:hover {
+  background: var(--ink-2);
+  color: var(--paper);
+  border-color: var(--ink-2);
+}
+.edge {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  transition: opacity .25s, stroke-width .2s;
+}
+.edge.auto { stroke: var(--auto); }
+.edge.manual {
+  stroke: var(--manual);
+  stroke-dasharray: 7 5;
+  animation: march 24s linear infinite;
+}
+.edge.manual:hover { stroke-width: 2.5; }
+.edge.auto:hover { stroke-width: 2.5; }
+
+@keyframes march {
+  to { stroke-dashoffset: -240; }
+}
+
+.edge-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9.5px;
+  fill: var(--manual);
+  pointer-events: none;
+  dominant-baseline: central;
+  letter-spacing: .2px;
+}
+
+/* arrowhead */
+.edge.auto-tip { stroke: none; fill: var(--auto); }
+.edge.manual-tip { stroke: none; fill: var(--manual); }
+
+/* ── SWIM LANES ───────────────────────────── */
+.lanes {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.lane {
+  position: relative;
+  padding: 28px 0 28px 80px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  min-height: 120px;
+}
+.lane-site  { background: var(--site-bg); }
+.lane-coll  { background: var(--coll-bg); }
+.lane-ops   { background: var(--ops-bg); }
+.lane-reg   { background: var(--reg-bg); }
+
+.lane-label {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 72px;
+  display: flex; align-items: center; justify-content: center;
+}
+.lane-label span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+}
+
+.nodes-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: nowrap;
+}
+
+/* ── NODES ────────────────────────────────── */
+.node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: opacity .25s, transform .18s;
+  flex-shrink: 0;
+}
+.node:hover { transform: translateY(-2px); }
+.node:hover .node-box { box-shadow: 0 4px 16px rgba(0,0,0,.12); }
+
+.node-box {
+  width: 112px;
+  background: var(--paper);
+  border: 1.5px solid var(--rule);
+  border-radius: 8px;
+  padding: 10px 10px 8px;
+  transition: box-shadow .18s, border-color .18s;
+}
+.node-box .acronym {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-2);
+  letter-spacing: .6px;
+  margin-bottom: 3px;
+  display: block;
+}
+.node-box .name {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--ink-3);
+  line-height: 1.35;
+  display: block;
+}
+.node-box .transfer-badge {
+  margin-top: 7px;
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+.badge-auto   { background: var(--auto-lt);   color: var(--auto);   }
+.badge-manual { background: var(--manual-lt); color: var(--manual); }
+.badge-both   {
+  background: linear-gradient(90deg, var(--auto-lt) 50%, var(--manual-lt) 50%);
+  color: var(--ink-2);
+}
+
+/* person nodes */
+.node-box.person {
+  background: transparent;
+  border: 1.5px dashed var(--rule);
+  border-radius: 50%;
+  width: 80px; height: 80px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 8px;
+}
+.node-box.person .acronym { font-size: 10px; text-align: center; margin: 0; }
+.node-box.person .name    { font-size: 9px;  text-align: center; }
+
+/* dimmed/highlighted states */
+.node.dimmed     { opacity: .12; }
+.node.highlighted .node-box { border-color: var(--ink-2); }
+/* visibility (not opacity) because .edge has `animation-fill-mode: forwards`
+   that persistently holds opacity:1 even after the animation ends, and that
+   wins against static opacity rules — visibility isn't in the keyframe so
+   it's safe to control here. */
+.edge.dimmed { visibility: hidden; }
+.edge.highlighted.manual { stroke-width: 2.5; }
+.edge.highlighted.auto   { stroke-width: 2.5; }
+.edge-label-g { transition: opacity .25s; }
+.edge-label-g.dimmed { visibility: hidden; }
+
+/* ── RIGHT DRAWER ─────────────────────────── */
+.drawer-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 90;
+}
+.drawer-overlay.open { display: block; }
+
+.drawer {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: var(--drawer-w);
+  background: var(--paper);
+  border-left: 1.5px solid var(--rule);
+  z-index: 100;
+  transform: translateX(100%);
+  transition: transform .22s cubic-bezier(.4,0,.2,1);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.drawer.open { transform: translateX(0); }
+
+.drawer-header {
+  padding: 28px 28px 20px;
+  border-bottom: 1.5px solid var(--rule);
+  position: sticky; top: 0;
+  background: var(--paper);
+  z-index: 2;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+}
+.drawer-header-text { flex: 1; }
+.drawer-acronym {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.drawer-name {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--ink);
+}
+.drawer-close {
+  border: 0; background: transparent; cursor: pointer;
+  color: var(--ink-3); font-size: 18px;
+  padding: 4px; margin-top: -4px;
+  line-height: 1;
+  transition: color .15s;
+}
+.drawer-close:hover { color: var(--ink); }
+
+.drawer-body { padding: 24px 28px 48px; flex: 1; }
+
+.drawer-badge-row { display: flex; gap: 8px; align-items: center; margin-bottom: 20px; }
+
+.d-badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  padding: 3px 8px; border-radius: 4px;
+}
+.d-badge-layer { background: var(--paper-2); color: var(--ink-3); border: 1px solid var(--rule); }
+
+.drawer-section { margin-bottom: 22px; }
+.drawer-section h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 0 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--rule);
+}
+.drawer-section p {
+  font-size: 13px;
+  color: var(--ink-2);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.fields-list {
+  display: flex; flex-wrap: wrap; gap: 5px;
+  list-style: none; margin: 0; padding: 0;
+}
+.fields-list li {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9.5px;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 3px 7px;
+  color: var(--ink-2);
+  letter-spacing: .3px;
+}
+
+.flow-list {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.flow-list li {
+  font-size: 12px;
+  color: var(--ink-2);
+  display: flex; align-items: flex-start; gap: 6px;
+  line-height: 1.4;
+}
+.flow-arrow { flex-shrink: 0; margin-top: 1px; }
+.flow-arrow.auto   { color: var(--auto); }
+.flow-arrow.manual { color: var(--manual); }
+
+.drawer-note {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--ink-3);
+  background: var(--paper-2);
+  border-left: 2px solid var(--manual-lt);
+  padding: 8px 12px;
+  border-radius: 0 4px 4px 0;
+  margin-top: 8px;
+}
+
+/* ── FRICTION CALLOUTS FOOTER ─────────────── */
+.callouts {
+  margin: 32px 40px 0;
+  padding: 32px 40px;
+  border-top: 1.5px solid var(--rule);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+.callout {
+  padding: 0;
+}
+.callout-num {
+  font-family: 'Fraunces', serif;
+  font-size: 32px;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--manual);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.callout-text {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  line-height: 1.6;
+}
+.callout-text strong { color: var(--ink); font-weight: 500; }
+
+/* ── PAGE FOOTER ──────────────────────────── */
+footer {
+  margin-top: 32px;
+  padding: 24px 40px;
+  border-top: 1px solid var(--rule);
+  display: flex; align-items: center; justify-content: space-between;
+}
+footer p {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-4);
+  letter-spacing: .4px;
+  margin: 0;
+}
+
+
+/* ── PAGE LOAD ANIMATION ──────────────────── */
+.lane {
+  opacity: 0;
+  animation: fadeUp .45s ease forwards;
+}
+.lane:nth-child(1) { animation-delay: .05s; }
+.lane:nth-child(2) { animation-delay: .12s; }
+.lane:nth-child(3) { animation-delay: .19s; }
+.lane:nth-child(4) { animation-delay: .26s; }
+
+@keyframes fadeUp {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.edge {
+  stroke-dashoffset: 600;
+  animation: drawEdge .6s ease forwards;
+}
+.edge.manual {
+  animation: drawEdge .6s ease forwards, march 24s linear infinite;
+  animation-delay: .35s, .35s;
+}
+
+@keyframes drawEdge {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="brand">
+    <span class="brand-title">Clinical Trials Data Flow</span>
+    <span class="brand-sub">System &amp; Tool Map</span>
+  </div>
+</header>
+
+<!-- LEGEND -->
+<div class="canvas-wrap">
+  <div class="legend">
+    <div class="legend-item" data-toggle="auto">
+      <div class="legend-line auto"></div>
+      <span>Automated flow</span>
+    </div>
+    <div class="legend-item" data-toggle="manual">
+      <div class="legend-line manual"></div>
+      <span>Manual handoff</span>
+    </div>
+    <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ink-4); letter-spacing:.4px;">
+      CLICK ANY NODE TO EXPLORE
+    </div>
+  </div>
+
+  <!-- DIAGRAM -->
+  <div class="diagram" id="diagram">
+
+    <!-- SWIM LANES -->
+    <div class="lanes" id="lanes">
+
+      <!-- SITE LAYER -->
+      <div class="lane lane-site" data-layer="site" id="lane-site">
+        <div class="lane-label"><span>Site Layer</span></div>
+        <div class="nodes-row">
+          <div class="node" data-id="PAT" id="node-PAT">
+            <div class="node-box person">
+              <span class="acronym">Patient</span>
+            </div>
+          </div>
+          <div class="node" data-id="PCRF" id="node-PCRF">
+            <div class="node-box">
+              <span class="acronym">Paper CRF</span>
+              <span class="name">Case Report Form</span>
+              <span class="transfer-badge badge-manual">Manual</span>
+            </div>
+          </div>
+          <div class="node" data-id="ISF" id="node-ISF">
+            <div class="node-box">
+              <span class="acronym">ISF</span>
+              <span class="name">Investigator Site File</span>
+              <span class="transfer-badge badge-manual">Manual</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLLECTION LAYER -->
+      <div class="lane lane-coll" data-layer="collection" id="lane-coll">
+        <div class="lane-label"><span>Collection Layer</span></div>
+        <div class="nodes-row">
+          <div class="node" data-id="EDC" id="node-EDC">
+            <div class="node-box">
+              <span class="acronym">EDC</span>
+              <span class="name">Electronic Data Capture</span>
+              <span class="transfer-badge badge-both">Both</span>
+            </div>
+          </div>
+          <div class="node" data-id="IRT" id="node-IRT">
+            <div class="node-box">
+              <span class="acronym">IRT / RTSM</span>
+              <span class="name">Randomization &amp; Supply</span>
+              <span class="transfer-badge badge-both">Both</span>
+            </div>
+          </div>
+          <div class="node" data-id="EPRO" id="node-EPRO">
+            <div class="node-box">
+              <span class="acronym">ePRO / eCOA</span>
+              <span class="name">Patient &amp; Clinician Outcomes</span>
+              <span class="transfer-badge badge-auto">Automated</span>
+            </div>
+          </div>
+          <div class="node" data-id="LABS" id="node-LABS">
+            <div class="node-box">
+              <span class="acronym">Labs</span>
+              <span class="name">Central / Local Labs</span>
+              <span class="transfer-badge badge-both">Both</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OPERATIONAL LAYER -->
+      <div class="lane lane-ops" data-layer="ops" id="lane-ops">
+        <div class="lane-label"><span>Operational Layer</span></div>
+        <div class="nodes-row">
+          <div class="node" data-id="CTMS" id="node-CTMS">
+            <div class="node-box">
+              <span class="acronym">CTMS</span>
+              <span class="name">Clinical Trial Management</span>
+              <span class="transfer-badge badge-both">Both</span>
+            </div>
+          </div>
+          <div class="node" data-id="ETMF" id="node-ETMF">
+            <div class="node-box">
+              <span class="acronym">eTMF</span>
+              <span class="name">Electronic Trial Master File</span>
+              <span class="transfer-badge badge-both">Both</span>
+            </div>
+          </div>
+          <div class="node" data-id="SAFETY" id="node-SAFETY">
+            <div class="node-box">
+              <span class="acronym">Safety / PV</span>
+              <span class="name">Pharmacovigilance</span>
+              <span class="transfer-badge badge-both">Both</span>
+            </div>
+          </div>
+          <div class="node" data-id="CDB" id="node-CDB">
+            <div class="node-box">
+              <span class="acronym">CDB</span>
+              <span class="name">Clinical Database</span>
+              <span class="transfer-badge badge-both">Both</span>
+            </div>
+          </div>
+          <div class="node" data-id="RBQM" id="node-RBQM">
+            <div class="node-box">
+              <span class="acronym">RBQM</span>
+              <span class="name">Risk-Based Quality Mgmt</span>
+              <span class="transfer-badge badge-both">Both</span>
+            </div>
+          </div>
+          <div class="node" data-id="CRA" id="node-CRA">
+            <div class="node-box person">
+              <span class="acronym" style="font-size:9px">CRA</span>
+              <span class="name" style="font-size:8px;text-align:center">Clinical Research Associate</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REGULATORY LAYER -->
+      <div class="lane lane-reg" data-layer="regulatory" id="lane-reg">
+        <div class="lane-label"><span>Regulatory Layer</span></div>
+        <div class="nodes-row">
+          <div class="node" data-id="RIM" id="node-RIM">
+            <div class="node-box">
+              <span class="acronym">RIM</span>
+              <span class="name">Regulatory Info Management</span>
+              <span class="transfer-badge badge-both">Both</span>
+            </div>
+          </div>
+          <div class="node" data-id="REGBODY" id="node-REGBODY">
+            <div class="node-box">
+              <span class="acronym">FDA / EMA</span>
+              <span class="name">Regulatory Submission</span>
+              <span class="transfer-badge badge-both">Both</span>
+            </div>
+          </div>
+          <div class="node" data-id="EXEC" id="node-EXEC">
+            <div class="node-box">
+              <span class="acronym">Exec Dashboard</span>
+              <span class="name">KPI &amp; Reporting</span>
+              <span class="transfer-badge badge-both">Both</span>
+            </div>
+          </div>
+          <div class="node" data-id="GOVERN" id="node-GOVERN">
+            <div class="node-box">
+              <span class="acronym">GOVERNANCE</span>
+              <span class="name">Sponsor Governance &amp; Distribution</span>
+              <span class="transfer-badge badge-manual">Manual</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /lanes -->
+
+    <!-- GROUPING BOX: Data & Analytics Workbench (wraps CDB + RBQM) -->
+    <div class="group-box" id="group-workbench">
+      <div class="group-box-tab" data-id="WORKBENCH">Data &amp; Analytics Workbench</div>
+    </div>
+
+    <!-- SVG LAYER — rendered after lanes so it paints on top -->
+    <svg id="edges-svg" aria-hidden="true">
+      <defs>
+        <marker id="arrow-auto" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#3A3D42" />
+        </marker>
+        <marker id="arrow-manual" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#D94A1F" />
+        </marker>
+      </defs>
+    </svg>
+
+  </div><!-- /diagram -->
+
+  <!-- FRICTION CALLOUTS -->
+  <div class="callouts">
+    <div class="callout">
+      <div class="callout-num">10–40%</div>
+      <div class="callout-text"><strong>of site data reaches the EDC.</strong> The critical-to-quality subset only — the rest stays on paper at the site indefinitely.</div>
+    </div>
+    <div class="callout">
+      <div class="callout-num">~5 days</div>
+      <div class="callout-text"><strong>average transcription lag</strong> from Paper CRF to EDC. Contractually required; inconsistently followed.</div>
+    </div>
+    <div class="callout">
+      <div class="callout-num">Days to Weeks</div>
+      <div class="callout-text"><strong>CTMS data can lag visits</strong> depending on CRA update discipline. Site-level data is heavily manual.</div>
+    </div>
+    <div class="callout">
+      <div class="callout-num">Variable</div>
+      <div class="callout-text"><strong>Lab integration quality.</strong> Manual reconciliation is common even when automated HL7/LIMS feeds exist — session ID mismatches break feeds.</div>
+    </div>
+  </div>
+
+  <footer>
+    <p>BIORCE · CLINICAL TRIALS DATA FLOW · GENERIC CATEGORY LABELS — NO VENDOR NAMES</p>
+    <p>CLICK ANY NODE TO EXPLORE ITS DATA DICTIONARY ENTRY</p>
+  </footer>
+</div><!-- /canvas-wrap -->
+
+<!-- DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-label="System detail">
+  <div class="drawer-header">
+    <div class="drawer-header-text">
+      <div class="drawer-acronym" id="d-acronym"></div>
+      <div class="drawer-name" id="d-name"></div>
+    </div>
+    <button class="drawer-close" id="drawer-close" aria-label="Close">✕</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</aside>
+
+<script>
+/* ── DATA MODEL ──────────────────────────────────────────────── */
+
+const SYSTEMS = {
+  PAT: {
+    name: 'Patient',
+    acronym: 'PATIENT',
+    layer: 'Site Layer',
+    transferType: 'manual',
+    fields: ['Vital signs (measured by staff)', 'Symptoms and clinical observations (recorded by staff)', 'Signed informed consent', 'Biospecimens (blood, tissue)', 'ePRO/eCOA entries (where deployed)'],
+    inputs: [],
+    outputs: [{ to: 'PCRF', type: 'manual', label: 'Staff document observations during visit' }],
+    notes: 'The originating source of all clinical data. Patient is observed and provides biospecimens and consent; site staff document everything else during the visit. ePRO/eCOA, where deployed, lets the patient enter data directly into a device.'
+  },
+  PCRF: {
+    name: 'Paper CRF',
+    acronym: 'PAPER CRF',
+    layer: 'Site Layer',
+    transferType: 'manual',
+    fields: ['Patient demographics', 'Vital signs', 'Adverse events', 'Concomitant medications', 'Lab sample IDs', 'Protocol assessments', 'Physician signatures', 'Handwritten dates'],
+    inputs: [{ from: 'PAT', type: 'manual', label: 'Physician / site staff — handwritten during visits' }],
+    outputs: [
+      { to: 'EDC', type: 'manual', label: 'Transcription — 10–40% of data, ~5 day lag' },
+      { to: 'ISF', type: 'manual', label: 'Both held at site (separate binders)' }
+    ],
+    notes: 'Source of patient data captured during site visits, held in subject case binders at the site (separate from the ISF). Only the critical-to-quality subset — typically 10–40% of data — is transcribed into the EDC/eCRF; the remainder stays on paper and is never reported to the sponsor database. Industry SLA is ~5 business days post-visit but is widely missed.'
+  },
+  ISF: {
+    name: 'Investigator Site File',
+    acronym: 'ISF',
+    layer: 'Site Layer',
+    transferType: 'manual',
+    fields: ['IRB/EC letters', 'Investigator CVs and licenses', 'Staff training records', 'Protocol versions and amendments', 'IMP accountability logs', 'Consent form versions', 'Lab certifications', 'Financial disclosure forms'],
+    inputs: [
+      { from: 'PCRF', type: 'manual', label: 'Co-located at site (separate from ISF — held in subject case binders)' },
+      { from: 'Sponsor/CRO', type: 'manual', label: 'Protocol amendments, IMP manuals, CRF guidelines' }
+    ],
+    outputs: [{ to: 'ETMF', type: 'manual', label: 'Manual reconciliation — pseudonymized copies to sponsor TMF' }],
+    notes: 'Site-controlled regulatory binder holding essential records (Form FDA 1572, IRB/EC approvals, CVs and training, IMP logs, protocol versions, IRB-approved ICF templates). Distinct from source documents — paper CRFs, medical charts, and lab printouts live in subject case binders at the site, not in the ISF. Original signed ICFs and subject ID lists contain PHI and stay at the site per the EMA TMF Guideline; the sponsor TMF receives pseudonymized copies. Note: not all site-collected information reaches the sponsor — only the critical-to-quality subset (~10–40%) is transcribed to EDC; the rest stays on paper at the site. First artifact inspected during FDA BIMO, MHRA, and EMA site inspections.'
+  },
+  EDC: {
+    name: 'Electronic Data Capture',
+    acronym: 'EDC',
+    layer: 'Collection Layer',
+    transferType: 'both',
+    fields: ['Critical-to-quality patient data', 'Lab results', 'ePRO scores', 'Protocol deviation flags', 'AE/SAE entries', 'Data query log', 'Electronic signatures', 'Full audit trail (21 CFR Part 11)'],
+    inputs: [
+      { from: 'PCRF', type: 'manual', label: 'Manual transcription by site coordinator' },
+      { from: 'IRT', type: 'auto', label: 'Patient registration and arm assignment' },
+      { from: 'EPRO', type: 'auto', label: 'Patient-reported outcomes' },
+      { from: 'LABS', type: 'both', label: 'Lab results — automated or manual reconciliation' }
+    ],
+    outputs: [
+      { to: 'CTMS', type: 'auto', label: 'Partial feed — patient/visit counts' },
+      { to: 'SAFETY', type: 'auto', label: 'AE/SAE signals' },
+      { to: 'CDB', type: 'auto', label: 'Aggregation and cleaning' },
+      { to: 'RBQM', type: 'auto', label: 'Data quality signals' }
+    ],
+    notes: 'Central system of record for patient data. Receives only 10–40% of site-collected data — the rest stays on paper.'
+  },
+  IRT: {
+    name: 'Randomization & Trial Supply Management',
+    acronym: 'IRT / RTSM',
+    layer: 'Collection Layer',
+    transferType: 'both',
+    fields: ['Patient enrollment ID', 'Randomization arm assignment', 'Drug kit number', 'Dose level', 'Supply inventory levels', 'Dispensation records', 'Return/destruction records', 'Unblinding events'],
+    inputs: [
+      { from: 'Site coordinator', type: 'manual', label: 'Patient registration via IRT portal' },
+      { from: 'Drug supply chain', type: 'manual', label: 'Kit inventory updates' }
+    ],
+    outputs: [
+      { to: 'EDC', type: 'auto', label: 'Patient ID and arm assignment' },
+      { to: 'CTMS', type: 'auto', label: 'Supply status and enrollment counts' },
+      { to: 'RBQM', type: 'auto', label: 'Enrollment data' }
+    ],
+    notes: ''
+  },
+  EPRO: {
+    name: 'Electronic Patient & Clinician-Reported Outcomes',
+    acronym: 'ePRO / eCOA',
+    layer: 'Collection Layer',
+    transferType: 'both',
+    fields: ['Patient-reported symptom scores (PRO)', 'Quality-of-life questionnaire responses', 'Diary entries (daily/weekly)', 'Clinician-observed outcomes (COA)', 'Device-stamped timestamps'],
+    inputs: [
+      { from: 'Patient', type: 'both', label: 'Direct device entry (mobile app, tablet); in some sites/protocols, paper diaries are still used and transcribed' },
+      { from: 'Clinician', type: 'both', label: 'eCOA tablet entry at visit; rater-administered scales sometimes still on paper' }
+    ],
+    outputs: [{ to: 'EDC', type: 'auto', label: 'Automated feed' }],
+    notes: 'Most reliable electronic data entry in the ecosystem. Device-generated timestamps cannot be backdated. Where paper diaries or rater forms are still used, those flow through the paper CRF transcription path instead.'
+  },
+  LABS: {
+    name: 'Central / Local Labs',
+    acronym: 'LABS',
+    layer: 'Collection Layer',
+    transferType: 'both',
+    fields: ['Sample ID', 'Analyte values (CBC, chemistry panel, biomarkers)', 'Reference ranges', 'Collection and processing dates', 'Abnormality flags', 'Lab certification records'],
+    inputs: [
+      { from: 'Site', type: 'manual', label: 'Physical sample shipment' },
+      { from: 'Site coordinator', type: 'manual', label: 'Requisition form with patient ID and visit info' }
+    ],
+    outputs: [{ to: 'EDC', type: 'both', label: 'HL7/LIMS feed at large sponsors; manual reconciliation common' }],
+    notes: 'Integration quality varies significantly. Manual reconciliation is frequently required when session IDs mismatch or samples are not received.'
+  },
+  CTMS: {
+    name: 'Clinical Trial Management System',
+    acronym: 'CTMS',
+    layer: 'Operational Layer',
+    transferType: 'both',
+    fields: ['Site contact details', 'Patient enrollment counts', 'Visit schedules and completion status', 'Monitoring visit logs', 'Protocol deviation records', 'Site issue logs', 'ICF tracking', 'Regulatory document status', 'Study milestone tracking'],
+    inputs: [
+      { from: 'EDC', type: 'auto', label: 'Partial feed — patient/visit counts' },
+      { from: 'IRT', type: 'auto', label: 'Drug supply status' },
+      { from: 'CRA', type: 'manual', label: 'Post-visit entry — site issues, PDs, visit summaries' }
+    ],
+    outputs: [
+      { to: 'ETMF', type: 'manual', label: 'Monitoring visit report upload' },
+      { to: 'RBQM', type: 'auto', label: 'Operational data' }
+    ],
+    notes: 'Heavily manual for site-level data. Data can lag visits by days or weeks depending on CRA update discipline.'
+  },
+  ETMF: {
+    name: 'Electronic Trial Master File',
+    acronym: 'eTMF',
+    layer: 'Operational Layer',
+    transferType: 'both',
+    fields: ['Protocols and amendments', 'IRB/EC approvals', 'Investigator agreements', 'Site qualification documents', 'Monitoring visit reports', 'IMP records', 'Safety documents', 'Correspondence', 'Regulatory submissions and responses'],
+    inputs: [
+      { from: 'CTMS', type: 'manual', label: 'Monitoring reports — manual upload' },
+      { from: 'ISF', type: 'manual', label: 'Site documents — manual reconciliation' },
+      { from: 'Sponsor/CRO teams', type: 'manual', label: 'Direct upload' }
+    ],
+    outputs: [{ to: 'REGBODY', type: 'auto', label: 'Included in NDA/BLA/MAA dossier' }],
+    notes: 'Majority of inputs are manual upload. Organized per the TMF Reference Model taxonomy. Central to inspection readiness.'
+  },
+  SAFETY: {
+    name: 'Pharmacovigilance',
+    acronym: 'SAFETY / PV',
+    layer: 'Operational Layer',
+    transferType: 'both',
+    fields: ['AE narratives', 'SAE case records', 'Individual Case Safety Reports (ICSRs)', 'MedDRA-coded reactions', 'Causality assessments', 'Time-to-onset', 'Aggregate safety summaries (PSUR/PBRER, DSUR)'],
+    inputs: [
+      { from: 'EDC', type: 'auto', label: 'AE/SAE entries — automated or manual extract' },
+      { from: 'Site staff', type: 'manual', label: 'Direct spontaneous reports' }
+    ],
+    outputs: [{ to: 'REGBODY', type: 'auto', label: 'IND safety reports (7/15 days), PSUR, DSUR' }],
+    notes: 'Expedited reporting timelines are regulatory obligations. E2B format used for ICSR submissions to regulators.'
+  },
+  CDB: {
+    name: 'Clinical Database',
+    acronym: 'CDB',
+    layer: 'Operational Layer',
+    transferType: 'both',
+    fields: ['Aggregated patient-level data across EDC sources', 'Derived variables and computed endpoints', 'Edit check outputs and data discrepancy flags', 'Query resolution history', 'SDTM datasets', 'ADaM datasets (CDISC standards)'],
+    inputs: [{ from: 'EDC', type: 'auto', label: 'Automated aggregation and cleaning pipeline (also ingests from central labs, ePRO, IRT in larger sponsor architectures)' }],
+    outputs: [{ to: 'RIM', type: 'auto', label: 'Cleaned CDISC datasets for NDA/BLA submission' }],
+    notes: 'Data management team runs edit checks and resolves queries before database lock. SDTM and ADaM outputs are regulatory submission standards. Submission path simplified: CDB → biostatistics (SAP execution) → SDTM / ADaM / define.xml → Clinical Study Report (ICH E3) → RIM Module 5. Shown as direct CDB → RIM here for clarity.'
+  },
+  RBQM: {
+    name: 'Risk-Based Quality Management Dashboard',
+    acronym: 'RBQM',
+    layer: 'Operational Layer',
+    transferType: 'both',
+    fields: ['Site risk scores (composite)', 'Enrollment velocity by site/country', 'Query rate and aging by site', 'Protocol deviation frequency', 'SDV/SDR completion rates', 'Monitoring visit due dates', 'Data lag indicators', 'CSM flags (outlier detection)'],
+    inputs: [
+      { from: 'CTMS', type: 'auto', label: 'Site operational data' },
+      { from: 'EDC', type: 'auto', label: 'Data quality signals — query rates, missing data' },
+      { from: 'IRT', type: 'auto', label: 'Enrollment and randomization data' }
+    ],
+    outputs: [
+      { to: 'CRA', type: 'manual', label: 'Visit schedule alerts and risk notifications' },
+      { to: 'EXEC', type: 'auto', label: 'Aggregated KPIs' }
+    ],
+    notes: 'Only as current as upstream CTMS, EDC, and IRT systems. CRA alert delivery varies from automated email to manual dashboard review.'
+  },
+  CRA: {
+    name: 'Clinical Research Associate',
+    acronym: 'CRA',
+    layer: 'Operational Layer',
+    transferType: 'manual',
+    fields: ['Site visit findings', 'Protocol deviation codes', 'Issue logs', 'Visit summary narratives', 'Monitoring Visit Reports (MVRs)'],
+    responsibilities: [
+      'SDR (Source Data Review) — 100% of source documents reviewed at each visit',
+      'SDV (Source Data Verification) — targeted subset of EDC data verified against source (reduced under risk-based monitoring)',
+      'Query authoring — writes discrepancy queries directly in EDC during site visits',
+      'Document upload — scans/uploads site-held essential documents to eTMF',
+      'MVR authoring — drafts the Monitoring Visit Report in CTMS post-visit'
+    ],
+    inputs: [{ from: 'RBQM', type: 'manual', label: 'Visit schedule alerts' }],
+    outputs: [{ to: 'CTMS', type: 'manual', label: 'Post-visit entry — issues, PDs, visit summary' }],
+    notes: 'The human bridge between site reality and sponsor systems. Update discipline (post-visit data entry within ~5 business days) directly determines CTMS data quality across the entire study; in practice, lags of weeks to several months are common.'
+  },
+  RIM: {
+    name: 'Regulatory Information Management',
+    acronym: 'RIM',
+    layer: 'Regulatory Layer',
+    transferType: 'both',
+    fields: ['Submission dossiers (NDA, BLA, MAA — eCTD format)', 'Regulatory correspondence', 'Country-specific product registration data', 'Labeling documents and revision history', 'Submission tracking and milestones'],
+    inputs: [
+      { from: 'CDB', type: 'auto', label: 'Cleaned CDISC clinical datasets' },
+      { from: 'ETMF', type: 'manual', label: 'Supporting trial documents' },
+      { from: 'SAFETY', type: 'both', label: 'Safety data and summaries' }
+    ],
+    outputs: [{ to: 'REGBODY', type: 'auto', label: 'Full eCTD submission package — NDA/BLA/MAA' }],
+    notes: 'Automated compilation of datasets; manual authoring of submission documents by regulatory affairs and medical writing teams.'
+  },
+  REGBODY: {
+    name: 'FDA / EMA Regulatory Submission',
+    acronym: 'FDA / EMA',
+    layer: 'Regulatory Layer',
+    transferType: 'both',
+    fields: ['eCTD submission package', 'NDA / BLA (US) or MAA (EU)', 'Safety reports', 'Clinical study reports', 'Labeling'],
+    inputs: [
+      { from: 'ETMF', type: 'auto', label: 'Trial documents' },
+      { from: 'SAFETY', type: 'auto', label: 'IND safety reports / SUSAR / PSUR' },
+      { from: 'RIM', type: 'auto', label: 'eCTD submission package' }
+    ],
+    outputs: [],
+    notes: 'Terminal destination for regulatory submissions in this view. FDA NDA/BLA review goal: 10 months standard / 6 months priority, measured from the Day-60 filing date (PDUFA VII; non-NME NDAs measured from receipt). EMA centralized procedure: up to 210 days active CHMP review (150 days accelerated) excluding clock stops, then ~67 days for the European Commission decision. In practice regulators also send communications back (Day 74 filing letter, FDA Information Requests, EMA Day-120 List of Questions, CRL or Approval Letter); those return flows sit outside the scope of this diagram.'
+  },
+  EXEC: {
+    name: 'Executive Dashboard',
+    acronym: 'EXEC DASHBOARD',
+    layer: 'Regulatory Layer',
+    transferType: 'both',
+    fields: ['Enrollment KPIs by site and country', 'Study milestone and timeline tracking', 'Site activation status', 'Data quality scores by site', 'Risk summary by study', 'Budget variance indicators', 'Top-line safety signal flags'],
+    inputs: [{ from: 'RBQM', type: 'auto', label: 'Aggregated risk and operational data' }],
+    outputs: [{ to: 'GOVERN', type: 'manual', label: 'Decisions cascade into governance, amendments, and stakeholder reports' }],
+    notes: 'Sponsor portfolio view rolling up risk (RBQM), operational (CTMS), safety, and submission status. Drives go/no-go calls, protocol amendments, site interventions, and resource decisions. Aggregation quality is only as good as the upstream systems.'
+  },
+  WORKBENCH: {
+    name: 'Data & Analytics Workbench',
+    acronym: 'WORKBENCH',
+    layer: 'Operational Layer',
+    transferType: 'both',
+    fields: [
+      'Aggregated clinical data across EDC, labs, ePRO, IRT',
+      'Edit checks and discrepancy flags',
+      'SDTM / ADaM datasets (CDISC standards)',
+      'Site risk scores and KRIs',
+      'Centralized statistical monitoring (CSM) outputs',
+      'Quality Tolerance Limit (QTL) excursions'
+    ],
+    inputs: [],
+    outputs: [],
+    notes: 'Many sponsors are converging the clinical data workbench (CDB) and the risk analytics layer (RBQM) into a single workflow under ICH E6(R3). Not all customers or products treat these as separate systems — Veeva CDB, Medidata Clinical Data Studio, Saama, and eClinical elluminate increasingly absorb RBQM analytics. The strict CDB vs. RBQM split shown here reflects today\'s typical sponsor architecture; expect it to blur over the next 1–2 years.'
+  },
+  GOVERN: {
+    name: 'Sponsor Governance & Distribution',
+    acronym: 'GOVERNANCE',
+    layer: 'Regulatory Layer',
+    transferType: 'manual',
+    fields: ['Protocol amendments (75–85% of trials see one)', 'Site closures or interventions', 'Resource and budget reallocation', 'Portfolio prioritization decisions', 'Scheduled PDF reports to leadership / board / IR'],
+    inputs: [{ from: 'EXEC', type: 'manual', label: 'Manual export, scheduled distribution, or governance-meeting outcome' }],
+    outputs: [],
+    notes: 'Where executive dashboard data turns into action — protocol amendments, site interventions, portfolio decisions — and where leadership, board, and investor updates are distributed (scheduled PDFs, ad hoc email, board portals). Shown as terminal in this view; in operations these decisions loop back into CTMS and study planning.'
+  }
+};
+
+const EDGES = [
+  // Site → Collection
+  { from: 'PAT',    to: 'PCRF',    type: 'manual', label: 'Handwritten during visit' },
+  { from: 'PCRF',   to: 'EDC',     type: 'manual', label: '10–40% of data · ~5 day lag' },
+  { from: 'PCRF',   to: 'ISF',     type: 'manual', label: 'Both held at site (separate binders)' },
+
+  // Collection internal + down
+  { from: 'IRT',    to: 'EDC',     type: 'auto',   label: '' },
+  { from: 'EPRO',   to: 'EDC',     type: 'auto',   label: '' },
+  { from: 'LABS',   to: 'EDC',     type: 'auto',   label: '' },
+
+  // Collection → Ops
+  { from: 'EDC',    to: 'CTMS',    type: 'auto',   label: '' },
+  { from: 'EDC',    to: 'SAFETY',  type: 'auto',   label: '' },
+  { from: 'EDC',    to: 'CDB',     type: 'auto',   label: '' },
+  { from: 'EDC',    to: 'RBQM',    type: 'auto',   label: '' },
+  { from: 'IRT',    to: 'CTMS',    type: 'auto',   label: '' },
+  { from: 'IRT',    to: 'RBQM',    type: 'auto',   label: '' },
+
+  // Ops internal
+  { from: 'ISF',    to: 'ETMF',    type: 'manual', label: '' },
+  { from: 'CTMS',   to: 'ETMF',    type: 'manual', label: 'Monitoring report upload', labelSide: 'below' },
+  { from: 'CTMS',   to: 'RBQM',    type: 'auto',   label: '' },
+  { from: 'RBQM',   to: 'CRA',     type: 'manual', label: 'Visit schedule alerts' },
+  { from: 'CRA',    to: 'CTMS',    type: 'manual', label: 'Post-visit CRA entry' },
+
+  // Ops → Regulatory
+  { from: 'CDB',    to: 'RIM',     type: 'auto',   label: '' },
+  { from: 'ETMF',   to: 'REGBODY', type: 'auto',   label: '' },
+  { from: 'SAFETY', to: 'REGBODY', type: 'auto',   label: '' },
+  { from: 'RIM',    to: 'REGBODY', type: 'auto',   label: '' },
+  { from: 'RBQM',   to: 'EXEC',    type: 'auto',   label: '' },
+  { from: 'EXEC',   to: 'GOVERN',  type: 'manual', label: 'Governance decisions & report distribution' },
+];
+
+/* ── LAYOUT ENGINE ───────────────────────────────────────────── */
+
+function getNodeCenter(id) {
+  const el = document.getElementById('node-' + id);
+  if (!el) return null;
+  const diagram = document.getElementById('diagram');
+  const nr = el.getBoundingClientRect();
+  const dr = diagram.getBoundingClientRect();
+  return {
+    x: nr.left - dr.left + nr.width / 2,
+    y: nr.top  - dr.top  + nr.height / 2,
+    w: nr.width,
+    h: nr.height,
+  };
+}
+
+function getNodeLayer(id) {
+  const el = document.getElementById('node-' + id);
+  if (!el) return null;
+  const lane = el.closest('.lane');
+  return lane ? lane.dataset.layer : null;
+}
+
+const LAYER_ORDER = { site: 0, collection: 1, ops: 2, regulatory: 3 };
+
+// Decide which side of each node an edge attaches to.
+//   - Cross-lane edges:    bottom→top (if target below) or top→bottom (if above)
+//   - Same-lane neighbors: right→left or left→right
+//   - Same-lane distant:   top→top (arc over the lane)
+// Sides drive both endpoint coords AND the bezier's terminal tangents so the
+// arrowhead always points perpendicular INTO the target box face.
+function getEdgeSides(fromId, toId) {
+  const fLayer = getNodeLayer(fromId);
+  const tLayer = getNodeLayer(toId);
+  const fc = getNodeCenter(fromId);
+  const tc = getNodeCenter(toId);
+  if (!fc || !tc) return null;
+
+  const sameLane = fLayer === tLayer;
+  const dx = tc.x - fc.x;
+
+  if (sameLane) {
+    if (Math.abs(dx) > 200) return { fromSide: 'top', toSide: 'top' };
+    return dx >= 0
+      ? { fromSide: 'right', toSide: 'left' }
+      : { fromSide: 'left',  toSide: 'right' };
+  }
+
+  const targetBelow = LAYER_ORDER[tLayer] > LAYER_ORDER[fLayer];
+  return targetBelow
+    ? { fromSide: 'bottom', toSide: 'top' }
+    : { fromSide: 'top',    toSide: 'bottom' };
+}
+
+function getSidePoint(center, side) {
+  switch (side) {
+    case 'top':    return { x: center.x,                 y: center.y - center.h / 2 };
+    case 'bottom': return { x: center.x,                 y: center.y + center.h / 2 };
+    case 'left':   return { x: center.x - center.w / 2,  y: center.y };
+    case 'right':  return { x: center.x + center.w / 2,  y: center.y };
+  }
+}
+
+function pullOutward(p, side, d) {
+  switch (side) {
+    case 'top':    return { x: p.x,     y: p.y - d };
+    case 'bottom': return { x: p.x,     y: p.y + d };
+    case 'left':   return { x: p.x - d, y: p.y     };
+    case 'right':  return { x: p.x + d, y: p.y     };
+  }
+}
+
+function getEdgePoints(fromId, toId) {
+  const fc = getNodeCenter(fromId);
+  const tc = getNodeCenter(toId);
+  const sides = getEdgeSides(fromId, toId);
+  if (!fc || !tc || !sides) return null;
+
+  const p1 = getSidePoint(fc, sides.fromSide);
+  const p2Edge = getSidePoint(tc, sides.toSide);
+  // Pull the arrow tip slightly outside the box face so the marker doesn't
+  // overlap the node border.
+  const p2 = pullOutward(p2Edge, sides.toSide, 6);
+
+  const bypass = sides.fromSide === 'top' && sides.toSide === 'top';
+  const bypassY = bypass ? Math.min(p1.y, p2.y) - 30 : null;
+
+  return {
+    x1: p1.x, y1: p1.y,
+    x2: p2.x, y2: p2.y,
+    fromSide: sides.fromSide,
+    toSide:   sides.toSide,
+    bypass, bypassY,
+  };
+}
+
+// Control-point offset placed OUTSIDE the box along the perpendicular axis of
+// `side`. This makes the bezier's terminal tangent perpendicular to the box
+// face, so the arrowhead points straight INTO the target.
+function controlOffset(p, side, t) {
+  switch (side) {
+    case 'top':    return { x: p.x,     y: p.y - t };
+    case 'bottom': return { x: p.x,     y: p.y + t };
+    case 'left':   return { x: p.x - t, y: p.y     };
+    case 'right':  return { x: p.x + t, y: p.y     };
+  }
+}
+
+function buildPath(x1, y1, x2, y2, fromSide, toSide) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  const t = Math.min(Math.max(dist * 0.4, 30), 110);
+
+  const c1 = controlOffset({ x: x1, y: y1 }, fromSide, t);
+  const c2 = controlOffset({ x: x2, y: y2 }, toSide,   t);
+
+  return `M${x1},${y1} C${c1.x},${c1.y} ${c2.x},${c2.y} ${x2},${y2}`;
+}
+
+// Measure nodes-row rects and derive vertical "safe bands" (gaps where labels
+// can live without overlapping any node row). Fully dynamic — no padding
+// constants. Resize / DOM changes recompute on the next renderEdges() call.
+function getLabelSafeBands(diagramRect) {
+  const rows = [...document.querySelectorAll('.nodes-row')]
+    .map(r => {
+      const b = r.getBoundingClientRect();
+      return { top: b.top - diagramRect.top, bottom: b.bottom - diagramRect.top };
+    })
+    .sort((a, b) => a.top - b.top);
+
+  const bands = [];
+  let prev = 0;
+  for (const r of rows) {
+    if (r.top - prev > 0) bands.push({ top: prev, bottom: r.top });
+    prev = Math.max(prev, r.bottom);
+  }
+  bands.push({ top: prev, bottom: diagramRect.height });
+  return bands;
+}
+
+function rectsOverlap(a, b) {
+  return !(a.x + a.w <= b.x || b.x + b.w <= a.x ||
+           a.y + a.h <= b.y || b.y + b.h <= a.y);
+}
+
+// Place a label rect without overlapping already-placed ones. Strategy:
+//   1) Try the closest fitting band at the natural Y.
+//   2) If it collides at that Y, try stacking vertically inside that band
+//      (above then below natural Y in labelH+4 steps).
+//   3) If still colliding, try next-closest band.
+//   4) Last resort: return the original idealY.
+function placeLabel(idealY, labelX, labelW, labelH, bands, placed) {
+  const ranked = bands
+    .filter(b => b.bottom - b.top >= labelH + 4)
+    .slice()
+    .sort((a, b) => {
+      const da = Math.abs(((a.top + a.bottom) / 2) - idealY);
+      const db = Math.abs(((b.top + b.bottom) / 2) - idealY);
+      return da - db;
+    });
+
+  const step = labelH + 4;
+
+  for (const band of ranked) {
+    const margin = labelH / 2 + 2;
+    const minY = band.top + margin;
+    const maxY = band.bottom - margin;
+    const baseY = Math.max(minY, Math.min(maxY, idealY));
+
+    // try baseY, then alternating up/down inside the band
+    const tries = [0];
+    for (let k = 1; k < 8; k++) { tries.push(-k * step); tries.push(k * step); }
+
+    for (const dy of tries) {
+      const y = baseY + dy;
+      if (y < minY || y > maxY) continue;
+      const candidate = { x: labelX - labelW / 2, y: y - labelH / 2, w: labelW, h: labelH };
+      if (!placed.some(p => rectsOverlap(candidate, p))) {
+        return { y, rect: candidate };
+      }
+    }
+  }
+
+  // fallback: original Y, accept overlap
+  return {
+    y: idealY,
+    rect: { x: labelX - labelW / 2, y: idealY - labelH / 2, w: labelW, h: labelH },
+  };
+}
+
+function renderEdges() {
+  const svg = document.getElementById('edges-svg');
+  // clear previous edges
+  svg.querySelectorAll('.edge, .edge-label-g').forEach(e => e.remove());
+
+  // set SVG dimensions
+  const diagram = document.getElementById('diagram');
+  const dr = diagram.getBoundingClientRect();
+  svg.setAttribute('viewBox', `0 0 ${dr.width} ${dr.height}`);
+  svg.style.width = dr.width + 'px';
+  svg.style.height = dr.height + 'px';
+
+  // 1) draw all paths first
+  const labelJobs = [];
+  EDGES.forEach((edge, i) => {
+    const pts = getEdgePoints(edge.from, edge.to);
+    if (!pts) return;
+    const { x1, y1, x2, y2 } = pts;
+
+    const d = buildPath(x1, y1, x2, y2, pts.fromSide, pts.toSide);
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', d);
+    path.setAttribute('class', `edge ${edge.type}`);
+    path.setAttribute('marker-end', edge.type === 'manual' ? 'url(#arrow-manual)' : 'url(#arrow-auto)');
+    path.setAttribute('data-edge', i);
+    path.setAttribute('data-from', edge.from);
+    path.setAttribute('data-to', edge.to);
+    path.setAttribute('data-type', edge.type);
+    path.setAttribute('data-label', edge.label);
+    path.style.animationDelay = (i * 30 + 300) + 'ms';
+    svg.appendChild(path);
+
+    if (edge.type === 'manual' && edge.label) {
+      let idealX, idealY;
+      if (pts.bypass) {
+        idealX = (x1 + x2) / 2;
+        idealY = (y1 + 6 * pts.bypassY + y2) / 8 - 10;
+      } else {
+        idealX = (x1 + x2) / 2;
+        idealY = (y1 + y2) / 2;
+      }
+      // optional side bias: shove idealY past the source node's row so the
+      // closest-band picker selects the band on that side
+      if (edge.labelSide === 'below' || edge.labelSide === 'above') {
+        const fromEl = document.getElementById('node-' + edge.from);
+        const row = fromEl && fromEl.closest('.nodes-row');
+        if (row) {
+          const rb = row.getBoundingClientRect();
+          idealY = edge.labelSide === 'below'
+            ? (rb.bottom - dr.top) + 1
+            : (rb.top - dr.top) - 1;
+        }
+      }
+      labelJobs.push({ edge, i, idealX, idealY });
+    }
+  });
+
+  // 2) compute dynamic safe-bands AFTER paths drawn (DOM hasn't moved, but
+  // measuring once at this point is the natural place)
+  const bands = getLabelSafeBands(dr);
+
+  // 3) place labels using dynamic bands + collision avoidance
+  const labelH = 14;
+  const placed = [];
+
+  labelJobs.forEach(({ edge, i, idealX, idealY }) => {
+    const labelW = Math.min(edge.label.length * 5.8 + 12, 220);
+    const { y: labelY, rect } = placeLabel(idealY, idealX, labelW, labelH, bands, placed);
+    placed.push(rect);
+
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('class', 'edge-label-g');
+    g.setAttribute('data-edge', i);
+    g.setAttribute('data-from', edge.from);
+    g.setAttribute('data-to', edge.to);
+
+    const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    bg.setAttribute('x', idealX - labelW / 2);
+    bg.setAttribute('y', labelY - 8);
+    bg.setAttribute('width', labelW);
+    bg.setAttribute('height', labelH);
+    bg.setAttribute('rx', 3);
+    bg.setAttribute('fill', '#F4EFE6');
+    bg.setAttribute('opacity', '0.92');
+    g.appendChild(bg);
+
+    const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    txt.setAttribute('x', idealX);
+    txt.setAttribute('y', labelY);
+    txt.setAttribute('class', 'edge-label');
+    txt.setAttribute('text-anchor', 'middle');
+    txt.textContent = edge.label;
+    g.appendChild(txt);
+
+    // connector tick: vertical line from label edge down/up to the path's
+    // ideal label Y so the viewer can tell which edge the label belongs to
+    const pathIdealY = idealY;
+    if (Math.abs(labelY - pathIdealY) > 6) {
+      const tick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      tick.setAttribute('x1', idealX);
+      tick.setAttribute('x2', idealX);
+      tick.setAttribute('y1', labelY + (labelY < pathIdealY ? labelH / 2 - 2 : -labelH / 2 + 2));
+      tick.setAttribute('y2', pathIdealY);
+      tick.setAttribute('stroke', 'var(--manual)');
+      tick.setAttribute('stroke-width', '1');
+      tick.setAttribute('stroke-dasharray', '2 2');
+      tick.setAttribute('opacity', '0.5');
+      g.appendChild(tick);
+    }
+
+    svg.appendChild(g);
+  });
+}
+
+/* ── HOVER SPOTLIGHT ─────────────────────────────────────────── */
+
+let hoveredNode = null;
+let selectedNode = null;
+
+function spotlightNode(id) {
+  if (hoveredNode === id) return;
+  hoveredNode = id;
+
+  const connected = new Set();
+  EDGES.forEach(e => {
+    if (e.from === id || e.to === id) {
+      connected.add(e.from);
+      connected.add(e.to);
+    }
+  });
+
+  document.querySelectorAll('.node').forEach(n => {
+    const nid = n.dataset.id;
+    if (nid === id) {
+      n.classList.remove('dimmed');
+      n.classList.add('highlighted');
+    } else if (connected.has(nid)) {
+      n.classList.remove('dimmed');
+      n.classList.remove('highlighted');
+    } else {
+      n.classList.add('dimmed');
+      n.classList.remove('highlighted');
+    }
+  });
+
+  document.querySelectorAll('.edge').forEach(e => {
+    const from = e.dataset.from, to = e.dataset.to;
+    if (from === id || to === id) {
+      e.classList.remove('dimmed');
+      e.classList.add('highlighted');
+    } else {
+      e.classList.add('dimmed');
+      e.classList.remove('highlighted');
+    }
+  });
+
+  document.querySelectorAll('.edge-label-g').forEach(g => {
+    const from = g.dataset.from, to = g.dataset.to;
+    const connected = from === id || to === id;
+    g.classList.toggle('dimmed', !connected);
+    // hover takes priority over the filter's inline opacity
+    if (!connected) g.style.opacity = '';
+  });
+}
+
+function clearSpotlight() {
+  hoveredNode = null;
+  document.querySelectorAll('.node').forEach(n => {
+    n.classList.remove('dimmed', 'highlighted');
+  });
+  document.querySelectorAll('.edge').forEach(e => {
+    e.classList.remove('dimmed', 'highlighted');
+  });
+  document.querySelectorAll('.edge-label-g').forEach(g => {
+    g.classList.remove('dimmed');
+  });
+}
+
+/* ── WORKBENCH GROUPING BOX ──────────────────────────────────── */
+
+function positionWorkbench() {
+  const box = document.getElementById('group-workbench');
+  const cdb = document.getElementById('node-CDB');
+  const rbqm = document.getElementById('node-RBQM');
+  const diagram = document.getElementById('diagram');
+  if (!box || !cdb || !rbqm || !diagram) return;
+
+  const dr = diagram.getBoundingClientRect();
+  const cr = cdb.getBoundingClientRect();
+  const rr = rbqm.getBoundingClientRect();
+
+  const padX = 14;
+  const padY = 18;
+  const left = Math.min(cr.left, rr.left) - dr.left - padX;
+  const right = Math.max(cr.right, rr.right) - dr.left + padX;
+  const top = Math.min(cr.top, rr.top) - dr.top - padY;
+  const bottom = Math.max(cr.bottom, rr.bottom) - dr.top + padY;
+
+  box.style.left = left + 'px';
+  box.style.top = top + 'px';
+  box.style.width = (right - left) + 'px';
+  box.style.height = (bottom - top) + 'px';
+  box.classList.add('visible');
+}
+
+/* ── DRAWER ──────────────────────────────────────────────────── */
+
+function openDrawer(id) {
+  const sys = SYSTEMS[id];
+  if (!sys) return;
+
+  document.getElementById('d-acronym').textContent = sys.acronym;
+  document.getElementById('d-name').textContent = sys.name;
+
+  const badgeClass = sys.transferType === 'auto' ? 'badge-auto' :
+                     sys.transferType === 'manual' ? 'badge-manual' : 'badge-both';
+  const badgeLabel = sys.transferType === 'auto' ? 'Automated' :
+                     sys.transferType === 'manual' ? 'Manual' : 'Both';
+
+  let html = `
+    <div class="drawer-badge-row">
+      <span class="d-badge d-badge-layer">${sys.layer}</span>
+      <span class="transfer-badge ${badgeClass}">${badgeLabel}</span>
+    </div>
+  `;
+
+  if (sys.fields && sys.fields.length) {
+    html += `<div class="drawer-section">
+      <h4>Data Fields Held</h4>
+      <ul class="fields-list">
+        ${sys.fields.map(f => `<li>${f}</li>`).join('')}
+      </ul>
+    </div>`;
+  }
+
+  if (sys.responsibilities && sys.responsibilities.length) {
+    html += `<div class="drawer-section">
+      <h4>Key Responsibilities</h4>
+      <ul class="fields-list">
+        ${sys.responsibilities.map(r => `<li>${r}</li>`).join('')}
+      </ul>
+    </div>`;
+  }
+
+  if (sys.inputs && sys.inputs.length) {
+    html += `<div class="drawer-section">
+      <h4>Inputs</h4>
+      <ul class="flow-list">
+        ${sys.inputs.map(inp => `<li>
+          <span class="flow-arrow ${inp.type}">←</span>
+          <span><strong>${inp.from}</strong>${inp.label ? ` — ${inp.label}` : ''}</span>
+        </li>`).join('')}
+      </ul>
+    </div>`;
+  }
+
+  if (sys.outputs && sys.outputs.length) {
+    html += `<div class="drawer-section">
+      <h4>Outputs</h4>
+      <ul class="flow-list">
+        ${sys.outputs.map(out => `<li>
+          <span class="flow-arrow ${out.type}">→</span>
+          <span><strong>${out.to}</strong>${out.label ? ` — ${out.label}` : ''}</span>
+        </li>`).join('')}
+      </ul>
+    </div>`;
+  }
+
+  if (sys.notes) {
+    html += `<div class="drawer-section">
+      <h4>Notes</h4>
+      <p class="drawer-note">${sys.notes}</p>
+    </div>`;
+  }
+
+  document.getElementById('drawer-body').innerHTML = html;
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('open');
+}
+
+function closeDrawer() {
+  selectedNode = null;
+  clearSpotlight();
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+}
+
+
+/* ── EVENT WIRING ────────────────────────────────────────────── */
+
+document.querySelectorAll('.node').forEach(node => {
+  node.addEventListener('mouseenter', () => {
+    if (!selectedNode) spotlightNode(node.dataset.id);
+  });
+  node.addEventListener('mouseleave', () => {
+    if (!selectedNode) clearSpotlight();
+  });
+  node.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const id = node.dataset.id;
+    selectedNode = id;
+    spotlightNode(id);
+    openDrawer(id);
+  });
+});
+
+document.getElementById('drawer-close').addEventListener('click', closeDrawer);
+document.getElementById('drawer-overlay').addEventListener('click', closeDrawer);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+document.addEventListener('click', () => {
+  if (selectedNode) closeDrawer();
+});
+
+document.querySelectorAll('.group-box-tab').forEach(tab => {
+  tab.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const id = tab.dataset.id;
+    selectedNode = id;
+    openDrawer(id);
+  });
+});
+
+/* ── INIT ────────────────────────────────────────────────────── */
+
+function init() {
+  // render edges after all lane animations finish (last lane ends at ~710ms)
+  // animationend is precise; fallback timeout handles any edge case
+  let rendered = false;
+  function doRender() {
+    if (rendered) return;
+    rendered = true;
+    renderEdges();
+    positionWorkbench();
+  }
+  const lastLane = document.querySelector('.lane:last-child');
+  lastLane.addEventListener('animationend', doRender, { once: true });
+  setTimeout(doRender, 800);
+}
+
+// re-render edges on resize
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    renderEdges();
+    positionWorkbench();
+  }, 100);
+});
+
+init();
+</script>
+</body>
+</html>

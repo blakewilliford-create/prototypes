@@ -1,0 +1,1821 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Monitoring — Biorce</title>
+  <link rel="icon" type="image/png" href="favicons/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="favicons/favicon.svg" />
+  <link rel="shortcut icon" href="favicons/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png" />
+
+  <!-- Geist Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Design system tokens: L1 primitives → L2 roles -->
+  <link rel="stylesheet" href="tokens/primitives/index.css" />
+  <link rel="stylesheet" href="tokens/roles/index.css" />
+
+  <!-- Shared base styles -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <style>
+
+    /* ── Token bridge ────────────────────────────────────────────────────────
+       Override style.css shorthand vars and define page-level semantic aliases.
+       All rules below reference only these vars or token vars — no raw hex.
+    ─────────────────────────────────────────────────────────────────────────*/
+    :root {
+      /* Override style.css shorthands to point at real tokens */
+      --bg:            var(--brc-color-neutral-backgroundStrong);
+      --fg:            var(--brc-color-neutral-foreground);
+      --surface:       var(--brc-color-neutral-surfaceSubtle);
+      --border:        var(--brc-color-neutral-border);
+      --muted:         var(--brc-color-neutral-foregroundMuted);
+      --primary:       var(--brc-color-interactive-primary-default-background);
+      --primary-light: var(--brc-color-teal-600-alpha3);
+
+      /* Accent (turquoise) */
+      --accent:        var(--brc-color-interactive-accent-default-background);
+      --accent-inv:    var(--brc-color-interactive-accent-default-foregroundInverse);
+
+      /* Semantic intent — severity levels */
+      --intent-critical:        var(--brc-color-intent-critical-foregroundInverse);
+      --intent-critical-bg:     var(--brc-color-intent-critical-background);
+      --intent-critical-border: var(--brc-color-intent-critical-border);
+
+      --intent-warning:         var(--brc-color-intent-warning-foregroundInverse);
+      --intent-warning-bg:      var(--brc-color-intent-warning-background);
+      --intent-warning-border:  var(--brc-color-intent-warning-border);
+
+      --intent-info:            var(--brc-color-intent-info-foregroundInverse);
+      --intent-info-bg:         var(--brc-color-intent-info-background);
+      --intent-info-border:     var(--brc-color-intent-info-border);
+
+      --intent-positive:        var(--brc-color-intent-positive-foregroundInverse);
+      --intent-positive-bg:     var(--brc-color-intent-positive-background);
+      --intent-positive-border: var(--brc-color-intent-positive-border);
+
+      --intent-neutral-fg:      var(--brc-color-intent-neutral-foregroundSubtle);
+      --intent-neutral-bg:      var(--brc-color-intent-neutral-background);
+      --intent-neutral-border:  var(--brc-color-intent-neutral-border);
+
+      /* Typography */
+      --font-family: var(--brc-typography-fontFamily-body);
+      --fw-light:    var(--brc-typography-fontWeight-light);
+      --fw-reg:      var(--brc-typography-fontWeight-regular);
+      --fw-med:      var(--brc-typography-fontWeight-medium);
+      --fw-bold:     var(--brc-typography-fontWeight-bold);
+
+      /* Font size scale aliases */
+      --font-xs:   var(--brc-typography-font1);  /*  9px */
+      --font-sm:   var(--brc-typography-font2);  /* 11px */
+      --font-base: var(--brc-typography-font3);  /* 12px */
+      --font-md:   var(--brc-typography-font4);  /* 14px */
+      --font-lg:   var(--brc-typography-font5);  /* 16px */
+      --font-xl:   var(--brc-typography-font7);  /* 22px */
+      --font-2xl:  var(--brc-typography-font8);  /* 28px */
+
+      /* Radius */
+      --radius-sm:   var(--brc-radius-radius2);    /*  4px */
+      --radius-md:   var(--brc-radius-radius4);    /*  8px */
+      --radius-lg:   var(--brc-radius-radius5);    /* 10px */
+      --radius-xl:   var(--brc-radius-radius6);    /* 12px */
+      --radius-pill: var(--brc-radius-radiusRound);
+
+      /* Spacing */
+      --space-1:  var(--brc-space-inset1);   /*  2px */
+      --space-2:  var(--brc-space-inset2);   /*  4px */
+      --space-3:  var(--brc-space-inset3);   /*  8px */
+      --space-4:  var(--brc-space-inset4);   /* 12px */
+      --space-5:  var(--brc-space-inset5);   /* 16px */
+      --space-6:  var(--brc-space-inset6);   /* 24px */
+      --space-7:  var(--brc-space-inset7);   /* 32px */
+      --space-8:  var(--brc-space-inset8);   /* 40px */
+    }
+
+    /* ── PAGE LAYOUT ─────────────────────────────────────────── */
+    body {
+      overflow: hidden;
+      font-family: var(--font-family);
+      font-size: var(--font-base);
+      font-weight: var(--fw-light);
+      line-height: 1.5;
+    }
+
+    .app {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* ── SIDEBAR ─────────────────────────────────────────────── */
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--brc-color-neutral-surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-logo {
+      padding: var(--space-5) var(--space-5) var(--space-4);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-logo img {
+      width: 22px;
+      height: 22px;
+      opacity: 0.9;
+    }
+
+    .sidebar-logo-name {
+      font-size: var(--font-base);
+      font-weight: var(--fw-med);
+      letter-spacing: 0.06em;
+      opacity: 0.9;
+    }
+
+    .trial-selector {
+      margin: var(--space-4) var(--space-4) 0;
+      padding: var(--space-3) var(--space-4);
+      background: var(--brc-color-neutral-surfaceStrong);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      border: 1px solid var(--border);
+    }
+
+    .trial-selector-label {
+      font-size: var(--font-xs);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: var(--space-1);
+    }
+
+    .trial-selector-name {
+      font-size: var(--font-base);
+      font-weight: var(--fw-med);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .trial-selector-name svg { opacity: 0.4; }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-5) 0;
+    }
+
+    .nav-section {
+      margin-bottom: var(--space-5);
+    }
+
+    .nav-section-label {
+      padding: 0 var(--space-5) var(--space-2);
+      font-size: var(--font-xs);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--brc-color-neutral-borderStrong);
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px var(--space-5);
+      font-size: var(--font-base);
+      font-weight: var(--fw-light);
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+      gap: var(--space-3);
+    }
+
+    .nav-item:hover {
+      background: var(--brc-color-base-gray-0-alpha1);
+      color: var(--fg);
+    }
+
+    .nav-item.active {
+      background: var(--primary-light);
+      color: var(--fg);
+      border-right: 2px solid var(--primary);
+    }
+
+    .nav-item-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .nav-icon {
+      width: 16px;
+      height: 16px;
+      opacity: 0.5;
+      flex-shrink: 0;
+    }
+
+    .nav-item.active .nav-icon { opacity: 1; }
+    .nav-item:hover .nav-icon  { opacity: 0.8; }
+
+    .nav-badge {
+      font-size: var(--font-xs);
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius-pill);
+      background: var(--intent-critical-bg);
+      color: var(--intent-critical);
+      font-weight: var(--fw-med);
+      line-height: 1.4;
+    }
+
+    .nav-badge.warn {
+      background: var(--intent-warning-bg);
+      color: var(--intent-warning);
+    }
+
+    .sidebar-footer {
+      border-top: 1px solid var(--border);
+      padding: 14px var(--space-5);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-pill);
+      background: var(--primary-light);
+      border: 1px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-sm);
+      font-weight: var(--fw-bold);
+      color: var(--accent);
+      flex-shrink: 0;
+      letter-spacing: 0;
+    }
+
+    .avatar-info { flex: 1; min-width: 0; }
+
+    .avatar-name {
+      font-size: var(--font-base);
+      font-weight: var(--fw-reg);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .avatar-role {
+      font-size: var(--font-xs);
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── MAIN PANE ───────────────────────────────────────────── */
+    .main-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .topbar {
+      border-bottom: 1px solid var(--border);
+      padding: 0 var(--space-7);
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-5);
+    }
+
+    .trial-name {
+      font-size: var(--font-lg);
+      font-weight: var(--fw-reg);
+    }
+
+    .trial-phase {
+      font-size: var(--font-sm);
+      color: var(--muted);
+      font-weight: var(--fw-light);
+    }
+
+    .topbar-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+    }
+
+    .cro-tag {
+      font-size: var(--font-sm);
+      color: var(--muted);
+    }
+
+    .cro-tag strong {
+      color: var(--brc-color-neutral-foregroundSubtle);
+      font-weight: var(--fw-reg);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .topbar-action {
+      padding: var(--space-2) 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--brc-color-base-gray-0-alpha1);
+      font-size: var(--font-base);
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+
+    .topbar-action:hover {
+      background: var(--brc-color-base-gray-0-alpha2);
+      color: var(--fg);
+    }
+
+    .topbar-action.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: var(--brc-color-base-gray-25);
+    }
+
+    .topbar-action.primary:hover {
+      background: var(--brc-color-interactive-primary-hover-background);
+    }
+
+    /* ── CONTENT SCROLL AREA ─────────────────────────────────── */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 var(--space-7) var(--space-8);
+    }
+
+    /* ── BANNER ──────────────────────────────────────────────── */
+    .banner {
+      margin: var(--space-5) 0 0;
+      padding: var(--space-3) var(--space-5);
+      background: var(--brc-color-teal-600-alpha2);
+      border: 1px solid var(--brc-color-teal-600-alpha4);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--font-base);
+      color: var(--brc-color-neutral-foregroundSubtle);
+    }
+
+    .banner-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: var(--radius-pill);
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .banner strong {
+      color: var(--accent);
+      font-weight: var(--fw-med);
+    }
+
+    .banner-dismiss {
+      margin-left: auto;
+      opacity: 0.4;
+      cursor: pointer;
+      font-size: var(--font-lg);
+      line-height: 1;
+    }
+
+    /* ── SECTION HEADER ──────────────────────────────────────── */
+    .section-hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: var(--space-7) 0 14px;
+    }
+
+    .section-hd-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .section-label {
+      font-size: var(--font-sm);
+      font-weight: var(--fw-med);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .section-count {
+      font-size: var(--font-xs);
+      padding: var(--space-1) 7px;
+      border-radius: var(--radius-pill);
+      background: var(--brc-color-base-gray-0-alpha1);
+      color: var(--brc-color-neutral-foregroundMuted);
+    }
+
+    .section-action {
+      font-size: var(--font-base);
+      color: var(--primary);
+      cursor: pointer;
+      text-decoration: none;
+      opacity: 0.8;
+      transition: opacity 0.15s;
+    }
+
+    .section-action:hover { opacity: 1; }
+
+    /* ── KPI ROW ─────────────────────────────────────────────── */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-4);
+      margin-top: var(--space-5);
+    }
+
+    .kpi {
+      background: var(--surface);
+      border-radius: var(--radius-xl);
+      padding: var(--space-5) 18px;
+      border: 1px solid var(--border);
+    }
+
+    .kpi-label {
+      font-size: var(--font-xs);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: var(--space-3);
+    }
+
+    .kpi-value {
+      font-size: var(--font-2xl);
+      font-weight: var(--fw-light);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .kpi-sub {
+      margin-top: var(--space-2);
+      font-size: var(--font-sm);
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .kpi-sub .up   { color: var(--intent-positive); }
+    .kpi-sub .down { color: var(--intent-critical); }
+    .kpi-sub .warn { color: var(--intent-warning); }
+
+    /* ── SYSTEM CARDS ────────────────────────────────────────── */
+    .system-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-4);
+    }
+
+    .sys-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-5) 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sys-card.ok    { border-top: 2px solid var(--primary); }
+    .sys-card.warn  { border-top: 2px solid var(--intent-warning); }
+    .sys-card.error { border-top: 2px solid var(--intent-critical); }
+
+    .sys-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+    }
+
+    .sys-name {
+      font-size: var(--font-base);
+      font-weight: var(--fw-med);
+    }
+
+    .sys-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: var(--font-xs);
+      letter-spacing: 0.05em;
+    }
+
+    .sys-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: var(--radius-pill);
+      background: var(--primary);
+    }
+
+    .sys-dot.warn  { background: var(--intent-warning); }
+    .sys-dot.error { background: var(--intent-critical); }
+
+    .sys-platform {
+      font-size: var(--font-sm);
+      color: var(--muted);
+      margin-bottom: var(--space-3);
+    }
+
+    .sys-stat {
+      font-size: var(--font-sm);
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--space-2);
+    }
+
+    .sys-stat span:last-child {
+      color: var(--brc-color-neutral-foregroundSubtle);
+      font-weight: var(--fw-reg);
+    }
+
+    .sys-issues {
+      margin-top: var(--space-3);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      font-size: var(--font-sm);
+      background: var(--intent-warning-bg);
+      color: var(--intent-warning);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .sys-issues.error {
+      background: var(--intent-critical-bg);
+      color: var(--intent-critical);
+    }
+
+    .sys-issues.ok {
+      background: var(--intent-positive-bg);
+      color: var(--intent-positive);
+    }
+
+    /* ── CARD SHELL ──────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+    }
+
+    .card-hd {
+      padding: 14px 18px 13px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-hd-title {
+      font-size: var(--font-base);
+      font-weight: var(--fw-med);
+    }
+
+    .card-hd-sub {
+      font-size: var(--font-sm);
+      color: var(--muted);
+      margin-top: var(--space-1);
+    }
+
+    .card-hd-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .chip {
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      font-size: var(--font-sm);
+      background: var(--brc-color-base-gray-0-alpha1);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .chip.active {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--fg);
+    }
+
+    /* ── TABLES ──────────────────────────────────────────────── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--font-base);
+    }
+
+    th {
+      padding: var(--space-3) var(--space-5);
+      text-align: left;
+      font-size: var(--font-xs);
+      font-weight: var(--fw-reg);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 11px var(--space-5);
+      border-bottom: 1px solid var(--brc-color-neutral-borderSubtle);
+      font-weight: var(--fw-light);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--brc-color-base-gray-0-alpha1); }
+
+    .cell-mono {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: var(--font-sm);
+      color: var(--brc-color-neutral-foregroundSubtle);
+    }
+
+    .cell-muted { color: var(--muted); }
+
+    /* ── STATUS PILLS ────────────────────────────────────────── */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-xs);
+      font-weight: var(--fw-med);
+      white-space: nowrap;
+    }
+
+    .pill.ok      { background: var(--intent-positive-bg);  color: var(--intent-positive); }
+    .pill.miss    { background: var(--intent-critical-bg);   color: var(--intent-critical); }
+    .pill.diff    { background: var(--intent-warning-bg);    color: var(--intent-warning); }
+    .pill.gap     { background: var(--intent-info-bg);       color: var(--intent-info); }
+    .pill.pending { background: var(--intent-neutral-bg);    color: var(--intent-neutral-fg); }
+
+    .pill::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: var(--radius-pill);
+      background: currentColor;
+    }
+
+    .row-action {
+      font-size: var(--font-sm);
+      color: var(--primary);
+      cursor: pointer;
+      white-space: nowrap;
+      opacity: 0.8;
+    }
+
+    .row-action:hover { opacity: 1; }
+
+    /* ── RISK SIGNAL SECTION ─────────────────────────────────── */
+    .signal-summary {
+      display: flex;
+      gap: var(--space-3);
+      margin-bottom: 14px;
+    }
+
+    .signal-count {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-size: var(--font-base);
+    }
+
+    .signal-count-num {
+      font-size: var(--font-xl);
+      font-weight: var(--fw-light);
+      line-height: 1;
+    }
+
+    .signal-count-label { color: var(--muted); font-size: var(--font-sm); }
+
+    .sig-crit  { color: var(--intent-critical); }
+    .sig-high  { color: var(--intent-warning); }
+    .sig-med   { color: var(--intent-info); }
+    .sig-low   { color: var(--intent-neutral-fg); }
+
+    .signal-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      margin-bottom: var(--space-5);
+    }
+
+    .signal-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 14px var(--space-5);
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .signal-item::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+    }
+
+    .signal-item.crit::before { background: var(--intent-critical); }
+    .signal-item.high::before { background: var(--intent-warning); }
+    .signal-item.med::before  { background: var(--intent-info); }
+    .signal-item.low::before  { background: var(--intent-neutral-fg); }
+
+    .signal-sev {
+      flex-shrink: 0;
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-xs);
+      font-weight: var(--fw-bold);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-top: var(--space-1);
+    }
+
+    .crit .signal-sev { background: var(--intent-critical-bg);  color: var(--intent-critical); }
+    .high .signal-sev { background: var(--intent-warning-bg);   color: var(--intent-warning); }
+    .med  .signal-sev { background: var(--intent-info-bg);      color: var(--intent-info); }
+    .low  .signal-sev { background: var(--intent-neutral-bg);   color: var(--intent-neutral-fg); }
+
+    .signal-body { flex: 1; min-width: 0; }
+
+    .signal-title {
+      font-size: var(--font-md);
+      font-weight: var(--fw-reg);
+      margin-bottom: var(--space-1);
+    }
+
+    .signal-meta {
+      font-size: var(--font-sm);
+      color: var(--muted);
+      display: flex;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+    }
+
+    .signal-meta span { display: flex; align-items: center; gap: var(--space-2); }
+
+    .signal-actions {
+      display: flex;
+      gap: var(--space-3);
+      margin-top: var(--space-3);
+    }
+
+    .signal-btn {
+      padding: 5px var(--space-4);
+      border-radius: var(--radius-md);
+      font-size: var(--font-sm);
+      border: 1px solid var(--border);
+      background: var(--brc-color-base-gray-0-alpha1);
+      color: var(--muted);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .signal-btn:hover {
+      background: var(--brc-color-base-gray-0-alpha2);
+      color: var(--fg);
+    }
+
+    .signal-btn.primary {
+      border-color: var(--primary);
+      color: var(--accent);
+      background: var(--primary-light);
+    }
+
+    .signal-btn.primary:hover { background: var(--brc-color-teal-600-alpha4); }
+
+    .signal-age {
+      flex-shrink: 0;
+      font-size: var(--font-sm);
+      color: var(--brc-color-neutral-borderStrong);
+      padding-top: var(--space-1);
+    }
+
+    .vel-chart-wrap {
+      padding: 14px 18px var(--space-5);
+    }
+
+    /* ── CRO OVERSIGHT SECTION ───────────────────────────────── */
+    .cro-summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-4);
+      margin-bottom: 14px;
+    }
+
+    .cro-stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 14px var(--space-5);
+    }
+
+    .cro-stat-label {
+      font-size: var(--font-xs);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: var(--space-2);
+    }
+
+    .cro-stat-value {
+      font-size: 22px;
+      font-weight: var(--fw-light);
+      line-height: 1;
+    }
+
+    .cro-stat-sub {
+      margin-top: 5px;
+      font-size: var(--font-sm);
+      color: var(--muted);
+    }
+
+    .cro-stat-sub .bad { color: var(--intent-critical); }
+    .cro-stat-sub .ok  { color: var(--intent-positive); }
+
+    .monitor-type {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: var(--font-sm);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-sm);
+      background: var(--intent-neutral-bg);
+      color: var(--intent-neutral-fg);
+    }
+
+    /* ── COMPLIANCE LIST ─────────────────────────────────────── */
+    .compliance-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .compliance-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-4);
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--brc-color-neutral-borderSubtle);
+    }
+
+    .compliance-item:last-child { border-bottom: none; }
+
+    .compliance-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: var(--radius-pill);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: var(--font-xs);
+      margin-top: var(--space-1);
+    }
+
+    .compliance-icon.ok   { background: var(--intent-positive-bg); color: var(--intent-positive); }
+    .compliance-icon.warn { background: var(--intent-warning-bg);   color: var(--intent-warning); }
+    .compliance-icon.err  { background: var(--intent-critical-bg);  color: var(--intent-critical); }
+
+    .compliance-text { flex: 1; min-width: 0; }
+
+    .compliance-title {
+      font-size: var(--font-base);
+      font-weight: var(--fw-reg);
+      margin-bottom: var(--space-1);
+    }
+
+    .compliance-detail {
+      font-size: var(--font-sm);
+      color: var(--muted);
+    }
+
+    .compliance-ref {
+      font-size: var(--font-xs);
+      color: var(--brc-color-neutral-borderStrong);
+      white-space: nowrap;
+      margin-top: var(--space-1);
+    }
+
+    /* ── LAYOUT UTILITIES ────────────────────────────────────── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: var(--space-4);
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: var(--radius-pill);
+      background: var(--primary);
+      display: inline-block;
+    }
+
+    .dot.warn  { background: var(--intent-warning); }
+    .dot.err   { background: var(--intent-critical); }
+    .dot.off   { background: var(--intent-neutral-bg); }
+
+    .status-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: var(--font-base);
+    }
+
+    .overdue {
+      color: var(--intent-critical);
+      font-size: var(--font-sm);
+    }
+
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+  <!-- ════════════════════════════════════════
+       SIDEBAR
+  ════════════════════════════════════════ -->
+  <aside class="sidebar">
+
+    <div class="sidebar-logo">
+      <img src="SVGs/Emblem.svg" alt="Biorce" />
+      <span class="sidebar-logo-name">Biorce</span>
+    </div>
+
+    <div class="trial-selector">
+      <div class="trial-selector-label">Active Trial</div>
+      <div class="trial-selector-name">
+        BRCE-301 Phase III
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+          <path d="M2 4L5 7L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Monitor</div>
+
+        <a href="#overview" class="nav-item">
+          <div class="nav-item-left">
+            <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+              <rect x="1" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+              <rect x="9" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+              <rect x="1" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+              <rect x="9" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+            </svg>
+            Overview
+          </div>
+        </a>
+
+        <a href="#reconciliation" class="nav-item active">
+          <div class="nav-item-left">
+            <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+              <path d="M3 4h10M3 8h7M3 12h9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              <circle cx="13" cy="11.5" r="2.5" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M12.3 11.5l.5.5 1-1" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Data Reconciliation
+          </div>
+          <span class="nav-badge warn">31</span>
+        </a>
+
+        <a href="#signals" class="nav-item">
+          <div class="nav-item-left">
+            <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+              <path d="M8 2v2M8 12v2M2 8h2M12 8h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.3"/>
+              <circle cx="8" cy="8" r="1" fill="currentColor"/>
+            </svg>
+            Risk Signals
+          </div>
+          <span class="nav-badge">6</span>
+        </a>
+
+        <a href="#cro" class="nav-item">
+          <div class="nav-item-left">
+            <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+              <rect x="2" y="5" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M5 5V4a3 3 0 016 0v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              <path d="M8 9v2M6 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            CRO Oversight
+          </div>
+          <span class="nav-badge warn">3</span>
+        </a>
+
+        <a href="#" class="nav-item">
+          <div class="nav-item-left">
+            <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="6" r="3" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            Sites
+          </div>
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-label">Reporting</div>
+        <a href="#" class="nav-item">
+          <div class="nav-item-left">
+            <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+              <path d="M3 2h8l3 3v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M11 2v4h3M5 8h6M5 11h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            Reports
+          </div>
+        </a>
+        <a href="#" class="nav-item">
+          <div class="nav-item-left">
+            <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+              <path d="M8 2v8M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 13h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            Export
+          </div>
+        </a>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="avatar">SR</div>
+      <div class="avatar-info">
+        <div class="avatar-name">Sarah Reeves</div>
+        <div class="avatar-role">Sponsor Monitor</div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ════════════════════════════════════════
+       MAIN PANE
+  ════════════════════════════════════════ -->
+  <div class="main-pane">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div>
+          <div class="trial-name">BRCE-301 — Veriprovax</div>
+          <div class="trial-phase">Phase III · NSCLC · Enrolling</div>
+        </div>
+        <div class="topbar-divider"></div>
+        <div class="cro-tag">CRO: <strong>Covance Clinical Research</strong></div>
+        <div class="topbar-divider"></div>
+        <div class="cro-tag">Sponsor: <strong>Biorce Therapeutics</strong></div>
+      </div>
+      <div class="topbar-right">
+        <a href="dashboard.html" class="topbar-action">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/>
+            <rect x="7" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/>
+            <rect x="1" y="7" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/>
+            <rect x="7" y="7" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/>
+          </svg>
+          Trial Overview
+        </a>
+        <a class="topbar-action primary" href="#">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <path d="M6.5 2v7M4 7l2.5 2.5L9 7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 11h9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          Export Report
+        </a>
+      </div>
+    </div>
+
+    <!-- SCROLLABLE CONTENT -->
+    <div class="content">
+
+      <!-- ICH E6(R3) Banner -->
+      <div class="banner">
+        <div class="banner-dot"></div>
+        <span><strong>ICH E6(R3) Active</strong> — Effective July 2025. Sponsors retain ultimate accountability for trial quality regardless of CRO delegation. 2 compliance items require attention.</span>
+        <span class="banner-dismiss">×</span>
+      </div>
+
+      <!-- KPI Row -->
+      <div class="kpi-row" id="overview">
+        <div class="kpi">
+          <div class="kpi-label">Subjects Enrolled</div>
+          <div class="kpi-value">847</div>
+          <div class="kpi-sub"><span class="up">↑ 34 this week</span> · target 1,200</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Active Sites</div>
+          <div class="kpi-value">23</div>
+          <div class="kpi-sub"><span class="warn">2 sites at risk</span> · 3 regions</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Query Rate</div>
+          <div class="kpi-value">4.2%</div>
+          <div class="kpi-sub"><span class="down">↑ 0.8% vs last cycle</span></div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Data Compliance</div>
+          <div class="kpi-value">91.6%</div>
+          <div class="kpi-sub"><span class="down">↓ 2.4% vs target</span></div>
+        </div>
+      </div>
+
+
+      <!-- ══════════════════════════════════════════
+           SECTION 1 — DATA RECONCILIATION
+      ══════════════════════════════════════════ -->
+      <div class="section-hd" id="reconciliation">
+        <div class="section-hd-left">
+          <div class="section-label">Data Reconciliation</div>
+          <span class="section-count">4 systems · last run 2m ago</span>
+        </div>
+        <a href="#" class="section-action">Run reconciliation →</a>
+      </div>
+
+      <!-- System Status Cards -->
+      <div class="system-row">
+        <div class="sys-card ok">
+          <div class="sys-header">
+            <div class="sys-name">EDC</div>
+            <div class="sys-status">
+              <div class="sys-dot ok"></div>
+              <span style="color:var(--muted)">Synced</span>
+            </div>
+          </div>
+          <div class="sys-platform">Medidata Rave</div>
+          <div class="sys-stat"><span>Records</span><span>12,483</span></div>
+          <div class="sys-stat"><span>Last sync</span><span>2m ago</span></div>
+          <div class="sys-stat"><span>Discrepancies</span><span>0</span></div>
+          <div class="sys-issues ok">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 6l2.5 2.5L9 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            All records reconciled
+          </div>
+        </div>
+
+        <div class="sys-card ok">
+          <div class="sys-header">
+            <div class="sys-name">CTMS</div>
+            <div class="sys-status">
+              <div class="sys-dot ok"></div>
+              <span style="color:var(--muted)">Synced</span>
+            </div>
+          </div>
+          <div class="sys-platform">Veeva Vault</div>
+          <div class="sys-stat"><span>Subjects</span><span>847</span></div>
+          <div class="sys-stat"><span>Last sync</span><span>4m ago</span></div>
+          <div class="sys-stat"><span>Discrepancies</span><span>1</span></div>
+          <div class="sys-issues">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 3v3M5.5 8h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            1 visit date mismatch
+          </div>
+        </div>
+
+        <div class="sys-card warn">
+          <div class="sys-header">
+            <div class="sys-name">ePRO</div>
+            <div class="sys-status">
+              <div class="sys-dot warn"></div>
+              <span style="color:var(--muted)">7 issues</span>
+            </div>
+          </div>
+          <div class="sys-platform">Signant Health</div>
+          <div class="sys-stat"><span>Active subjects</span><span>634</span></div>
+          <div class="sys-stat"><span>Last sync</span><span>18m ago</span></div>
+          <div class="sys-stat"><span>Discrepancies</span><span>7</span></div>
+          <div class="sys-issues">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 3v3M5.5 8h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            7 missing visit records
+          </div>
+        </div>
+
+        <div class="sys-card warn">
+          <div class="sys-header">
+            <div class="sys-name">Wearables</div>
+            <div class="sys-status">
+              <div class="sys-dot warn"></div>
+              <span style="color:var(--muted)">23 gaps</span>
+            </div>
+          </div>
+          <div class="sys-platform">Garmin Health API</div>
+          <div class="sys-stat"><span>Active devices</span><span>412</span></div>
+          <div class="sys-stat"><span>Last sync</span><span>1h ago</span></div>
+          <div class="sys-stat"><span>Data gaps</span><span>23</span></div>
+          <div class="sys-issues">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 3v3M5.5 8h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            23 gaps >24h, no AE flagged
+          </div>
+        </div>
+      </div>
+
+      <!-- Discrepancy Table -->
+      <div class="card" style="margin-top:12px;">
+        <div class="card-hd">
+          <div>
+            <div class="card-hd-title">Cross-System Discrepancies</div>
+            <div class="card-hd-sub">31 items requiring review · 4 auto-resolved this cycle</div>
+          </div>
+          <div class="card-hd-actions">
+            <div class="chip active">All</div>
+            <div class="chip">Needs review</div>
+            <div class="chip">Auto-resolved</div>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Subject ID</th>
+                <th>Site</th>
+                <th>EDC</th>
+                <th>CTMS</th>
+                <th>ePRO</th>
+                <th>Wearable</th>
+                <th>Type</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="cell-mono">BRC-023-0041</td>
+                <td class="cell-muted">023 · Austin, TX</td>
+                <td><span class="pill ok">2026-04-28</span></td>
+                <td><span class="pill diff">2026-04-29</span></td>
+                <td><span class="pill ok">Submitted</span></td>
+                <td><span class="pill ok">Continuous</span></td>
+                <td style="font-size:var(--font-sm);color:var(--muted)">Visit date mismatch</td>
+                <td><span class="row-action">Review →</span></td>
+              </tr>
+              <tr>
+                <td class="cell-mono">BRC-011-0187</td>
+                <td class="cell-muted">011 · London, UK</td>
+                <td><span class="pill ok">Visit 4 done</span></td>
+                <td><span class="pill ok">Recorded</span></td>
+                <td><span class="pill miss">Missing</span></td>
+                <td><span class="pill ok">Continuous</span></td>
+                <td style="font-size:var(--font-sm);color:var(--muted)">ePRO not completed</td>
+                <td><span class="row-action">Review →</span></td>
+              </tr>
+              <tr>
+                <td class="cell-mono">BRC-007-0093</td>
+                <td class="cell-muted">007 · Toronto, CA</td>
+                <td><span class="pill ok">No AE</span></td>
+                <td><span class="pill ok">No AE</span></td>
+                <td><span class="pill ok">Submitted</span></td>
+                <td><span class="pill gap">3-day gap</span></td>
+                <td style="font-size:var(--font-sm);color:var(--muted)">Unexplained wearable gap</td>
+                <td><span class="row-action">Review →</span></td>
+              </tr>
+              <tr>
+                <td class="cell-mono">BRC-019-0052</td>
+                <td class="cell-muted">019 · São Paulo, BR</td>
+                <td><span class="pill miss">Missing</span></td>
+                <td><span class="pill ok">Dose given</span></td>
+                <td><span class="pill ok">Submitted</span></td>
+                <td><span class="pill ok">Continuous</span></td>
+                <td style="font-size:var(--font-sm);color:var(--muted)">EDC dosing record absent</td>
+                <td><span class="row-action">Review →</span></td>
+              </tr>
+              <tr>
+                <td class="cell-mono">BRC-015-0028</td>
+                <td class="cell-muted">015 · Munich, DE</td>
+                <td><span class="pill diff">ICF 2026-03-01</span></td>
+                <td><span class="pill diff">Screen 2026-02-27</span></td>
+                <td><span class="pill pending">N/A</span></td>
+                <td><span class="pill pending">N/A</span></td>
+                <td style="font-size:var(--font-sm);color:var(--muted)">Consent after screening</td>
+                <td><span class="row-action" style="color:var(--intent-critical);">Escalate →</span></td>
+              </tr>
+              <tr>
+                <td class="cell-mono">BRC-004-0119</td>
+                <td class="cell-muted">004 · Chicago, IL</td>
+                <td><span class="pill ok">Enrolled</span></td>
+                <td><span class="pill ok">Enrolled</span></td>
+                <td><span class="pill ok">Active</span></td>
+                <td><span class="pill gap">1-day gap</span></td>
+                <td style="font-size:var(--font-sm);color:var(--muted)">Wearable sync delay</td>
+                <td><span class="row-action">Auto-resolve →</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+
+      <!-- ══════════════════════════════════════════
+           SECTION 2 — RISK SIGNALS
+      ══════════════════════════════════════════ -->
+      <div class="section-hd" id="signals">
+        <div class="section-hd-left">
+          <div class="section-label">Risk Signals</div>
+          <span class="section-count">6 active · 2 new this week</span>
+        </div>
+        <a href="#" class="section-action">Configure thresholds →</a>
+      </div>
+
+      <!-- Signal Summary Bar -->
+      <div class="signal-summary">
+        <div class="signal-count">
+          <span class="signal-count-num sig-crit">1</span>
+          <span class="signal-count-label">Critical</span>
+        </div>
+        <div class="signal-count">
+          <span class="signal-count-num sig-high">2</span>
+          <span class="signal-count-label">High</span>
+        </div>
+        <div class="signal-count">
+          <span class="signal-count-num sig-med">2</span>
+          <span class="signal-count-label">Medium</span>
+        </div>
+        <div class="signal-count">
+          <span class="signal-count-num sig-low">1</span>
+          <span class="signal-count-label">Low</span>
+        </div>
+      </div>
+
+      <!-- Signal Feed + Velocity Chart -->
+      <div class="three-col">
+        <div class="signal-list" style="margin-bottom:0;">
+
+          <div class="signal-item crit">
+            <div class="signal-sev">Critical</div>
+            <div class="signal-body">
+              <div class="signal-title">Site 023 — Data entry velocity collapsed 67%</div>
+              <div class="signal-meta">
+                <span>Austin, TX · Dr. M. Martinez</span>
+                <span>Was 15 rec/day → now 5 rec/day</span>
+                <span>14-day trend</span>
+              </div>
+              <div class="signal-actions">
+                <div class="signal-btn primary">Schedule for-cause visit</div>
+                <div class="signal-btn">Notify CRO</div>
+                <div class="signal-btn">View site</div>
+              </div>
+            </div>
+            <div class="signal-age">3d ago</div>
+          </div>
+
+          <div class="signal-item high">
+            <div class="signal-sev">High</div>
+            <div class="signal-body">
+              <div class="signal-title">Site 011 — 18 queries aging beyond 14-day threshold</div>
+              <div class="signal-meta">
+                <span>London, UK · Dr. C. Okonkwo</span>
+                <span>34 total open · 18 overdue</span>
+                <span>Protocol: resolve in 14d</span>
+              </div>
+              <div class="signal-actions">
+                <div class="signal-btn primary">Send escalation</div>
+                <div class="signal-btn">View queries</div>
+              </div>
+            </div>
+            <div class="signal-age">1d ago</div>
+          </div>
+
+          <div class="signal-item high">
+            <div class="signal-sev">High</div>
+            <div class="signal-body">
+              <div class="signal-title">Site 007 — ePRO completion rate 58% (threshold: 80%)</div>
+              <div class="signal-meta">
+                <span>Toronto, CA · Dr. A. Patel</span>
+                <span>12 consecutive subjects below threshold</span>
+              </div>
+              <div class="signal-actions">
+                <div class="signal-btn primary">Open query</div>
+                <div class="signal-btn">Notify site</div>
+              </div>
+            </div>
+            <div class="signal-age">2d ago</div>
+          </div>
+
+          <div class="signal-item med">
+            <div class="signal-sev">Medium</div>
+            <div class="signal-body">
+              <div class="signal-title">Site 015 — ICF date precedes screening for 3 subjects</div>
+              <div class="signal-meta">
+                <span>Munich, DE · Dr. K. Schmidt</span>
+                <span>Potential GCP consent violation</span>
+              </div>
+              <div class="signal-actions">
+                <div class="signal-btn primary">Flag for audit</div>
+                <div class="signal-btn">View records</div>
+              </div>
+            </div>
+            <div class="signal-age">5d ago</div>
+          </div>
+
+          <div class="signal-item med">
+            <div class="signal-sev">Medium</div>
+            <div class="signal-body">
+              <div class="signal-title">Site 019 — AE reporting latency avg 4.2d (limit: 3d)</div>
+              <div class="signal-meta">
+                <span>São Paulo, BR · Dr. F. Costa</span>
+                <span>8 of last 10 AEs reported late</span>
+              </div>
+              <div class="signal-actions">
+                <div class="signal-btn primary">Send reminder</div>
+                <div class="signal-btn">View AE log</div>
+              </div>
+            </div>
+            <div class="signal-age">6d ago</div>
+          </div>
+
+          <div class="signal-item low">
+            <div class="signal-sev">Low</div>
+            <div class="signal-body">
+              <div class="signal-title">Sites 004, 008 — Date field format inconsistencies</div>
+              <div class="signal-meta">
+                <span>Chicago, IL · Osaka, JP</span>
+                <span>DD/MM vs MM/DD · no data loss</span>
+              </div>
+              <div class="signal-actions">
+                <div class="signal-btn">Auto-fix formats</div>
+                <div class="signal-btn">Dismiss</div>
+              </div>
+            </div>
+            <div class="signal-age">8d ago</div>
+          </div>
+        </div>
+
+        <!-- Velocity Chart -->
+        <div class="card" style="display:flex;flex-direction:column;">
+          <div class="card-hd">
+            <div>
+              <div class="card-hd-title">Site 023 — Entry velocity</div>
+              <div class="card-hd-sub">Records/day · last 14 days</div>
+            </div>
+          </div>
+          <div class="vel-chart-wrap" style="flex:1;display:flex;flex-direction:column;">
+            <div style="flex:1;position:relative;">
+              <canvas id="velocityChart"></canvas>
+            </div>
+            <div style="margin-top:14px;padding:10px 0 0;border-top:1px solid var(--border);">
+              <div style="font-size:var(--font-xs);letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Site risk heatmap</div>
+              <table style="font-size:var(--font-sm);">
+                <thead>
+                  <tr>
+                    <th style="padding:5px 8px 5px 0;">Site</th>
+                    <th style="padding:5px 8px;">Velocity</th>
+                    <th style="padding:5px 8px;">Queries</th>
+                    <th style="padding:5px 0;">Risk</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="padding:5px 8px 5px 0;color:var(--muted);">023 Austin</td>
+                    <td style="padding:5px 8px;color:var(--intent-critical);">↓ 67%</td>
+                    <td style="padding:5px 8px;">6 open</td>
+                    <td style="padding:5px 0;"><span class="pill miss" style="font-size:var(--font-xs);">Critical</span></td>
+                  </tr>
+                  <tr>
+                    <td style="padding:5px 8px 5px 0;color:var(--muted);">011 London</td>
+                    <td style="padding:5px 8px;color:var(--intent-warning);">↓ 22%</td>
+                    <td style="padding:5px 8px;">34 open</td>
+                    <td style="padding:5px 0;"><span class="pill diff" style="font-size:var(--font-xs);">High</span></td>
+                  </tr>
+                  <tr>
+                    <td style="padding:5px 8px 5px 0;color:var(--muted);">007 Toronto</td>
+                    <td style="padding:5px 8px;color:var(--muted);">stable</td>
+                    <td style="padding:5px 8px;">12 open</td>
+                    <td style="padding:5px 0;"><span class="pill diff" style="font-size:var(--font-xs);">High</span></td>
+                  </tr>
+                  <tr>
+                    <td style="padding:5px 8px 5px 0;color:var(--muted);">014 Boston</td>
+                    <td style="padding:5px 8px;color:var(--intent-positive);">↑ 8%</td>
+                    <td style="padding:5px 8px;">2 open</td>
+                    <td style="padding:5px 0;"><span class="pill ok" style="font-size:var(--font-xs);">Low</span></td>
+                  </tr>
+                  <tr>
+                    <td style="padding:5px 8px 5px 0;color:var(--muted);">038 Sydney</td>
+                    <td style="padding:5px 8px;color:var(--intent-positive);">↑ 3%</td>
+                    <td style="padding:5px 8px;">1 open</td>
+                    <td style="padding:5px 0;"><span class="pill ok" style="font-size:var(--font-xs);">Low</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ══════════════════════════════════════════
+           SECTION 3 — CRO OVERSIGHT
+      ══════════════════════════════════════════ -->
+      <div class="section-hd" id="cro">
+        <div class="section-hd-left">
+          <div class="section-label">CRO Oversight</div>
+          <span class="section-count">Covance · ICH E6(R3) accountability layer</span>
+        </div>
+        <a href="#" class="section-action">Delegation log →</a>
+      </div>
+
+      <!-- CRO Summary Stats -->
+      <div class="cro-summary">
+        <div class="cro-stat">
+          <div class="cro-stat-label">Last Sponsor Review</div>
+          <div class="cro-stat-value">4d</div>
+          <div class="cro-stat-sub">May 10, 2026</div>
+        </div>
+        <div class="cro-stat">
+          <div class="cro-stat-label">Open Action Items</div>
+          <div class="cro-stat-value">12</div>
+          <div class="cro-stat-sub"><span class="bad">3 overdue</span> · 9 on track</div>
+        </div>
+        <div class="cro-stat">
+          <div class="cro-stat-label">Reports Awaiting Review</div>
+          <div class="cro-stat-value">2</div>
+          <div class="cro-stat-sub"><span class="bad">Overdue &gt;30d</span></div>
+        </div>
+        <div class="cro-stat">
+          <div class="cro-stat-label">Sites Unmonitored &gt;90d</div>
+          <div class="cro-stat-value">2</div>
+          <div class="cro-stat-sub"><span class="bad">Sites 003, 017</span></div>
+        </div>
+      </div>
+
+      <!-- Monitoring Log + Compliance Side-by-Side -->
+      <div class="two-col">
+
+        <!-- Monitoring Activity -->
+        <div class="card">
+          <div class="card-hd">
+            <div>
+              <div class="card-hd-title">CRO Monitoring Activity</div>
+              <div class="card-hd-sub">Sponsor-visible log of all CRO monitoring actions</div>
+            </div>
+            <div class="card-hd-actions">
+              <div class="chip">All visits</div>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Site</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th>Monitor</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div style="font-size:var(--font-base);">014 · Boston, MA</div></td>
+                <td><span class="monitor-type">Remote SDV</span></td>
+                <td class="cell-muted">May 12</td>
+                <td class="cell-muted">J. Chen</td>
+                <td><span class="status-inline"><span class="dot"></span>Complete</span></td>
+              </tr>
+              <tr>
+                <td><div style="font-size:var(--font-base);">023 · Austin, TX</div></td>
+                <td><span class="monitor-type" style="background:var(--intent-critical-bg);color:var(--intent-critical);">For-Cause</span></td>
+                <td class="cell-muted">May 8</td>
+                <td class="cell-muted">A. Rivera</td>
+                <td><span class="status-inline"><span class="dot warn"></span>In Progress</span></td>
+              </tr>
+              <tr>
+                <td><div style="font-size:var(--font-base);">011 · London, UK</div></td>
+                <td><span class="monitor-type">Routine SDV</span></td>
+                <td class="cell-muted">Apr 29</td>
+                <td class="cell-muted">T. Williams</td>
+                <td>
+                  <span class="status-inline overdue">
+                    <span class="dot err"></span>
+                    Report <strong>5d overdue</strong>
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td><div style="font-size:var(--font-base);">007 · Toronto, CA</div></td>
+                <td><span class="monitor-type">Routine SDV</span></td>
+                <td class="cell-muted">Apr 15</td>
+                <td class="cell-muted">K. Osei</td>
+                <td><span class="status-inline"><span class="dot"></span>Complete</span></td>
+              </tr>
+              <tr>
+                <td><div style="font-size:var(--font-base);">019 · São Paulo, BR</div></td>
+                <td><span class="monitor-type">Initial Visit</span></td>
+                <td class="cell-muted">Mar 28</td>
+                <td class="cell-muted">M. Ferreira</td>
+                <td><span class="status-inline"><span class="dot"></span>Complete</span></td>
+              </tr>
+              <tr>
+                <td><div style="font-size:var(--font-base);color:var(--muted);">003 · Madrid, ES</div></td>
+                <td><span class="monitor-type">Routine SDV</span></td>
+                <td class="cell-muted" style="color:var(--intent-critical);">Overdue</td>
+                <td class="cell-muted">Unassigned</td>
+                <td>
+                  <span class="status-inline overdue">
+                    <span class="dot err"></span>
+                    97d since last visit
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ICH E6(R3) Compliance Checklist -->
+        <div class="card">
+          <div class="card-hd">
+            <div>
+              <div class="card-hd-title">ICH E6(R3) Sponsor Obligations</div>
+              <div class="card-hd-sub">Accountability items per delegated CRO activities</div>
+            </div>
+          </div>
+          <div class="compliance-list">
+            <div class="compliance-item">
+              <div class="compliance-icon err">✕</div>
+              <div class="compliance-text">
+                <div class="compliance-title">Review CRO monitoring reports within 30 days</div>
+                <div class="compliance-detail">2 reports overdue — Site 011 (35d), Site 003 (97d)</div>
+              </div>
+              <div class="compliance-ref">§5.2.1</div>
+            </div>
+            <div class="compliance-item">
+              <div class="compliance-icon warn">!</div>
+              <div class="compliance-text">
+                <div class="compliance-title">Risk-based monitoring plan — semi-annual review</div>
+                <div class="compliance-detail">Last updated January 2026 — 5 months ago, update due</div>
+              </div>
+              <div class="compliance-ref">§5.18.3</div>
+            </div>
+            <div class="compliance-item">
+              <div class="compliance-icon warn">!</div>
+              <div class="compliance-text">
+                <div class="compliance-title">CRO delegation log — all entries require sponsor signature</div>
+                <div class="compliance-detail">1 entry missing authorized signature (Site 023 amendment)</div>
+              </div>
+              <div class="compliance-ref">§5.2.2</div>
+            </div>
+            <div class="compliance-item">
+              <div class="compliance-icon ok">✓</div>
+              <div class="compliance-text">
+                <div class="compliance-title">Escalation matrix documented and current</div>
+                <div class="compliance-detail">Updated May 2, 2026 — all pathways defined</div>
+              </div>
+              <div class="compliance-ref">§5.18.5</div>
+            </div>
+            <div class="compliance-item">
+              <div class="compliance-icon ok">✓</div>
+              <div class="compliance-text">
+                <div class="compliance-title">Quality tolerance limits (QTLs) defined and tracked</div>
+                <div class="compliance-detail">7 QTLs active — 2 approaching threshold</div>
+              </div>
+              <div class="compliance-ref">§5.0.7</div>
+            </div>
+            <div class="compliance-item">
+              <div class="compliance-icon ok">✓</div>
+              <div class="compliance-text">
+                <div class="compliance-title">Protocol deviation log maintained and current</div>
+                <div class="compliance-detail">14 deviations logged — all with root cause and CAPA</div>
+              </div>
+              <div class="compliance-ref">§5.18.6</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:16px;"></div>
+
+    </div><!-- /content -->
+  </div><!-- /main-pane -->
+</div><!-- /app -->
+
+
+<script>
+  // Pull resolved token values for Chart.js (can't use CSS vars directly in JS)
+  const style    = getComputedStyle(document.documentElement);
+  const PRIMARY  = style.getPropertyValue('--primary').trim();
+  const CRITICAL = style.getPropertyValue('--intent-critical').trim();
+  const CRIT_BG  = style.getPropertyValue('--intent-critical-bg').trim();
+  const GRID     = style.getPropertyValue('--brc-color-neutral-borderSubtle').trim();
+  const TICK     = style.getPropertyValue('--muted').trim();
+  const FONT     = style.getPropertyValue('--font-family').trim();
+
+  Chart.defaults.color       = TICK;
+  Chart.defaults.borderColor = GRID;
+  Chart.defaults.font.family = FONT;
+  Chart.defaults.font.size   = 10;
+
+  const days     = ['May 1','2','3','4','5','6','7','8','9','10','11','12','13','14'];
+  const velocity = [14, 16, 13, 15, 12, 10, 9, 7, 6, 5, 4, 5, 6, 5];
+  const baseline = new Array(14).fill(14);
+
+  new Chart(document.getElementById('velocityChart'), {
+    type: 'line',
+    data: {
+      labels: days,
+      datasets: [
+        {
+          label: 'Actual',
+          data: velocity,
+          borderColor: CRITICAL,
+          backgroundColor: CRIT_BG,
+          borderWidth: 1.5,
+          pointRadius: 2,
+          pointBackgroundColor: CRITICAL,
+          fill: true,
+          tension: 0.3,
+        },
+        {
+          label: 'Baseline',
+          data: baseline,
+          borderColor: GRID,
+          borderDash: [4, 4],
+          borderWidth: 1,
+          pointRadius: 0,
+          fill: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 1.8,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          align: 'end',
+          labels: { boxWidth: 8, boxHeight: 8, padding: 10, font: { size: 10 } }
+        }
+      },
+      scales: {
+        x: { grid: { color: GRID }, ticks: { maxTicksLimit: 7 } },
+        y: {
+          grid: { color: GRID },
+          beginAtZero: true,
+          title: { display: true, text: 'Records/day', color: TICK, font: { size: 10 } }
+        }
+      }
+    }
+  });
+
+  document.querySelector('.banner-dismiss').addEventListener('click', function() {
+    this.closest('.banner').style.display = 'none';
+  });
+</script>
+
+</body>
+</html>

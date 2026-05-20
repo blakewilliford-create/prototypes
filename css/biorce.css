@@ -1,0 +1,333 @@
+/* ============================================================
+   BIORCE — Design Tokens
+   Foundational color + type tokens for the Biorce brand system.
+   Source of truth: derived from the LinkedIn / Brand Book .fig
+   files + brand asset uploads. See README.md for context.
+   ============================================================ */
+
+/* --- Webfonts ------------------------------------------------ */
+
+@font-face {
+  font-family: "TT Norms Pro";
+  src: url("./fonts/TTNormsPro-Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro";
+  src: url("./fonts/TTNormsPro-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro";
+  src: url("./fonts/TTNormsPro-Italic.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro";
+  src: url("./fonts/TTNormsPro-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro";
+  src: url("./fonts/TTNormsPro-DemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro";
+  src: url("./fonts/TTNormsPro-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro";
+  src: url("./fonts/TTNormsPro-BoldItalic.otf") format("opentype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro";
+  src: url("./fonts/TTNormsPro-ExtraBold.otf") format("opentype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro";
+  src: url("./fonts/TTNormsPro-Black.otf") format("opentype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro";
+  src: url("./fonts/TTNormsPro-ExtraBlack.otf") format("opentype");
+  font-weight: 950;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* --- BRAND COLORS — official names ------------------------
+     Confirmed from brand book:
+       Aqua / Cyan ramp:
+         Glow 100  = #D1F6FA   energetic + tint
+         Glow Blue = #99ECF3   primary headline accent
+         Deep Cyan = #4FD2DA   fluidity, clarity, precision
+         Cyan 700  = #1FA3AD   deepest stop
+       Neutrals ramp:
+         100 = #FCFCFF
+         300 = #EBEFF6
+         500 = #B4B9C9
+         550 = #8D92A0
+         600 = #454F59         brand grey
+         700 = #2C333A
+         900 = #161A1D         surface dark
+       Canvas (Midnight Black) = #090909
+       White                   = #FEFEFE
+  ----------------------------------------------------------- */
+  --glow-100:  #D1F6FA;
+  --glow-blue: #99ECF3;
+  --deep-cyan: #4FD2DA;
+  --cyan-700:  #1FA3AD;
+
+  --neutral-100: #FCFCFF;
+  --neutral-300: #EBEFF6;
+  --neutral-500: #B4B9C9;
+  --neutral-550: #8D92A0;
+  --neutral-600: #454F59;
+  --neutral-700: #2C333A;
+  --neutral-900: #161A1D;
+
+  --midnight: #090909;
+  --white:    #FEFEFE;
+  --aqua-100: #d6fbff;   /* faint tint, glow halos */
+  --aqua-200: #c4f7ff;
+  --aqua-300: #a5f6ff;   /* most-used brand cyan (5057×) */
+  --aqua-400: #a1f2ff;   /* logo gradient start */
+  --aqua-500: #99ecf3;   /* hero headline color (most quotes) */
+  --aqua-600: #88cad2;
+  --aqua-700: #80d5dc;   /* solid icon variant */
+  --aqua-800: #62bdbe;
+  --aqua-900: #5eb6b6;   /* logo gradient end */
+  --aqua-deep: #14745f;  /* deep teal radial accent */
+  --aqua-glow: rgba(165, 246, 255, 0.5);
+  --aqua-tint: rgba(165, 246, 255, 0.08); /* pill bg on dark */
+  --aqua-radial: rgba(153, 236, 243, 0.35);
+
+  /* --- INK / SURFACE — Near-black system ---------------------
+     Biorce surfaces are dark first. Pure black + a near-black
+     "ink" used on every cover slide and LinkedIn post.
+  ----------------------------------------------------------- */
+  --ink-1000: #090909;   /* canvas black (brand book) */
+  --ink-950:  #161A1D;   /* dot pattern / surface dark (brand book) */
+  --ink-900:  #191517;   /* warmer near-black bg */
+  --ink-800:  #22272b;
+  --ink-700:  #454F59;   /* brand grey (confirmed in brand book) */
+  --ink-600:  #415c61;   /* deep teal-ink stroke */
+  --ink-500:  #5e888e;
+  --ink-line: rgba(255, 255, 255, 0.08); /* hairline divider */
+  --ink-glass: rgba(255, 255, 255, 0.05); /* glass card fill */
+
+  /* --- FOG — Cool neutrals on dark --------------------------- */
+  --fog-50:  #fefefe;    /* primary white text on dark */
+  --fog-100: #ffffff;
+  --fog-200: #e1e4ed;    /* secondary headline */
+  --fog-300: #b4b9c9;    /* subtitle / soft caption */
+  --fog-400: #798da0;
+  --fog-500: rgba(255, 255, 255, 0.55);
+
+  /* --- SEMANTIC ---------------------------------------------- */
+  --bg:           var(--ink-1000);
+  --bg-elev:      var(--ink-950);
+  --bg-warm:      var(--ink-900);
+  --fg:           var(--fog-50);
+  --fg-muted:     var(--fog-200);
+  --fg-soft:      var(--fog-300);
+  --accent:       var(--aqua-500);    /* hero accent */
+  --accent-bright: var(--aqua-300);   /* tag / pill bg derived */
+  --accent-deep:  var(--aqua-deep);
+  --hairline:     var(--ink-line);
+  --glass:        var(--ink-glass);
+
+  /* --- GRADIENTS — repeating brand washes -------------------- */
+  --grad-logo: linear-gradient(180deg, var(--aqua-400) 0%, var(--aqua-900) 100%);
+  --grad-veil: linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 100%);
+  --grad-veil-soft: linear-gradient(180deg, rgba(0,0,0,0) 8%, #000 100%);
+  --grad-deep: linear-gradient(180deg, #000 34%, var(--aqua-deep) 100%);
+  --radial-glow: radial-gradient(closest-side, var(--aqua-radial) 0%, rgba(153,236,243,0) 100%);
+
+  /* --- TYPE — Family ----------------------------------------- */
+  --font-sans:    "TT Norms Pro", "Montserrat", "Inter", "Helvetica Neue", system-ui, sans-serif;
+  --font-italic:  Georgia, "Times New Roman", serif;
+  --font-mono:    "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+
+  /* --- TYPE — Scale ------------------------------------------
+     Tightly-leaded (line-height: 1) display sizes match the
+     deck + LinkedIn post system. Body text leads at 1.2–1.3.
+  ----------------------------------------------------------- */
+  --fs-hero:    170px;   /* "CHANGE." style monumental marks */
+  --fs-display: 96px;    /* keynote primary headline */
+  --fs-h1:      70px;    /* slide title */
+  --fs-h2:      48px;    /* slide subtitle */
+  --fs-h3:      34px;    /* eyebrow / lede */
+  --fs-h4:      24px;
+  --fs-lg:      22px;
+  --fs-base:    18px;
+  --fs-sm:      16px;
+  --fs-xs:      14px;
+  --fs-micro:   12px;
+
+  --lh-tight:   1;       /* hero, display */
+  --lh-snug:    1.05;
+  --lh-normal:  1.2;
+  --lh-relaxed: 1.3;
+  --lh-prose:   1.5;
+
+  --tracking-tight:   -0.02em;
+  --tracking-normal:  0;
+  --tracking-wide:    0.04em;
+  --tracking-caps:    0.12em;
+
+  /* --- SPACING / SIZING -------------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
+
+  /* --- RADII ------------------------------------------------- */
+  --r-sm: 8px;
+  --r-md: 16px;
+  --r-pill: 9999px;      /* tag + section label */
+
+  /* --- SHADOWS / GLOW ----------------------------------------
+     Biorce uses glow sparingly — only as a subtle wash on dark
+     backgrounds or behind a specific graphic element. There is
+     no general elevation system (no sm/md/lg drop shadows).
+  ----------------------------------------------------------- */
+  --glow-bg:      radial-gradient(ellipse 70% 80% at 50% 50%, rgba(153,236,243,0.20), transparent 65%);
+  --glow-element: 0 0 80px rgba(153, 236, 243, 0.35);
+  --hairline-inset: inset 0 0 0 0.5px rgba(255, 255, 255, 0.10);
+
+  /* --- BLUR -------------------------------------------------- */
+  --blur-glass: blur(28.7px);
+  --blur-pill:  blur(13.7px);
+
+  /* --- MOTION ------------------------------------------------ */
+  --ease-out:   cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in:    cubic-bezier(0.4, 0, 1, 1);
+  --ease-emph:  cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast:   140ms;
+  --dur-base:   240ms;
+  --dur-slow:   480ms;
+  --dur-reveal: 800ms;
+}
+
+/* --- BASE / SEMANTIC ELEMENT STYLES --------------------------- */
+
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  line-height: var(--lh-relaxed);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, .h1 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--fs-h1);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--accent);
+  margin: 0;
+}
+
+h2, .h2 {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: var(--fs-h2);
+  line-height: var(--lh-tight);
+  color: var(--fog-300);
+  margin: 0;
+}
+
+h3, .h3 {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: var(--fs-h3);
+  line-height: var(--lh-normal);
+  color: var(--fog-200);
+  margin: 0;
+}
+
+h4, .h4 {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: var(--fs-h4);
+  line-height: var(--lh-normal);
+  color: var(--fog-50);
+  margin: 0;
+}
+
+p, .body {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: var(--fs-base);
+  line-height: var(--lh-prose);
+  color: var(--fog-200);
+  margin: 0;
+}
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: var(--fs-sm);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--fog-300);
+}
+
+.display {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--fs-display);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--accent);
+}
+
+.hero {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--fs-hero);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.04em;
+  color: var(--fog-100);
+  text-transform: uppercase;
+}
+
+code, .mono {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  color: var(--aqua-300);
+}

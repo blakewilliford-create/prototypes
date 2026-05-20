@@ -121,9 +121,9 @@ function createGlowTexture() {
 
   const g = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
   g.addColorStop(0, 'rgba(255,255,255,1)');
-  g.addColorStop(0.2, 'rgba(0,255,255,1)');
-  g.addColorStop(0.4, 'rgba(0,255,255,0.4)');
-  g.addColorStop(1, 'rgba(0,255,255,0)');
+  g.addColorStop(0.2, 'rgba(16,248,245,1)');
+  g.addColorStop(0.4, 'rgba(16,248,245,0.4)');
+  g.addColorStop(1, 'rgba(16,248,245,0)');
 
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, size, size);
@@ -176,7 +176,7 @@ const material = new THREE.ShaderMaterial({
 const gu = { time: { value: 0 } };
 
 const agentMaterial = new THREE.PointsMaterial({
-  color: "#4FA7B8",
+  color: "#10F8F5",
   size: 1.0,
   sizeAttenuation: false,
   transparent: true,
@@ -215,7 +215,7 @@ const agentMaterial = new THREE.PointsMaterial({
     ).replace(
       `#include <alphatest_fragment>`,
       `#include <alphatest_fragment>
-        diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0, 0.8, 0.9), vSinVal);
+        diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.063, 0.973, 0.961), vSinVal);
         float f = smoothstep(0.5, 0.1, dist);
         diffuseColor.a = f;
       `
