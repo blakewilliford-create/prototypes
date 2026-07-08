@@ -155,7 +155,9 @@
     /* Branded theme: brand teal, still semi-transparent */
     body.branded {
       --sk-tint: 93, 240, 249;
-      --sk-solid-alpha: 0.08;
+      --sk-solid-alpha: 0.05;
+      /* explicit teal radial so the branded gradient clearly reads teal */
+      --skeleton-base: radial-gradient(circle at center, rgba(93, 240, 249, 0) 0%, rgba(93, 240, 249, 0.12) 100%);
       --shine-color: rgba(93, 240, 249, 0.28);
     }
 
