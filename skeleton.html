@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skeleton Loader</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-color-1: #323b42;
+      --bg-color-2: #121317;
+      --contrast: #fff;
+
+      /* Skeleton config (converted from SCSS variables) */
+      /* Per-theme tint (rgb triplet) + solid fill opacity */
+      --sk-tint: 153, 173, 183;
+      --sk-solid-alpha: 0.05;
+      --skeleton-background: transparent;
+      /* Default fill: radial gradient, transparent center -> 10% at the edges */
+      --skeleton-base: radial-gradient(circle at center, rgba(var(--sk-tint), 0) 0%, rgba(var(--sk-tint), 0.10) 100%);
+      --shine-color: rgba(255, 255, 255, 0.1);
+      --skeleton-radius: 0.5rem;
+      --shine-duration: 1s;   /* animation run time */
+      --shine-delay: 1s;      /* pause before restart */
+      --shine-size: 0px;
+      --shine-edge-blur: 150px;
+      --shine-angle: 135deg;
+
+      /* The animated position of the gradient */
+      --skeleton-shine-position: 0;
+      animation: skeletonAnimation 1s ease-in infinite; /* 2x speed (duration + delay) */
+    }
+
+    @property --skeleton-shine-position {
+      syntax: "<number>";
+      inherits: true;
+      initial-value: 0;
+    }
+
+    @keyframes skeletonAnimation {
+      0% { --skeleton-shine-position: 0; }
+      /* duration / (duration + delay) => 1 / (1 + 1) => 50% */
+      50%, 100% { --skeleton-shine-position: 1; }
+    }
+
+    body {
+      align-items: center;
+      background: linear-gradient(33deg, var(--bg-color-1), var(--bg-color-2));
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      margin: 0;
+      /* top padding aligns the tab bar with the fixed back button */
+      padding: 15px 20px 40px;
+    }
+
+    main {
+      margin: auto 0;
+    }
+
+    main {
+      display: grid;
+      gap: 1em;
+      grid-template-columns: min-content 1fr 0.3fr 0.2fr;
+      width: clamp(360px, 50vw, 800px);
+    }
+
+    h2 {
+      margin: 1em 0 0;
+      text-wrap: pretty;
+    }
+
+    h3 {
+      font-size: 2em;
+      margin: 0;
+      max-width: 400px;
+    }
+
+    img {
+      height: 64px;
+    }
+
+    p {
+      margin: 0;
+      grid-column: 2 / -1;
+      max-width: 400px;
+    }
+
+    span {
+      display: block;
+    }
+    span:not(:first-child) {
+      margin-top: 4px;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .big {
+      grid-column: 1 / 3;
+    }
+
+    .multi-line {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .circle {
+      aspect-ratio: 1;
+      border-radius: 100vw !important;
+    }
+
+    .square {
+      aspect-ratio: 1;
+    }
+
+    .rectangle {
+      aspect-ratio: 1.618;
+    }
+
+    .skeleton {
+      /* position * (100vw + (size + blur) * 2) - (size + blur) */
+      --animation-position: calc(
+        var(--skeleton-shine-position) * (100vw + (var(--shine-size) + var(--shine-edge-blur)) * 2)
+        - (var(--shine-size) + var(--shine-edge-blur))
+      );
+
+      background-attachment: fixed, scroll;
+      background-color: var(--skeleton-background);
+      background-image:
+        linear-gradient(
+          var(--shine-angle),
+          transparent,
+          transparent calc(var(--animation-position) - var(--shine-edge-blur)),
+          var(--shine-color) calc(var(--animation-position)),
+          var(--shine-color) calc(var(--animation-position) + var(--shine-size)),
+          transparent calc(var(--animation-position) + var(--shine-size) + var(--shine-edge-blur))
+        ),
+        var(--skeleton-base, none);
+      border-radius: var(--skeleton-radius);
+      color: transparent;
+    }
+
+    .skeleton::before {
+      display: block;
+      content: '';
+      min-height: 1lh;
+    }
+
+    /* Branded theme: brand teal, still semi-transparent */
+    body.branded {
+      --sk-tint: 93, 240, 249;
+      --sk-solid-alpha: 0.08;
+      --shine-color: rgba(93, 240, 249, 0.28);
+    }
+
+    /* Subtle Branded: neutral base, faint teal shine only */
+    body.subtle {
+      --sk-tint: 153, 173, 183;
+      --sk-solid-alpha: 0.05;
+      --shine-color: rgba(93, 240, 249, 0.10);
+    }
+
+    /* Fill mode: solid flat color instead of the radial gradient */
+    body.solid {
+      --skeleton-base: linear-gradient(
+        rgba(var(--sk-tint), var(--sk-solid-alpha)),
+        rgba(var(--sk-tint), var(--sk-solid-alpha))
+      );
+    }
+
+    /* Back button (matches other pages) */
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.05);
+      -webkit-backdrop-filter: blur(50px);
+      backdrop-filter: blur(50px);
+      border-radius: 999px;
+      border: 0;
+      color: var(--contrast);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 13px;
+      font-weight: 300;
+      letter-spacing: 0.12em;
+      text-decoration: none;
+      transition: background 0.2s;
+      z-index: 20;
+    }
+    .back-btn:hover { background: rgba(255, 255, 255, 0.1); }
+    .back-btn svg { flex-shrink: 0; }
+
+    /* Tabs */
+    .tab-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      padding: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      width: fit-content;
+    }
+
+    .tab {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.55);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 8px 20px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .tab:hover {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .tab[aria-selected="true"] {
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--contrast);
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-btn">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Back
+  </a>
+
+  <div class="tab-bar">
+    <div class="tabs" role="tablist" aria-label="Skeleton theme">
+      <button class="tab" role="tab" aria-selected="true" data-theme="default">Default</button>
+      <button class="tab" role="tab" aria-selected="false" data-theme="branded">Branded</button>
+      <button class="tab" role="tab" aria-selected="false" data-theme="subtle">Subtle Branded</button>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Animation speed">
+      <button class="tab" role="tab" aria-selected="false" data-speed="0.5s">0.5s</button>
+      <button class="tab" role="tab" aria-selected="true" data-speed="1s">1s</button>
+      <button class="tab" role="tab" aria-selected="false" data-speed="2s">2s</button>
+      <button class="tab" role="tab" aria-selected="false" data-speed="3s">3s</button>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Fill style">
+      <button class="tab" role="tab" aria-selected="true" data-fill="radial">Radial Gradient</button>
+      <button class="tab" role="tab" aria-selected="false" data-fill="solid">Solid Color</button>
+    </div>
+  </div>
+
+  <main>
+    <h3 class="skeleton full"></h3>
+    <div class="skeleton circle" style="width: 64px"></div>
+    <p class="multi-line">
+      <span class="skeleton"></span>
+      <span class="skeleton"></span>
+    </p>
+    <div class="skeleton big rectangle"></div>
+    <div class="skeleton"></div>
+    <div class="skeleton square"></div>
+  </main>
+
+  <script>
+    document.querySelectorAll('[role="tablist"]').forEach(group => {
+      group.addEventListener('click', e => {
+        const tab = e.target.closest('.tab');
+        if (!tab) return;
+        group.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', 'false'));
+        tab.setAttribute('aria-selected', 'true');
+
+        if (tab.dataset.theme) {
+          document.body.classList.remove('branded', 'subtle');
+          if (tab.dataset.theme !== 'default') {
+            document.body.classList.add(tab.dataset.theme);
+          }
+        }
+        if (tab.dataset.speed) {
+          document.documentElement.style.animationDuration = tab.dataset.speed;
+        }
+        if (tab.dataset.fill) {
+          document.body.classList.toggle('solid', tab.dataset.fill === 'solid');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
