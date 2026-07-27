@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loaders</title>
+    <link rel="icon" type="image/png" href="favicons/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="favicons/favicon.svg" />
+    <link rel="shortcut icon" href="favicons/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png" />
+    <link rel="manifest" href="favicons/site.webmanifest" />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      /* ===== PAGE ===== */
+      :root {
+        /* Skeleton config (from skeleton.html) */
+        --sk-tint: 153, 173, 183;
+        --sk-solid-alpha: 0.05;
+        --skeleton-background: transparent;
+        --skeleton-base: radial-gradient(circle at center, rgba(var(--sk-tint), 0) 0%, rgba(var(--sk-tint), 0.10) 100%);
+        --shine-color: rgba(255, 255, 255, 0.1);
+        --skeleton-radius: 0.5rem;
+        --shine-size: 0px;
+        --shine-edge-blur: 150px;
+        --shine-angle: 135deg;
+
+        /* The animated position of the gradient */
+        --skeleton-shine-position: 0;
+        --sk-duration: 1s; /* chosen time interval, shared by shine + fade */
+        animation: skeletonAnimation var(--sk-duration) ease-in infinite;
+      }
+
+      body {
+        background: var(--bg);
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      /* ===== TABS ===== */
+      .tab-bar {
+        display: flex;
+        justify-content: center;
+        padding: 15px 20px 0;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 4px;
+        padding: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 999px;
+        width: fit-content;
+      }
+
+      .tab {
+        appearance: none;
+        border: none;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.55);
+        font-family: inherit;
+        font-size: 0.875rem;
+        font-weight: 500;
+        padding: 8px 20px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: background 0.2s ease, color 0.2s ease;
+      }
+
+      .tab:hover { color: rgba(255, 255, 255, 0.85); }
+
+      .tab[aria-selected="true"] {
+        background: rgba(255, 255, 255, 0.12);
+        color: var(--fg);
+      }
+
+      /* ===== PANELS ===== */
+      .panels {
+        flex: 1;
+        display: grid;
+        padding: 24px 20px 40px;
+        min-height: 0;
+      }
+
+      .tabs.sub { padding: 4px; }
+      .tabs.sub .tab {
+        font-size: 0.8125rem;
+        padding: 6px 16px;
+      }
+
+      .panel { display: none; }
+      .panel[data-active] {
+        /* headings pinned to the top, loader centered in the space below them */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      /* centers itself in whatever space is left under the headings */
+      .panel-content { margin: auto 0; }
+
+      .panel-title {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      /* ===== LARGE: emblem loader ===== */
+      /* Animated boot emblem — each petal draws on (stroke-dashoffset) then fills */
+      .fw-boot-emblem {
+        width: 96px;
+        height: 96px;
+        overflow: visible;
+      }
+
+      .fw-petal {
+        fill: url(#fwEmbGrad);
+        fill-opacity: 0;
+        stroke: var(--turquoise-400, #5DF0F9);
+        stroke-width: 1.1;
+        stroke-linejoin: round;
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        animation: fw-petal-draw 2400ms cubic-bezier(.65, 0, .35, 1) infinite;
+      }
+
+      @keyframes fw-petal-draw {
+        0%   { stroke-dashoffset: 1; fill-opacity: 0; }
+        38%  { stroke-dashoffset: 0; fill-opacity: 0; }
+        58%  { fill-opacity: 1; }
+        82%  { stroke-dashoffset: 0; fill-opacity: 1; stroke-opacity: 1; }
+        100% { stroke-dashoffset: 0; fill-opacity: 1; stroke-opacity: 0; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .fw-petal { animation: none; fill-opacity: 1; stroke-dashoffset: 0; }
+      }
+
+      /* --- Large variants: emblem only / simple / stepped --- */
+      .large-stack {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 28px;
+      }
+
+      .large-variant { display: none; }
+      .large-variant[data-active] { display: block; }
+
+      /* Simple: one line of status copy under the emblem */
+      .loader-caption {
+        max-width: 460px;
+        margin: 0;
+        text-align: center;
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--muted);
+      }
+
+      /* Stepped */
+      .gen {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+      }
+
+      .gen-head { text-align: center; }
+
+      .gen-title {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      .gen-sub {
+        margin: 6px 0 0;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      /* Step list: fixed 5-row window, list slides so the active step stays in view */
+      .gen-steps {
+        --row: 30px;
+        --shift: 0;
+        width: 410px;
+        height: calc(var(--row) * 5);
+        overflow: hidden;
+        -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+        mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+      }
+
+      .gen-steps-inner {
+        transform: translateY(calc(var(--shift) * var(--row) * -1));
+        transition: transform 0.45s ease;
+      }
+
+      .gen-step {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: var(--row);
+        padding: 0 14px;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.32);
+        transition: color 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+      }
+
+      /* connector between step icons */
+      .gen-step:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        left: 21px;
+        top: calc(50% + 9px);
+        height: calc(var(--row) - 18px);
+        border-left: 1px dashed rgba(255, 255, 255, 0.14);
+      }
+
+      .gen-step[data-state="done"] { color: rgba(255, 255, 255, 0.42); }
+
+      .gen-step[data-state="active"] {
+        color: var(--fg);
+        background: rgba(255, 255, 255, 0.03);
+        border-color: rgba(255, 255, 255, 0.10);
+      }
+
+      .gen-icon {
+        flex: none;
+        display: grid;
+        place-items: center;
+        width: 14px;
+        height: 14px;
+      }
+
+      .gen-icon svg { display: block; }
+      .gen-step[data-state="done"] .gen-icon { color: var(--glow); opacity: 0.7; }
+      .gen-step[data-state="pending"] .gen-icon { color: rgba(255, 255, 255, 0.25); }
+
+      .gen-icon .spinner {
+        width: 13px;
+        height: 13px;
+        border-width: 1.5px;
+      }
+
+      /* Stop button, with the teal bloom sitting behind it */
+      .gen-stop {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 18px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: 12px;
+        color: var(--fg);
+        font-family: inherit;
+        font-size: 13px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+
+      .gen-stop:hover { background: rgba(255, 255, 255, 0.1); }
+
+      .gen-stop-icon {
+        width: 8px;
+        height: 8px;
+        border-radius: 1px;
+        background: currentColor;
+      }
+
+
+      /* ===== SMALL: inline spinner ===== */
+      .small-loader {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .small-emblem { display: block; flex: none; }
+
+      .small-emblem svg {
+        display: block;
+        width: 20px;
+        height: 20px;
+      }
+
+      /* Rotating variants */
+      .small-emblem svg.spin { animation: spin 1.4s linear infinite; }
+
+      /* Fade variants: same draw-then-fill cycle as the large page loader */
+      .sm-petal {
+        fill-opacity: 0;
+        stroke: var(--turquoise-400, #5DF0F9);
+        stroke-width: 0.8;
+        stroke-linejoin: round;
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        animation: fw-petal-draw 2400ms cubic-bezier(.65, 0, .35, 1) infinite;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .small-emblem svg.spin { animation: none; }
+        .sm-petal { animation: none; fill-opacity: 1; stroke-dashoffset: 0; }
+      }
+
+      .spinner {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.12);
+        border-top-color: var(--glow);
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      /* ===== MEDIUM: skeleton loaders (from skeleton.html) ===== */
+      @property --skeleton-shine-position {
+        syntax: "<number>";
+        inherits: true;
+        initial-value: 0;
+      }
+
+      @keyframes skeletonAnimation {
+        0% { --skeleton-shine-position: 0; }
+        50%, 100% { --skeleton-shine-position: 1; }
+      }
+
+      @keyframes skeletonFade {
+        0%, 100% { opacity: 0.333; }
+        50%      { opacity: 1; }
+      }
+
+      .sk-grid {
+        display: grid;
+        gap: 1em;
+        grid-template-columns: min-content 1fr 0.3fr 0.2fr;
+        width: clamp(360px, 50vw, 800px);
+      }
+
+      .sk-grid h3 {
+        font-size: 2em;
+        margin: 0;
+        max-width: 400px;
+      }
+
+      .sk-grid p {
+        margin: 0;
+        grid-column: 2 / -1;
+        max-width: 400px;
+      }
+
+      .sk-grid span { display: block; }
+      .sk-grid span:not(:first-child) { margin-top: 4px; }
+
+      .full { grid-column: 1 / -1; }
+      .big  { grid-column: 1 / 3; }
+
+      .multi-line {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .circle {
+        aspect-ratio: 1;
+        border-radius: 100vw !important;
+      }
+
+      .square { aspect-ratio: 1; }
+      .rectangle { aspect-ratio: 1.618; }
+
+      .skeleton {
+        /* position * (100vw + (size + blur) * 2) - (size + blur) */
+        --animation-position: calc(
+          var(--skeleton-shine-position) * (100vw + (var(--shine-size) + var(--shine-edge-blur)) * 2)
+          - (var(--shine-size) + var(--shine-edge-blur))
+        );
+
+        background-attachment: fixed, scroll;
+        background-color: var(--skeleton-background);
+        background-image:
+          linear-gradient(
+            var(--shine-angle),
+            transparent,
+            transparent calc(var(--animation-position) - var(--shine-edge-blur)),
+            var(--shine-color) calc(var(--animation-position)),
+            var(--shine-color) calc(var(--animation-position) + var(--shine-size)),
+            transparent calc(var(--animation-position) + var(--shine-size) + var(--shine-edge-blur))
+          ),
+          var(--skeleton-base, none);
+        border-radius: var(--skeleton-radius);
+        color: transparent;
+      }
+
+      .skeleton::before {
+        display: block;
+        content: '';
+        min-height: 1lh;
+      }
+
+      /* Fill mode: solid flat color instead of the radial gradient */
+      .sk-grid.solid {
+        --skeleton-base: linear-gradient(
+          rgba(var(--sk-tint), var(--sk-solid-alpha)),
+          rgba(var(--sk-tint), var(--sk-solid-alpha))
+        );
+      }
+
+      /* Fade mode: pulse each skeleton between two fill strengths (no shine) */
+      .sk-grid.fade .skeleton {
+        background-image: linear-gradient(
+          rgba(var(--sk-tint), 0.06),
+          rgba(var(--sk-tint), 0.06)
+        );
+        animation: skeletonFade var(--sk-duration) ease-in-out infinite;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="index.html" class="back-btn">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back
+    </a>
+
+    <div class="tab-bar">
+      <div class="tabs" role="tablist" aria-label="Loader size">
+        <button class="tab" role="tab" aria-selected="true"  aria-controls="panel-large"  data-panel="large">Large</button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="panel-medium" data-panel="medium">Medium</button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="panel-small"  data-panel="small">Small</button>
+      </div>
+    </div>
+
+    <div class="panels">
+      <!-- Large: full-page emblem -->
+      <section class="panel" id="panel-large" role="tabpanel" data-active>
+        <h2 class="panel-title">Page Loader</h2>
+
+        <div class="tabs sub" role="tablist" aria-label="Page loader variant">
+          <button class="tab" role="tab" aria-selected="true"  data-variant="emblem">Emblem only</button>
+          <button class="tab" role="tab" aria-selected="false" data-variant="simple">Simple</button>
+          <button class="tab" role="tab" aria-selected="false" data-variant="stepped">Stepped</button>
+        </div>
+
+        <div class="panel-content large-stack">
+          <svg class="fw-boot-emblem" viewBox="0 0 109 108" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Loading">
+            <defs>
+              <linearGradient id="fwEmbGrad" x1="20" y1="100" x2="90" y2="8" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#A1F2FF" />
+                <stop offset="1" stop-color="#5EB6B6" />
+              </linearGradient>
+            </defs>
+            <g id="petals"></g>
+          </svg>
+
+          <!-- Simple -->
+          <div class="large-variant" data-variant="simple">
+            <p class="loader-caption">
+              Auto-loading protocol LUMINA-201 target 180 +15% buffer, scored against the
+              locked set of 13 similar trials
+            </p>
+          </div>
+
+          <!-- Stepped -->
+          <div class="large-variant" data-variant="stepped">
+            <div class="gen">
+              <div class="gen-head">
+                <h3 class="gen-title">Generating blueprint…</h3>
+                <p class="gen-sub">You can navigate away and come back, we'll notify you when it's ready.</p>
+              </div>
+
+              <div class="gen-steps">
+                <div class="gen-steps-inner" id="gen-steps-inner"></div>
+              </div>
+
+              <button class="gen-stop" type="button">
+                <span class="gen-stop-icon" aria-hidden="true"></span>
+                Stop generation
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Medium: skeleton loaders — default theme, 1s, fade, solid -->
+      <section class="panel" id="panel-medium" role="tabpanel">
+        <h2 class="panel-title">Skeleton Loader</h2>
+
+        <div class="tabs sub" role="tablist" aria-label="Skeleton animation">
+          <button class="tab" role="tab" aria-selected="true"  data-sk="fade">Fade</button>
+          <button class="tab" role="tab" aria-selected="false" data-sk="shine">Shine</button>
+        </div>
+
+        <div class="sk-grid fade solid panel-content" id="sk-grid">
+          <h3 class="skeleton full"></h3>
+          <div class="skeleton circle" style="width: 64px"></div>
+          <p class="multi-line">
+            <span class="skeleton"></span>
+            <span class="skeleton"></span>
+          </p>
+          <div class="skeleton big rectangle"></div>
+          <div class="skeleton"></div>
+          <div class="skeleton square"></div>
+        </div>
+      </section>
+
+      <!-- Small: inline spinner -->
+      <section class="panel" id="panel-small" role="tabpanel">
+        <h2 class="panel-title">Small Loaders</h2>
+
+        <div class="tabs sub" role="tablist" aria-label="Small loader variant">
+          <button class="tab" role="tab" aria-selected="true"  data-small="a-rotate">Variant A - Rotating</button>
+          <button class="tab" role="tab" aria-selected="false" data-small="a-fade">Variant A - Fade</button>
+          <button class="tab" role="tab" aria-selected="false" data-small="b-rotate">Variant B - Rotating</button>
+          <button class="tab" role="tab" aria-selected="false" data-small="b-fade">Variant B - Fade</button>
+        </div>
+
+        <div class="small-loader panel-content">
+          <span class="small-emblem" id="small-emblem" aria-hidden="true"></span>
+          <span>Aika is thinking...</span>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      // Build the boot emblem petals, each offset so they draw in sequence
+      const FW_PETALS = [
+        "M32.7677 76.5448C34.7098 78.1981 37.1736 79.0086 39.6534 79.0086C42.6309 79.0086 45.6243 77.8369 47.7189 75.5577C51.6513 71.4407 51.6594 64.571 47.735 60.5503C46.1861 58.9613 44.1075 57.894 42.037 57.605C41.1542 57.4847 40.2714 57.4526 39.3244 57.4124C37.9119 57.3562 36.4513 57.3001 34.9827 56.9229C32.5189 56.2969 30.2076 55.1011 28.3056 53.48L28.0649 53.2714C24.1966 49.8445 23.0891 45.4707 22.4712 41.2574C21.9415 37.6701 20.2482 33.0395 15.1441 31.3381C14.1008 30.985 13.0013 30.8084 11.8697 30.8084C8.77996 30.8084 5.83466 32.1165 3.78819 34.3877C0.810793 37.4534 -0.128172 42.1081 1.46085 45.9603C3.49928 50.936 8.23423 52.3244 11.8456 52.6133C16.091 52.9503 20.5291 53.7689 24.1966 57.3964L24.4213 57.6291C26.1628 59.4188 27.5031 61.6418 28.2976 64.0654C28.7711 65.51 28.9236 66.9546 29.068 68.375C29.1643 69.306 29.2606 70.1888 29.4372 71.0635C29.8545 73.11 31.0663 75.1163 32.7517 76.5529L32.7677 76.5448Z",
+        "M11.3906 59.7799C11.0375 59.7799 10.6763 59.7959 10.3393 59.836H10.267C6.8964 59.9885 4.64128 61.7942 3.34118 63.2789C1.35892 65.5501 0.291545 68.6559 0.548356 71.3845C0.805167 74.1372 2.27381 76.7936 4.56103 78.6715C6.51119 80.2766 8.88669 81.1513 11.19 81.1513C11.4949 81.1513 11.7919 81.1353 12.0968 81.1032C15.0582 80.7982 17.6905 79.3858 19.5203 77.1146C21.3661 74.8194 22.1927 71.8981 21.8476 68.8806C21.2698 63.8567 16.583 59.7638 11.3986 59.7638L11.3906 59.7799Z",
+        "M68.8359 79.2654C69.7669 79.1691 70.6497 79.0728 71.5244 78.8962C73.5709 78.4789 75.5772 77.2671 77.0138 75.5818C80.6653 71.3123 80.2079 64.4586 76.0266 60.6306L75.9303 60.5423C71.8374 56.6901 65.0079 56.7222 61.0112 60.6145C59.4222 62.1634 58.3548 64.242 58.0659 66.3125C57.9456 67.2033 57.9134 68.0861 57.8733 69.0251C57.8171 70.4375 57.761 71.8981 57.3838 73.3748C56.7578 75.8386 55.562 78.1499 53.9409 80.0519L53.7242 80.2926C50.2974 84.1528 45.9316 85.2603 41.7103 85.8783C38.123 86.408 33.4923 88.1093 31.7829 93.2054C30.4587 97.1619 31.6866 101.728 34.8326 104.561L34.9369 104.666C36.9753 106.616 39.72 107.659 42.4647 107.659C43.8049 107.659 45.1451 107.41 46.4051 106.897C51.3808 104.858 52.7692 100.123 53.0581 96.5119C53.3952 92.2665 54.2138 87.8284 57.8412 84.1528L58.0659 83.9281C59.8636 82.1786 62.0866 80.8384 64.5023 80.0519C65.9468 79.5784 67.3994 79.4259 68.8038 79.2814L68.8359 79.2654Z",
+        "M77.6074 88.8557C75.6492 87.2827 73.2657 86.4481 70.7056 86.4481C70.2642 86.4481 69.8148 86.4721 69.3734 86.5203C63.9402 87.1463 59.7109 92.5233 60.3208 98.0206V98.0928C60.4733 101.463 62.279 103.719 63.7637 105.019C65.8101 106.808 68.5468 107.852 71.0667 107.852C71.3396 107.852 71.6125 107.836 71.8773 107.812C74.63 107.555 77.2864 106.086 79.1643 103.799C80.978 101.592 81.8608 98.8472 81.596 96.2711C81.291 93.3097 79.8786 90.6774 77.6074 88.8476V88.8557Z",
+        "M96.9067 55.2135C92.6613 54.8764 88.2233 54.0578 84.5557 50.4304L84.331 50.2057C82.5815 48.408 81.2413 46.185 80.4548 43.7693C79.9813 42.3248 79.8288 40.8722 79.6763 39.4357C79.58 38.5127 79.4837 37.638 79.3072 36.7712C78.8899 34.7248 77.678 32.7184 75.9927 31.2819C74.1308 29.6929 71.6831 28.8101 69.107 28.8101C65.9931 28.8101 63.0559 30.0701 61.0415 32.269C57.1091 36.386 57.101 43.2557 61.0254 47.2764C62.5743 48.8654 64.6529 49.9328 66.7234 50.2217C67.6062 50.3421 68.489 50.3742 69.436 50.4143C70.8485 50.4705 72.3091 50.5267 73.7777 50.9039C76.2415 51.5298 78.5528 52.7256 80.4548 54.3467L80.6956 54.5554C84.5638 57.9822 85.6713 62.356 86.2892 66.5693C86.8189 70.1567 88.5203 74.7873 93.6164 76.4887C94.6757 76.8418 95.7832 77.0183 96.8907 77.0183C99.9002 77.0183 102.902 75.7423 104.972 73.439L105.052 73.3588C107.974 70.3172 108.881 65.7026 107.308 61.8665C105.269 56.8908 100.534 55.5024 96.9228 55.2135H96.9067Z",
+        "M97.373 48.0388C97.7261 48.0388 98.0792 48.0227 98.4324 47.9826H98.5046C101.875 47.8301 104.13 46.0244 105.43 44.5397C107.413 42.2686 108.48 39.1627 108.223 36.4341C107.966 33.6814 106.498 31.0251 104.211 29.1471C102.26 27.5501 99.909 26.6673 97.5817 26.6673C97.2767 26.6673 96.9717 26.6833 96.6748 26.7154C93.7134 27.0204 91.0811 28.4329 89.2514 30.704C87.4055 32.9993 86.5789 35.9205 86.924 38.938C87.5099 44.0181 92.2448 48.0548 97.365 48.0548L97.373 48.0388Z",
+        "M40.1024 28.8823C39.1715 28.9786 38.2887 29.0749 37.4139 29.2515C35.3675 29.6688 33.3611 30.8806 31.9246 32.5659C28.2731 36.8354 28.7305 43.6891 32.9117 47.5171C34.9742 49.4833 37.7269 50.4705 40.4716 50.4705C43.2002 50.4705 45.9208 49.4914 47.9271 47.5332C49.5161 45.9843 50.5835 43.9057 50.8724 41.8352C50.9928 40.9444 51.0249 40.0616 51.065 39.1146C51.1212 37.7021 51.1774 36.2496 51.5546 34.7809C52.1806 32.3171 53.3763 30.0058 54.9975 28.1038L55.2061 27.8631C58.6329 23.9949 63.0067 22.8874 67.22 22.2694C70.8074 21.7397 75.438 20.0384 77.1394 14.9423C78.4154 11.1222 77.3561 6.78853 74.4268 3.90744L73.9854 3.49012C71.9871 1.58811 69.2424 0.48864 66.4576 0.48864C65.0853 0.48864 63.7531 0.745451 62.5172 1.25105C57.5415 3.28948 56.1531 8.02444 55.8642 11.6358C55.5271 15.8812 54.7085 20.3193 51.0811 23.9949L50.8564 24.2196C49.0587 25.9691 46.8357 27.3093 44.42 28.0958C42.9755 28.5693 41.5229 28.7218 40.1185 28.8743L40.1024 28.8823Z",
+        "M31.3311 19.3C33.2892 20.873 35.6969 21.7076 38.2329 21.7076C38.6743 21.7076 39.1157 21.6836 39.5651 21.6274C44.9982 21.0014 49.2276 15.6244 48.6177 10.1271V10.0468C48.4652 6.67618 46.6595 4.42106 45.1748 3.12096C43.1363 1.34735 40.4158 0.28801 37.8797 0.28801C37.6069 0.28801 37.334 0.30406 37.0692 0.328136C34.3165 0.584947 31.6601 2.05359 29.7822 4.34081C27.9685 6.54778 27.0857 9.29244 27.3505 11.8686C27.6555 14.8299 29.0679 17.4622 31.3391 19.292L31.3311 19.3Z"
+      ];
+
+      const NS = "http://www.w3.org/2000/svg";
+      const petalGroup = document.getElementById("petals");
+      FW_PETALS.forEach((d, i) => {
+        const p = document.createElementNS(NS, "path");
+        p.setAttribute("class", "fw-petal");
+        p.setAttribute("d", d);
+        p.setAttribute("pathLength", "1");
+        p.style.animationDelay = (i * 110) + "ms";
+        petalGroup.appendChild(p);
+      });
+
+      // ── Stepped variant: render the step list and walk through it ──
+      const GEN_STEPS = [
+        "Defining objectives & endpoints",
+        "Designing trial & population criteria",
+        "Structuring intervention & dosing",
+        "Building statistical analysis plan",
+        "Drafting safety monitoring & reporting",
+        "Assembling operational schedule",
+        "Compiling references & appendices"
+      ];
+
+      const ICON_DONE = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6.3L4.8 8.5L9.5 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      const ICON_PENDING = '<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1V9M1 5H9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>';
+
+      const stepsInner = document.getElementById("gen-steps-inner");
+      const stepEls = GEN_STEPS.map(label => {
+        const row = document.createElement("div");
+        row.className = "gen-step";
+        row.innerHTML = '<span class="gen-icon"></span><span></span>';
+        row.lastElementChild.textContent = label;
+        stepsInner.appendChild(row);
+        return row;
+      });
+
+      let activeStep = 2; // matches the reference: two done, third in flight
+
+      function renderSteps() {
+        stepEls.forEach((row, i) => {
+          const state = i < activeStep ? "done" : i === activeStep ? "active" : "pending";
+          row.dataset.state = state;
+          row.firstElementChild.innerHTML =
+            state === "done" ? ICON_DONE
+            : state === "active" ? '<span class="spinner"></span>'
+            : ICON_PENDING;
+        });
+        // keep the active row in the visible window, two rows down from the top
+        stepsInner.parentElement.style.setProperty("--shift", Math.max(0, activeStep - 2));
+      }
+
+      renderSteps();
+      setInterval(() => {
+        activeStep = (activeStep + 1) % GEN_STEPS.length;
+        renderSteps();
+      }, 2600);
+
+      // ── Small variants: emblemMedium.svg (A) / emblemSmall.svg (B), inlined so CSS can animate them ──
+      const SMALL_EMBLEMS = {
+        // SVGs/emblemMedium.svg — three petals
+        a: [
+          { d: "M5.78273 13.6324C5.33126 13.6783 4.90325 13.7242 4.47908 13.8084C3.48669 14.0073 2.51393 14.585 1.81731 15.3885C0.0467422 17.424 0.268554 20.6914 2.29594 22.5165C3.29615 23.4539 4.6308 23.9245 5.96176 23.9245C7.28475 23.9245 8.60405 23.4578 9.57681 22.5242C10.3474 21.7857 10.865 20.7948 11.005 19.8077C11.0633 19.383 11.079 18.9622 11.0985 18.5106C11.1256 17.8373 11.1529 17.1448 11.3358 16.4445C11.6394 15.27 12.2191 14.168 13.0052 13.2613L13.1064 13.1465C14.768 11.3023 16.8888 10.7743 18.9319 10.4797C20.6714 10.2272 22.9166 9.41604 23.7417 6.98648C24.3604 5.16527 23.8468 3.09918 22.4264 1.72562L22.2124 1.52666C21.2434 0.619877 19.9125 0.0957031 18.5622 0.0957031C17.8967 0.0957031 17.2507 0.218138 16.6515 0.459181C14.2389 1.43101 13.5656 3.6884 13.4255 5.41013C13.2621 7.43413 12.8651 9.54996 11.1061 11.3023L10.9972 11.4094C10.1255 12.2435 9.04755 12.8825 7.87629 13.2574C7.17583 13.4832 6.47153 13.5559 5.79056 13.6286L5.78273 13.6324Z", g: [7.28519, 40.8623, 17.0304, -13.4849] },
+          { d: "M1.95256 9.06399C2.902 9.81391 4.06943 10.2118 5.29914 10.2118C5.51315 10.2118 5.7273 10.2003 5.94514 10.1736C8.57961 9.87512 10.6305 7.31165 10.3347 4.69078V4.65251C10.2608 3.04557 9.38515 1.97043 8.66521 1.35061C7.6768 0.505043 6.35765 0 5.12794 0C4.9957 0 4.86331 0.00765217 4.73491 0.0191305C3.40011 0.141565 2.1121 0.841739 1.20149 1.93218C0.32204 2.98435 -0.106027 4.29287 0.0223898 5.52104C0.170274 6.93287 0.855161 8.18781 1.9564 9.06016L1.95256 9.06399Z", g: [2.95424, 17.4705, 7.00023, -5.8674] },
+          { d: "M15.4952 22.8521C16.4446 23.602 17.612 23.9999 18.8417 23.9999C19.0557 23.9999 19.2699 23.9884 19.4877 23.9616C22.1222 23.6632 24.1731 21.0997 23.8773 18.4789V18.4406C23.8034 16.8337 22.9278 15.7585 22.2078 15.1387C21.2194 14.2931 19.9003 13.7881 18.6705 13.7881C18.5383 13.7881 18.4059 13.7957 18.2775 13.8072C16.9427 13.9297 15.6547 14.6298 14.7441 15.7203C13.8646 16.7724 13.4366 18.081 13.565 19.3091C13.7129 20.721 14.3978 21.9759 15.499 22.8482L15.4952 22.8521Z", g: [16.4968, 31.2586, 20.5428, 7.92069] }
+        ],
+        // SVGs/emblemSmall.svg — single petal
+        b: [
+          { d: "M5.2994 13.6339C4.83595 13.6802 4.39658 13.7264 3.96116 13.8112C2.94244 14.0116 1.94387 14.5934 1.22877 15.4027C-0.588775 17.4528 -0.361078 20.7437 1.7201 22.5819C2.74685 23.526 4.1169 24 5.48317 24C6.84126 24 8.19557 23.53 9.19413 22.5896C9.98514 21.8458 10.5165 20.8478 10.6602 19.8536C10.7201 19.4258 10.7361 19.002 10.7561 18.5472C10.784 17.869 10.8121 17.1716 10.9998 16.4662C11.3114 15.2833 11.9065 14.1734 12.7134 13.2601L12.8174 13.1445C14.523 11.2871 16.7001 10.7553 18.7974 10.4586C20.5831 10.2043 22.8879 9.38729 23.7348 6.94028C24.3699 5.10598 23.8427 3.02506 22.3846 1.64163L22.1649 1.44124C21.1703 0.52794 19.804 0 18.4179 0C17.7348 0 17.0716 0.123314 16.4565 0.366089C13.9799 1.3449 13.2887 3.61851 13.1449 5.3526C12.9772 7.39115 12.5697 9.52218 10.764 11.2871L10.6522 11.395C9.75743 12.2351 8.65084 12.8786 7.4485 13.2563C6.72945 13.4836 6.00647 13.5569 5.30743 13.6301L5.2994 13.6339Z", g: [6.84172, 41.0594, 16.4832, -13.7419] }
+        ]
+      };
+
+      const smallMount = document.getElementById("small-emblem");
+
+      function renderSmallEmblem(key) {
+        const [shape, mode] = key.split("-");
+        const petals = SMALL_EMBLEMS[shape];
+
+        const svg = document.createElementNS(NS, "svg");
+        svg.setAttribute("viewBox", "0 0 24 24");
+        svg.setAttribute("fill", "none");
+        if (mode === "rotate") svg.setAttribute("class", "spin");
+
+        const defs = document.createElementNS(NS, "defs");
+        svg.appendChild(defs);
+
+        petals.forEach((petal, i) => {
+          const gradId = key + "-grad-" + i;
+          const grad = document.createElementNS(NS, "linearGradient");
+          grad.setAttribute("id", gradId);
+          grad.setAttribute("gradientUnits", "userSpaceOnUse");
+          grad.setAttribute("x1", petal.g[0]);
+          grad.setAttribute("y1", petal.g[1]);
+          grad.setAttribute("x2", petal.g[2]);
+          grad.setAttribute("y2", petal.g[3]);
+          [["0", "#A1F2FF"], ["1", "#5EB6B6"]].forEach(([offset, color]) => {
+            const stop = document.createElementNS(NS, "stop");
+            stop.setAttribute("offset", offset);
+            stop.setAttribute("stop-color", color);
+            grad.appendChild(stop);
+          });
+          defs.appendChild(grad);
+
+          const p = document.createElementNS(NS, "path");
+          p.setAttribute("d", petal.d);
+          p.setAttribute("fill", "url(#" + gradId + ")");
+          if (mode === "fade") {
+            p.setAttribute("class", "sm-petal");
+            p.setAttribute("pathLength", "1");
+            p.style.animationDelay = (i * 110) + "ms";
+          }
+          svg.appendChild(p);
+        });
+
+        smallMount.replaceChildren(svg);
+      }
+
+      renderSmallEmblem("a-rotate");
+
+      // ── Tabs ──
+      document.querySelectorAll('[role="tablist"]').forEach(group => {
+        group.addEventListener('click', e => {
+          const tab = e.target.closest('.tab');
+          if (!tab) return;
+
+          group.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', 'false'));
+          tab.setAttribute('aria-selected', 'true');
+
+          if (tab.dataset.panel) {
+            document.querySelectorAll('.panel').forEach(p => p.removeAttribute('data-active'));
+            document.getElementById('panel-' + tab.dataset.panel).setAttribute('data-active', '');
+          }
+
+          if (tab.dataset.small) {
+            renderSmallEmblem(tab.dataset.small);
+          }
+
+          if (tab.dataset.sk) {
+            document.getElementById('sk-grid').classList.toggle('fade', tab.dataset.sk === 'fade');
+          }
+
+          if (tab.dataset.variant) {
+            document.querySelectorAll('.large-variant').forEach(v => {
+              v.toggleAttribute('data-active', v.dataset.variant === tab.dataset.variant);
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
