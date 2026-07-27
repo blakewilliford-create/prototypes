@@ -31,7 +31,8 @@
 
       /* The animated position of the gradient */
       --skeleton-shine-position: 0;
-      animation: skeletonAnimation 1s ease-in infinite; /* 2x speed (duration + delay) */
+      --sk-duration: 1s; /* chosen time interval, shared by shine + fade */
+      animation: skeletonAnimation var(--sk-duration) ease-in infinite; /* 2x speed (duration + delay) */
     }
 
     @property --skeleton-shine-position {
@@ -44,6 +45,11 @@
       0% { --skeleton-shine-position: 0; }
       /* duration / (duration + delay) => 1 / (1 + 1) => 50% */
       50%, 100% { --skeleton-shine-position: 1; }
+    }
+
+    @keyframes skeletonFade {
+      0%, 100% { opacity: 0.333; }
+      50%      { opacity: 1; }
     }
 
     body {
@@ -168,6 +174,15 @@
       --shine-color: rgba(93, 240, 249, 0.10);
     }
 
+    /* Fade mode: pulse each skeleton between two fill strengths (no shine) */
+    body.fade .skeleton {
+      background-image: linear-gradient(
+        rgba(var(--sk-tint), 0.06),
+        rgba(var(--sk-tint), 0.06)
+      );
+      animation: skeletonFade var(--sk-duration) ease-in-out infinite;
+    }
+
     /* Fill mode: solid flat color instead of the radial gradient */
     body.solid {
       --skeleton-base: linear-gradient(
@@ -268,6 +283,10 @@
       <button class="tab" role="tab" aria-selected="true" data-fill="radial">Radial Gradient</button>
       <button class="tab" role="tab" aria-selected="false" data-fill="solid">Solid Color</button>
     </div>
+    <div class="tabs" role="tablist" aria-label="Animation">
+      <button class="tab" role="tab" aria-selected="true" data-anim="shine">Shine</button>
+      <button class="tab" role="tab" aria-selected="false" data-anim="fade">Fade</button>
+    </div>
   </div>
 
   <main>
@@ -297,10 +316,13 @@
           }
         }
         if (tab.dataset.speed) {
-          document.documentElement.style.animationDuration = tab.dataset.speed;
+          document.documentElement.style.setProperty('--sk-duration', tab.dataset.speed);
         }
         if (tab.dataset.fill) {
           document.body.classList.toggle('solid', tab.dataset.fill === 'solid');
+        }
+        if (tab.dataset.anim) {
+          document.body.classList.toggle('fade', tab.dataset.anim === 'fade');
         }
       });
     });
