@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product Nav</title>
+    <link rel="icon" type="image/png" href="favicons/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="favicons/favicon.svg" />
+    <link rel="shortcut icon" href="favicons/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png" />
+    <link rel="manifest" href="favicons/site.webmanifest" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      body {
+        background:
+          radial-gradient(circle at 50% -10%, rgba(161, 242, 255, 0.06) 0%, rgba(161, 242, 255, 0) 45%),
+          var(--bg);
+        overflow-y: auto;
+        font-size: 14px;
+      }
+
+      /* ===== VIEW SWITCHING ===== */
+      #grid-view, #detail-view { animation: viewIn 0.3s ease both; }
+      body.view-detail #grid-view { display: none; }
+      body:not(.view-detail) #detail-view { display: none; }
+
+      @keyframes viewIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #grid-view, #detail-view { animation: none; }
+      }
+
+      /* ===== GRID VIEW ===== */
+      .wrap {
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 48px 32px 96px;
+      }
+
+      .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(252px, 1fr));
+        gap: 14px;
+      }
+
+      .product-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 22px 22px 24px;
+        background: var(--surface);
+        border: 1px solid transparent;
+        border-radius: 14px;
+        color: var(--fg);
+        text-decoration: none;
+        overflow: hidden;
+        transition: background 0.25s, border-color 0.25s, transform 0.25s;
+      }
+
+      /* soft top-left glow that fades in on hover */
+      .product-card::before {
+        content: '';
+        position: absolute;
+        top: -60px;
+        left: -60px;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle at center, rgba(161, 242, 255, 0.16) 0%, rgba(161, 242, 255, 0) 70%);
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+      }
+
+      .product-card:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: var(--border);
+        transform: translateY(-2px);
+      }
+      .product-card:hover::before { opacity: 1; }
+
+      .product-card:focus-visible {
+        outline: 1px solid var(--glow);
+        outline-offset: 2px;
+      }
+
+      .product-icon {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+        display: grid;
+        place-items: center;
+        border-radius: 10px;
+        background: var(--primary-light);
+        border: 1px solid rgba(4, 118, 126, 0.5);
+        color: var(--glow);
+        transition: background 0.25s, border-color 0.25s;
+      }
+      .product-card:hover .product-icon {
+        background: rgba(4, 118, 126, 0.4);
+        border-color: var(--primary);
+      }
+      .product-icon svg { display: block; }
+
+      .product-title {
+        display: block;
+        font-size: 15px;
+        font-weight: 400;
+        letter-spacing: 0.01em;
+      }
+
+      .product-desc {
+        display: block;
+        margin-top: 6px;
+        font-size: 12.5px;
+        font-weight: 300;
+        line-height: 1.5;
+        color: var(--muted);
+      }
+
+      /* ===== DETAIL VIEW ===== */
+      #detail-view .main { padding-top: 48px; }
+
+      /* back button sits in the container flow, hugging its left edge */
+      .back-btn.back-inline {
+        position: static;
+        align-self: flex-start;
+        padding: 9px 18px 9px 14px;
+        margin-bottom: -6px;
+      }
+
+      .detail-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .detail-head .product-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+      }
+      .detail-head .product-icon svg { width: 24px; height: 24px; }
+      .detail-head h1 { margin: 0; }
+      .detail-sub {
+        margin-top: 3px;
+        font-size: 12.5px;
+        font-weight: 300;
+        color: var(--muted);
+      }
+
+      /* Pipeline rail (adapted from dashboard.html timeline) */
+      .tl-wrap { position: relative; margin-top: 8px; }
+      .tl-track {
+        position: absolute;
+        top: 7px;
+        transform: translateY(-50%);
+        left: 0; right: 0;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 2px;
+      }
+      .tl-fill {
+        height: 100%;
+        background: var(--primary);
+        border-radius: 2px;
+      }
+      .tl-milestones {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+      }
+      .tl-ms {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+      .tl-dot {
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--bg);
+        border: 2px solid rgba(255, 255, 255, 0.12);
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1;
+      }
+      .tl-ms.done .tl-dot {
+        background: var(--primary);
+        border-color: var(--primary);
+      }
+      .tl-ms.active .tl-dot {
+        width: 16px; height: 16px;
+        margin-top: -1px;
+        background: var(--primary);
+        border-color: #5ee0e8;
+        box-shadow: 0 0 0 5px rgba(4, 118, 126, 0.25);
+      }
+      .tl-name {
+        font-size: 11px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.35);
+        white-space: nowrap;
+        text-align: center;
+      }
+      .tl-ms.active .tl-name { color: var(--fg); font-weight: 600; }
+
+      /* ===== RESPONSIVE ===== */
+      @media (max-width: 900px) {
+        .chart-grid, .chart-grid-bottom { grid-template-columns: 1fr; }
+        .stat-grid { grid-template-columns: repeat(2, 1fr); }
+        .tl-milestones { flex-wrap: wrap; gap: 20px 0; justify-content: flex-start; }
+        .tl-ms { width: 33.33%; }
+        .tl-track { display: none; }
+      }
+      @media (max-width: 520px) {
+        .wrap { padding: 40px 20px 64px; }
+        .product-grid { grid-template-columns: 1fr; }
+        .stat-grid { grid-template-columns: 1fr; }
+        .tl-ms { width: 50%; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="grid-view">
+      <div class="wrap">
+        <nav class="product-grid" id="grid"></nav>
+      </div>
+    </div>
+
+    <div id="detail-view">
+      <main class="main" id="detail"></main>
+    </div>
+
+    <script>
+      // Shared icon attributes for every glyph
+      const ICON = 'viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"';
+
+      /* Each product drives both its grid card and its detail dashboard.
+         Line/bar chart values are generated deterministically from the key
+         (see seeded helpers below) so every product reads differently
+         without hand-listing 24 numbers apiece. */
+      const products = [
+        {
+          key: 'atlas',
+          title: 'Atlas',
+          desc: 'Virtual SQV / SIV / SCOV with audit-grade capture.',
+          icon: `<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c2.4 2.3 3.7 5.3 3.7 8.5S14.4 18.2 12 20.5c-2.4-2.3-3.7-5.3-3.7-8.5S9.6 5.8 12 3.5z"/>`,
+          badge: '12 visits scheduled',
+          stages: ['Prep', 'Pre-visit review', 'Live visit', 'Findings', 'Report signed'],
+          active: 2,
+          stats: [
+            ['Visits completed', '412', '↑ 18 this week'],
+            ['Sites covered', '96', '↑ 4 this month'],
+            ['Avg visit duration', '2h 14m', '↓ 11m vs last period'],
+            ['Open findings', '23', '7 critical']
+          ],
+          line: { title: 'Cumulative visits completed', label: 'Visits', total: 412 },
+          donut: { title: 'Visit type mix', labels: ['SQV', 'SCOV', 'SIV', 'Close-out'], data: [38, 31, 22, 9] },
+          bar: { title: 'Visits per month', label: 'Visits', base: 34 },
+          table: { title: 'Recent activity', cols: ['Activity', 'Site', 'Status', 'Time'], rows: [
+            ['SIV completed', 'Site 14 — Boston', 'Signed off', 'ok', '22m ago'],
+            ['SQV recording flagged', 'Site 07 — Berlin', 'Under review', 'warn', '2h ago'],
+            ['SCOV scheduled', 'Site 31 — Osaka', 'Pending', 'off', '5h ago'],
+            ['Findings letter issued', 'Site 22 — Toronto', 'Complete', 'ok', '1d ago']
+          ]}
+        },
+        {
+          key: 'nexus',
+          title: 'Nexus',
+          desc: 'Auto-built EDC + RTSM + 90% auto-coding.',
+          icon: `<circle cx="12" cy="12" r="2.6"/><circle cx="12" cy="4" r="1.7"/><circle cx="19" cy="16" r="1.7"/><circle cx="5" cy="16" r="1.7"/><path d="M12 9.4V5.7M13.9 13.4l3.6 1.9M10.1 13.4l-3.6 1.9"/>`,
+          badge: 'EDC live',
+          stages: ['Spec import', 'Build', 'UAT', 'Go-live', 'Mid-study change'],
+          active: 2,
+          stats: [
+            ['eCRF pages built', '1,842', '↑ 96 this week'],
+            ['Auto-coded terms', '91.4%', '↑ 2.1% vs last period'],
+            ['Randomized subjects', '1,284', '↑ 47 this week'],
+            ['Open queries', '68', '12 aging']
+          ],
+          line: { title: 'Cumulative eCRF pages built', label: 'Pages', total: 1842 },
+          donut: { title: 'Build status', labels: ['Approved', 'In UAT', 'Draft', 'Blocked'], data: [62, 18, 12, 4] },
+          bar: { title: 'Forms released per month', label: 'Forms', base: 150 },
+          table: { title: 'Recent activity', cols: ['Activity', 'Study', 'Status', 'Time'], rows: [
+            ['Study build published', 'ONC-2041', 'Live', 'ok', '35m ago'],
+            ['Mid-study amendment', 'CV-118', 'In UAT', 'warn', '3h ago'],
+            ['Kit resupply triggered', 'Depot — Frankfurt', 'Complete', 'ok', '6h ago'],
+            ['Coding batch queued', 'ONC-2041', 'Pending', 'off', '1d ago']
+          ]}
+        },
+        {
+          key: 'scout',
+          title: 'Scout',
+          desc: 'Real-time RBM, anomaly detection, targeted monitoring.',
+          icon: `<path d="M12 12l6-4.2"/><circle cx="12" cy="12" r="1.3"/><path d="M12 4.5a7.5 7.5 0 106.4 3.6"/><path d="M12 8.2a3.8 3.8 0 103.6 2.6"/><path d="M18.6 4.2l-1.1 3.6 3.6-1.1z"/>`,
+          badge: '4 signals open',
+          stages: ['Ingest', 'Score', 'Triage', 'Action', 'Closed'],
+          active: 2,
+          stats: [
+            ['Risk signals open', '4', '2 escalated'],
+            ['Sites at risk', '7', '↓ 2 vs last period'],
+            ['KRIs monitored', '46', '↑ 5 this month'],
+            ['Targeted visits triggered', '18', '↑ 3 this week']
+          ],
+          line: { title: 'Cumulative signals reviewed', label: 'Signals', total: 640 },
+          donut: { title: 'Signal severity', labels: ['Low', 'Medium', 'High', 'Critical'], data: [34, 21, 9, 3] },
+          bar: { title: 'Signals raised per month', label: 'Signals', base: 52 },
+          table: { title: 'Recent signals', cols: ['Signal', 'Site', 'Status', 'Time'], rows: [
+            ['Enrollment outlier', 'Site 07 — Berlin', 'Escalated', 'warn', '12m ago'],
+            ['PD cluster detected', 'Site 19 — Madrid', 'Under review', 'warn', '1h ago'],
+            ['Query aging KRI cleared', 'Site 14 — Boston', 'Closed', 'ok', '4h ago'],
+            ['Targeted SDV assigned', 'Site 31 — Osaka', 'Pending', 'off', '2d ago']
+          ]}
+        },
+        {
+          key: 'safety-core',
+          title: 'Safety Core',
+          desc: 'ICSR triage, signal queue, FAERS / EudraVigilance.',
+          icon: `<path d="M12 3.2l7 2.6v6c0 4.2-2.9 7.4-7 9.1-4.1-1.7-7-4.9-7-9.1v-6l7-2.6z"/><path d="M8.2 12.4h2.1l1 2 1.6-4 1 2h1.9"/>`,
+          badge: 'ICSR queue 31',
+          stages: ['Intake', 'Triage', 'Assessment', 'Medical review', 'Submitted'],
+          active: 2,
+          stats: [
+            ['ICSRs in queue', '31', '9 due in 24h'],
+            ['Cases submitted', '1,096', '↑ 62 this week'],
+            ['On-time submission', '99.1%', '↑ 0.4% vs last period'],
+            ['Open signals', '6', '2 validated']
+          ],
+          line: { title: 'Cumulative cases processed', label: 'Cases', total: 1096 },
+          donut: { title: 'Case source', labels: ['Spontaneous', 'Clinical trial', 'Literature', 'Regulatory'], data: [44, 28, 17, 11] },
+          bar: { title: 'Cases per month', label: 'Cases', base: 92 },
+          table: { title: 'Recent cases', cols: ['Event', 'Destination', 'Status', 'Time'], rows: [
+            ['Serious case expedited', 'FAERS gateway', 'Submitted', 'ok', '18m ago'],
+            ['Narrative revision', 'Case 20481', 'Under review', 'warn', '2h ago'],
+            ['EudraVigilance ack', 'EMA gateway', 'Received', 'ok', '5h ago'],
+            ['Signal validated', 'Hepatic events', 'Pending', 'off', '1d ago']
+          ]}
+        },
+        {
+          key: 'data-intelligence',
+          title: 'Data Intelligence',
+          desc: 'DM cockpit, coding workbench, lock workflow.',
+          icon: `<ellipse cx="12" cy="6" rx="7" ry="2.6"/><path d="M5 6v5.5c0 1.4 3.1 2.6 7 2.6s7-1.2 7-2.6V6"/><path d="M5 12.5V18c0 1.4 3.1 2.6 7 2.6"/><path d="M15 19.5l2.2-2.6 1.6 1.3 2.2-3"/>`,
+          badge: 'Lock in 9 days',
+          stages: ['Entry', 'Cleaning', 'Coding', 'Review', 'Database lock'],
+          active: 1,
+          stats: [
+            ['Clean patient rate', '88.6%', '↑ 3.4% vs last period'],
+            ['Open queries', '214', '38 aging >30d'],
+            ['Terms coded', '12,480', '↑ 640 this week'],
+            ['SDV burden', '6.2%', '↓ 1.1% vs last period']
+          ],
+          line: { title: 'Cumulative queries closed', label: 'Queries', total: 4820 },
+          donut: { title: 'Query status', labels: ['Closed', 'Answered', 'Open', 'Aging'], data: [61, 19, 14, 6] },
+          bar: { title: 'Queries raised per month', label: 'Queries', base: 410 },
+          table: { title: 'Recent activity', cols: ['Activity', 'Scope', 'Status', 'Time'], rows: [
+            ['Coding batch approved', 'MedDRA 27.0', 'Complete', 'ok', '25m ago'],
+            ['Edit check failure', 'Vitals — Visit 4', 'Under review', 'warn', '1h ago'],
+            ['Soft lock applied', 'Cohort B', 'Complete', 'ok', '7h ago'],
+            ['Reconciliation pending', 'Lab — central', 'Pending', 'off', '2d ago']
+          ]}
+        },
+        {
+          key: 'regulatory-suite',
+          title: 'Regulatory Suite',
+          desc: 'RIM, dossier assembly, gateway transmission.',
+          icon: `<path d="M6 3.5h7.5L18 8v7.5"/><path d="M18 15.5v5H6v-17"/><path d="M13.2 3.6V8H18"/><circle cx="16.4" cy="16.8" r="3.1"/><path d="M15 16.8l1 1 1.8-2"/>`,
+          badge: 'NDA in assembly',
+          stages: ['Planning', 'Authoring', 'Assembly', 'Validation', 'Gateway submit'],
+          active: 2,
+          stats: [
+            ['Submissions this year', '47', '↑ 6 this quarter'],
+            ['Documents assembled', '3,912', '↑ 210 this week'],
+            ['Validation pass rate', '99.6%', '↑ 0.3% vs last period'],
+            ['Health authority queries', '14', '3 due this week']
+          ],
+          line: { title: 'Cumulative documents assembled', label: 'Documents', total: 3912 },
+          donut: { title: 'Dossier module mix', labels: ['Module 3', 'Module 2', 'Module 5', 'Module 1'], data: [42, 26, 21, 11] },
+          bar: { title: 'Submissions per month', label: 'Submissions', base: 4 },
+          table: { title: 'Recent submissions', cols: ['Activity', 'Authority', 'Status', 'Time'], rows: [
+            ['eCTD sequence 0042 sent', 'FDA ESG', 'Acknowledged', 'ok', '40m ago'],
+            ['Validation error fixed', 'Module 3.2.P', 'Complete', 'ok', '3h ago'],
+            ['HA question received', 'PMDA', 'Under review', 'warn', '8h ago'],
+            ['Label update drafted', 'EU SmPC', 'Pending', 'off', '2d ago']
+          ]}
+        },
+        {
+          key: 'trial-command',
+          title: 'Trial Command',
+          desc: 'Operations cockpit: payments, activation, disclosures.',
+          icon: `<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.2"/><path d="M12 3.5v2.4M12 18.1v2.4M3.5 12h2.4M18.1 12h2.4"/>`,
+          badge: '38 sites active',
+          stages: ['Startup', 'Activation', 'Enrollment', 'Close-out', 'Archive'],
+          active: 2,
+          stats: [
+            ['Active sites', '38', '↑ 3 this month'],
+            ['Payments released', '$4.2M', '↑ $310K this week'],
+            ['Cycle time to activation', '41d', '↓ 6d vs last period'],
+            ['Disclosures due', '9', '3 this week']
+          ],
+          line: { title: 'Cumulative payments released ($K)', label: 'Released', total: 4200 },
+          donut: { title: 'Site status', labels: ['Active', 'In startup', 'Closed', 'On hold'], data: [38, 12, 7, 4] },
+          bar: { title: 'Sites activated per month', label: 'Sites', base: 4 },
+          table: { title: 'Recent operations', cols: ['Activity', 'Scope', 'Status', 'Time'], rows: [
+            ['Payment batch released', '22 sites', 'Complete', 'ok', '15m ago'],
+            ['Site activation delayed', 'Site 33 — São Paulo', 'Under review', 'warn', '4h ago'],
+            ['Disclosure filed', 'clinicaltrials.gov', 'Submitted', 'ok', '9h ago'],
+            ['Budget amendment', 'Site 19 — Madrid', 'Pending', 'off', '1d ago']
+          ]}
+        },
+        {
+          key: 'patient-hub',
+          title: 'Patient Hub',
+          desc: 'Patient matching, eConsent, eCOA, wearables.',
+          icon: `<circle cx="10" cy="7.5" r="3"/><path d="M4.5 20c0-3.3 2.5-5.8 5.5-5.8 1 0 2 .3 2.8.8"/><path d="M18.6 13.4c-.9-.9-2.3-.9-3.1 0-.9.9-.9 2.3 0 3.2l3.1 3.2 3.1-3.2c.9-.9.9-2.3 0-3.2-.8-.9-2.2-.9-3.1 0z"/>`,
+          badge: '1,284 enrolled',
+          stages: ['Outreach', 'Pre-screen', 'Consent', 'Onboarding', 'In follow-up'],
+          active: 2,
+          stats: [
+            ['Enrolled patients', '1,284', '↑ 47 this week'],
+            ['eConsent completion', '94.2%', '↑ 1.6% vs last period'],
+            ['eCOA compliance', '91.8%', '↓ 0.7% vs last period'],
+            ['Wearables streaming', '806', '↑ 34 this week']
+          ],
+          line: { title: 'Cumulative enrollment', label: 'Enrolled', total: 1284 },
+          donut: { title: 'Referral source', labels: ['Site database', 'Digital outreach', 'Registry match', 'Physician'], data: [39, 27, 22, 12] },
+          bar: { title: 'Screenings per month', label: 'Screened', base: 160 },
+          table: { title: 'Recent patient activity', cols: ['Activity', 'Scope', 'Status', 'Time'], rows: [
+            ['eConsent signed', 'Site 14 — Boston', 'Complete', 'ok', '8m ago'],
+            ['eCOA diary missed', 'Subject 0912', 'Under review', 'warn', '2h ago'],
+            ['Wearable sync failure', 'Cohort A — 6 devices', 'Under review', 'warn', '6h ago'],
+            ['Pre-screen match', 'Registry — EU', 'Pending', 'off', '1d ago']
+          ]}
+        },
+        {
+          key: 'protocol',
+          title: 'Protocol',
+          desc: 'Authoring, amendments, schedule of assessments.',
+          icon: `<path d="M6.5 3.5h11v17h-11z"/><path d="M9.2 8h6.1M9.2 11.4h6.1M9.2 14.8h3.6"/><path d="M6.5 3.5v17"/>`,
+          badge: 'v4.1 in review',
+          stages: ['Concept', 'Draft', 'Scientific review', 'IRB / EC', 'Approved'],
+          active: 3,
+          stats: [
+            ['Protocols in flight', '23', '↑ 4 this quarter'],
+            ['Amendments this year', '61', '12 substantial'],
+            ['Avg authoring cycle', '18d', '↓ 5d vs last period'],
+            ['SoA conflicts flagged', '7', '3 resolved']
+          ],
+          line: { title: 'Cumulative sections authored', label: 'Sections', total: 1140 },
+          donut: { title: 'Document state', labels: ['Approved', 'In review', 'Draft', 'Amendment'], data: [48, 22, 19, 11] },
+          bar: { title: 'Amendments per month', label: 'Amendments', base: 5 },
+          table: { title: 'Recent activity', cols: ['Activity', 'Study', 'Status', 'Time'], rows: [
+            ['Amendment 4.1 drafted', 'ONC-2041', 'In review', 'warn', '30m ago'],
+            ['SoA conflict resolved', 'Visit 6 — labs', 'Complete', 'ok', '3h ago'],
+            ['IRB approval received', 'Central IRB', 'Approved', 'ok', '1d ago'],
+            ['Endpoint change proposed', 'CV-118', 'Pending', 'off', '2d ago']
+          ]}
+        },
+        {
+          key: 'simulation',
+          title: 'Simulation',
+          desc: 'Trial design modeling, power and scenario runs.',
+          icon: `<circle cx="5" cy="12" r="1.7"/><circle cx="19" cy="6.5" r="1.7"/><circle cx="19" cy="12" r="1.7"/><circle cx="19" cy="17.5" r="1.7"/><path d="M6.7 12h4.6"/><path d="M11.3 12c0-3 1.4-5.5 6-5.5"/><path d="M11.3 12h6"/><path d="M11.3 12c0 3 1.4 5.5 6 5.5"/>`,
+          badge: '12 scenarios queued',
+          stages: ['Design input', 'Assumptions', 'Model run', 'Comparison', 'Selected'],
+          active: 2,
+          stats: [
+            ['Scenarios run', '1,480', '↑ 92 this week'],
+            ['Median power', '0.87', '↑ 0.04 vs last period'],
+            ['Predicted duration', '34mo', '↓ 3mo vs last period'],
+            ['Designs shortlisted', '5', '2 recommended']
+          ],
+          line: { title: 'Cumulative scenario runs', label: 'Runs', total: 1480 },
+          donut: { title: 'Design type', labels: ['Adaptive', 'Parallel', 'Crossover', 'Basket'], data: [34, 29, 22, 15] },
+          bar: { title: 'Runs per month', label: 'Runs', base: 120 },
+          table: { title: 'Recent runs', cols: ['Run', 'Scope', 'Status', 'Time'], rows: [
+            ['Adaptive design run', 'ONC-2041', 'Complete', 'ok', '20m ago'],
+            ['Assumption out of range', 'Dropout 32%', 'Under review', 'warn', '2h ago'],
+            ['Sample size re-estimated', 'CV-118', 'Complete', 'ok', '5h ago'],
+            ['Scenario comparison queued', '5 designs', 'Pending', 'off', '1d ago']
+          ]}
+        },
+        {
+          key: 'feasibility',
+          title: 'Feasibility',
+          desc: 'Site and country selection with enrollment forecasts.',
+          icon: `<path d="M10 3.5c2.8 0 5 2.2 5 5 0 3.5-5 9-5 9s-5-5.5-5-9c0-2.8 2.2-5 5-5z"/><circle cx="10" cy="8.5" r="1.7"/><path d="M15.5 20.5v-4M18.5 20.5v-7M21.5 20.5v-2.5"/>`,
+          badge: '18 countries modeled',
+          stages: ['Indication scan', 'Country model', 'Site scoring', 'Outreach', 'Selected'],
+          active: 2,
+          stats: [
+            ['Sites scored', '742', '↑ 58 this week'],
+            ['Countries modeled', '18', '↑ 2 this month'],
+            ['Predicted rate', '2.4 /site/mo', '↑ 0.3 vs last period'],
+            ['Shortlisted sites', '96', '24 confirmed']
+          ],
+          line: { title: 'Cumulative sites scored', label: 'Sites', total: 742 },
+          donut: { title: 'Region mix', labels: ['North America', 'EU', 'APAC', 'LATAM'], data: [34, 31, 21, 14] },
+          bar: { title: 'Questionnaires returned per month', label: 'Returned', base: 62 },
+          table: { title: 'Recent activity', cols: ['Activity', 'Scope', 'Status', 'Time'], rows: [
+            ['Country model refreshed', 'Japan', 'Complete', 'ok', '45m ago'],
+            ['Low performer flagged', 'Site 44 — Lisbon', 'Under review', 'warn', '2h ago'],
+            ['Feasibility survey returned', '18 sites', 'Complete', 'ok', '6h ago'],
+            ['Site shortlist sent', 'Sponsor review', 'Pending', 'off', '2d ago']
+          ]}
+        },
+        {
+          key: 'data-monitoring',
+          title: 'Data Monitoring',
+          desc: 'Live query tracking, edit checks, source verification.',
+          icon: `<rect x="3.5" y="5" width="17" height="14" rx="2.2"/><path d="M6.5 13h2.3l1.3-3.4 1.9 5 1.4-2.6h3.1"/>`,
+          badge: 'SDV at 6.2%',
+          stages: ['Plan', 'Source review', 'Verification', 'Query', 'Signed'],
+          active: 2,
+          stats: [
+            ['Pages verified', '18,940', '↑ 1,120 this week'],
+            ['Edit checks firing', '342', '48 new'],
+            ['Queries open', '214', '38 aging'],
+            ['Critical data verified', '99.2%', '↑ 0.5% vs last period']
+          ],
+          line: { title: 'Cumulative pages verified', label: 'Pages', total: 18940 },
+          donut: { title: 'Verification status', labels: ['Verified', 'In progress', 'Queried', 'Not started'], data: [68, 17, 10, 5] },
+          bar: { title: 'Pages verified per month', label: 'Pages', base: 1600 },
+          table: { title: 'Recent activity', cols: ['Activity', 'Scope', 'Status', 'Time'], rows: [
+            ['SDV batch signed', 'Site 14 — Boston', 'Complete', 'ok', '12m ago'],
+            ['Edit check misfire', 'Weight — kg/lb', 'Under review', 'warn', '1h ago'],
+            ['Query response received', 'Site 07 — Berlin', 'Answered', 'ok', '4h ago'],
+            ['Source upload pending', 'Site 31 — Osaka', 'Pending', 'off', '1d ago']
+          ]}
+        },
+        {
+          key: 'etmf',
+          title: 'eTMF',
+          desc: 'Inspection-ready filing, completeness, QC review.',
+          icon: `<path d="M3.5 7.6c0-1 .8-1.8 1.8-1.8h3.4l1.8 2.1h8.2c1 0 1.8.8 1.8 1.8v7.7c0 1-.8 1.8-1.8 1.8H5.3c-1 0-1.8-.8-1.8-1.8V7.6z"/><path d="M6.5 5.8V4.3c0-.6.5-1.1 1.1-1.1h3.6l1.6 1.9"/><path d="M9.8 14.3l1.4 1.4 3-3.2"/>`,
+          badge: 'Inspection ready 96%',
+          stages: ['Placeholder', 'Collection', 'QC review', 'Approved', 'Archived'],
+          active: 2,
+          stats: [
+            ['TMF completeness', '96.4%', '↑ 1.8% vs last period'],
+            ['Documents filed', '24,310', '↑ 780 this week'],
+            ['QC rejection rate', '3.1%', '↓ 0.6% vs last period'],
+            ['Overdue placeholders', '42', '11 critical']
+          ],
+          line: { title: 'Cumulative documents filed', label: 'Documents', total: 24310 },
+          donut: { title: 'Zone mix', labels: ['Trial management', 'Regulatory', 'Site management', 'Central / local'], data: [31, 27, 24, 18] },
+          bar: { title: 'Documents filed per month', label: 'Documents', base: 2000 },
+          table: { title: 'Recent filings', cols: ['Activity', 'Scope', 'Status', 'Time'], rows: [
+            ['QC review passed', 'Zone 4 — Safety', 'Approved', 'ok', '28m ago'],
+            ['Duplicate detected', '1572 — Site 22', 'Under review', 'warn', '3h ago'],
+            ['Placeholder overdue', 'Site 33 — São Paulo', 'Pending', 'off', '7h ago'],
+            ['Study archived', 'ONC-1908', 'Complete', 'ok', '3d ago']
+          ]}
+        },
+        {
+          key: 'negotiations',
+          title: 'Negotiations',
+          desc: 'Budgets, contracts, and clause-level redlines.',
+          icon: `<path d="M6 3.5h8.5L18 7v13.5H6z"/><path d="M8.8 11.6h6.4l-1.8-1.8"/><path d="M15.2 15.2H8.8l1.8 1.8"/>`,
+          badge: '18 in redline',
+          stages: ['Budget draft', 'Sponsor review', 'Redlines', 'Legal sign-off', 'Executed'],
+          active: 2,
+          stats: [
+            ['Contracts in flight', '18', '↑ 5 this month'],
+            ['Avg cycle time', '27d', '↓ 8d vs last period'],
+            ['Budget variance', '4.2%', '↓ 1.3% vs last period'],
+            ['Clauses flagged', '61', '14 high risk']
+          ],
+          line: { title: 'Cumulative contracts executed', label: 'Executed', total: 312 },
+          donut: { title: 'Contract stage', labels: ['Executed', 'In redline', 'Sponsor review', 'Drafting'], data: [46, 24, 18, 12] },
+          bar: { title: 'Contracts executed per month', label: 'Executed', base: 26 },
+          table: { title: 'Recent contracts', cols: ['Activity', 'Counterparty', 'Status', 'Time'], rows: [
+            ['CTA executed', 'Site 14 — Boston', 'Complete', 'ok', '33m ago'],
+            ['Indemnity clause flagged', 'Site 19 — Madrid', 'Under review', 'warn', '2h ago'],
+            ['Budget counter received', 'Site 31 — Osaka', 'In review', 'warn', '5h ago'],
+            ['Legal sign-off queued', '3 contracts', 'Pending', 'off', '1d ago']
+          ]}
+        }
+      ];
+
+      const byKey = new Map(products.map(p => [p.key, p]));
+
+      /* ===== GRID ===== */
+      document.getElementById('grid').innerHTML = products.map(p => `
+        <a class="product-card" href="#/${p.key}">
+          <span class="product-icon"><svg ${ICON}>${p.icon}</svg></span>
+          <span>
+            <span class="product-title">${p.title}</span>
+            <span class="product-desc">${p.desc}</span>
+          </span>
+        </a>
+      `).join('');
+
+      /* ===== SEEDED DATA HELPERS =====
+         Same key always yields the same series, so a product's charts are
+         stable across navigations but distinct from its neighbours. */
+      function rng(seed) {
+        let h = 1779033703 ^ seed.length;
+        for (let i = 0; i < seed.length; i++) {
+          h = Math.imul(h ^ seed.charCodeAt(i), 3432918353);
+          h = (h << 13) | (h >>> 19);
+        }
+        return function () {
+          h = Math.imul(h ^ (h >>> 16), 2246822507);
+          h = Math.imul(h ^ (h >>> 13), 3266489909);
+          h ^= h >>> 16;
+          return (h >>> 0) / 4294967296;
+        };
+      }
+
+      const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+      // Monotonic ramp from ~4% of total up to exactly `total`
+      function cumulativeSeries(seed, total) {
+        const r = rng(seed);
+        const weights = MONTHS.map(() => 0.6 + r());
+        const sum = weights.reduce((a, b) => a + b, 0);
+        const start = Math.round(total * 0.04);
+        let acc = start;
+        const out = [];
+        weights.forEach((w, i) => {
+          acc = i === weights.length - 1 ? total : acc + Math.round((total - start) * w / sum);
+          out.push(acc);
+        });
+        return out;
+      }
+
+      // Noisy but trending-up bars around `base`
+      function barSeries(seed, base) {
+        const r = rng(seed);
+        return MONTHS.map((_, i) => {
+          const trend = 1 + i * 0.035;
+          return Math.max(1, Math.round(base * trend * (0.78 + r() * 0.44)));
+        });
+      }
+
+      /* ===== DETAIL VIEW ===== */
+      const PRIMARY     = '#04767E';
+      const PRIMARY_DIM = 'rgba(4,118,126,0.35)';
+      const GRID_COLOR  = 'rgba(255,255,255,0.06)';
+      const TICK_COLOR  = 'rgba(255,255,255,0.35)';
+      const RAMP = [PRIMARY, 'rgba(4,118,126,0.55)', 'rgba(4,118,126,0.3)', 'rgba(4,118,126,0.15)'];
+
+      Chart.defaults.color = TICK_COLOR;
+      Chart.defaults.borderColor = GRID_COLOR;
+      Chart.defaults.font.family = 'system-ui, sans-serif';
+      Chart.defaults.font.size = 11;
+
+      let charts = [];
+      const detail = document.getElementById('detail');
+
+      function renderDetail(p) {
+        const pct = p.stages.length > 1 ? (p.active / (p.stages.length - 1)) * 100 : 0;
+
+        detail.innerHTML = `
+          <a href="#" class="back-btn back-inline">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            All products
+          </a>
+
+          <div class="topbar">
+            <div class="detail-head">
+              <span class="product-icon"><svg ${ICON}>${p.icon}</svg></span>
+              <div>
+                <h1>${p.title}</h1>
+                <div class="detail-sub">${p.desc}</div>
+              </div>
+            </div>
+            <div class="topbar-right">
+              <span class="badge">${p.badge}</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Workflow stage</div>
+            <div class="tl-wrap">
+              <div class="tl-track"><div class="tl-fill" style="width:${pct}%"></div></div>
+              <div class="tl-milestones">
+                ${p.stages.map((s, i) => `
+                  <div class="tl-ms ${i < p.active ? 'done' : i === p.active ? 'active' : ''}">
+                    <div class="tl-dot"></div>
+                    <div class="tl-name">${s}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-grid">
+            ${p.stats.map(([label, value, delta]) => `
+              <div class="card">
+                <div class="stat-label">${label}</div>
+                <div class="stat-value">${value}</div>
+                <div class="stat-delta">${delta}</div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="chart-grid">
+            <div class="card">
+              <div class="card-title">${p.line.title}</div>
+              <div class="chart-wrap"><canvas id="lineChart"></canvas></div>
+            </div>
+            <div class="card">
+              <div class="card-title">${p.donut.title}</div>
+              <div class="chart-wrap"><canvas id="doughnutChart"></canvas></div>
+            </div>
+          </div>
+
+          <div class="chart-grid-bottom">
+            <div class="card">
+              <div class="card-title">${p.bar.title}</div>
+              <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+            </div>
+            <div class="card">
+              <div class="card-title">${p.table.title}</div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr>${p.table.cols.map(c => `<th>${c}</th>`).join('')}</tr></thead>
+                  <tbody>
+                    ${p.table.rows.map(([what, where, status, kind, time]) => `
+                      <tr>
+                        <td>${what}</td>
+                        <td>${where}</td>
+                        <td><span class="status"><span class="dot ${kind === 'ok' ? '' : kind}"></span>${status}</span></td>
+                        <td>${time}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `;
+
+        buildCharts(p);
+      }
+
+      function buildCharts(p) {
+        charts.forEach(c => c.destroy());
+        charts = [];
+
+        charts.push(new Chart(document.getElementById('lineChart'), {
+          type: 'line',
+          data: {
+            labels: MONTHS,
+            datasets: [{
+              label: p.line.label,
+              data: cumulativeSeries(p.key + ':line', p.line.total),
+              borderColor: PRIMARY,
+              backgroundColor: 'rgba(4,118,126,0.12)',
+              borderWidth: 2,
+              pointRadius: 3,
+              pointBackgroundColor: PRIMARY,
+              fill: true,
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { color: GRID_COLOR } },
+              y: { grid: { color: GRID_COLOR }, beginAtZero: true }
+            }
+          }
+        }));
+
+        charts.push(new Chart(document.getElementById('doughnutChart'), {
+          type: 'doughnut',
+          data: {
+            labels: p.donut.labels,
+            datasets: [{
+              data: p.donut.data,
+              backgroundColor: RAMP,
+              borderColor: GRID_COLOR,
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            cutout: '68%',
+            plugins: {
+              legend: { position: 'bottom', labels: { padding: 16, boxWidth: 10, boxHeight: 10 } }
+            }
+          }
+        }));
+
+        charts.push(new Chart(document.getElementById('barChart'), {
+          type: 'bar',
+          data: {
+            labels: MONTHS,
+            datasets: [{
+              label: p.bar.label,
+              data: barSeries(p.key + ':bar', p.bar.base),
+              backgroundColor: PRIMARY_DIM,
+              borderColor: PRIMARY,
+              borderWidth: 1,
+              borderRadius: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { display: false } },
+              y: { grid: { color: GRID_COLOR }, beginAtZero: true }
+            }
+          }
+        }));
+      }
+
+      /* ===== ROUTING =====
+         #/<key> opens a product; no hash returns to the grid, so the
+         browser back button works alongside the on-screen one. */
+      let gridScroll = 0;
+
+      function route() {
+        const key = location.hash.replace(/^#\/?/, '');
+        const p = byKey.get(key);
+
+        if (p) {
+          if (!document.body.classList.contains('view-detail')) gridScroll = window.scrollY;
+          document.body.classList.add('view-detail');
+          document.title = p.title + ' — Biorce Design';
+          renderDetail(p);
+          window.scrollTo(0, 0);
+        } else {
+          const wasDetail = document.body.classList.contains('view-detail');
+          document.body.classList.remove('view-detail');
+          document.title = 'Product Nav';
+          charts.forEach(c => c.destroy());
+          charts = [];
+          detail.innerHTML = '';
+          if (wasDetail) window.scrollTo(0, gridScroll);
+        }
+      }
+
+      addEventListener('hashchange', route);
+      route();
+    </script>
+  </body>
+</html>

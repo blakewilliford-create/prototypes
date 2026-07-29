@@ -111,7 +111,7 @@
       }
 
       /* ===== LARGE: emblem loader ===== */
-      /* Animated boot emblem — each petal draws on (stroke-dashoffset) then fills */
+      /* Animated boot emblem — petals fade up in sequence, no outline draw */
       .fw-boot-emblem {
         width: 96px;
         height: 96px;
@@ -121,14 +121,18 @@
       .fw-petal {
         fill: url(#fwEmbGrad);
         fill-opacity: 0;
-        stroke: var(--turquoise-400, #5DF0F9);
-        stroke-width: 1.1;
-        stroke-linejoin: round;
-        stroke-dasharray: 1;
-        stroke-dashoffset: 1;
-        animation: fw-petal-draw 2400ms cubic-bezier(.65, 0, .35, 1) infinite;
+        stroke: none;
+        animation: fw-petal-fade 2400ms cubic-bezier(.65, 0, .35, 1) infinite;
       }
 
+      @keyframes fw-petal-fade {
+        0%   { fill-opacity: 0; }
+        55%  { fill-opacity: 1; }
+        80%  { fill-opacity: 1; }
+        100% { fill-opacity: 0; }
+      }
+
+      /* still used by the small emblem's fade variants */
       @keyframes fw-petal-draw {
         0%   { stroke-dashoffset: 1; fill-opacity: 0; }
         38%  { stroke-dashoffset: 0; fill-opacity: 0; }
@@ -138,7 +142,7 @@
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .fw-petal { animation: none; fill-opacity: 1; stroke-dashoffset: 0; }
+        .fw-petal { animation: none; fill-opacity: 1; }
       }
 
       /* --- Large variants: emblem only / simple / stepped --- */
@@ -151,6 +155,13 @@
 
       .large-variant { display: none; }
       .large-variant[data-active] { display: block; }
+
+      /* Stepped: smaller emblem, sitting further above the step list */
+      .large-stack[data-variant="stepped"] .fw-boot-emblem {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 14px;
+      }
 
       /* Simple: one line of status copy under the emblem */
       .loader-caption {
@@ -309,9 +320,160 @@
         animation: fw-petal-draw 2400ms cubic-bezier(.65, 0, .35, 1) infinite;
       }
 
+      /* ===== Variant C: liquid split =====
+         One drop pulls apart into two along a 45° axis and merges back. The
+         gooey trail between them comes from the SVG blur + alpha-contrast
+         filter: at full separation the blurred fields still overlap just
+         enough to hold a tapered neck. */
+      .small-emblem svg.sm-liquid {
+        width: 40px;
+        height: 40px;
+        overflow: visible;
+        transform: rotate(-45deg);
+      }
+
+      /* merged state sits slightly larger, as if the mass is pooled */
+      .sm-liquid .sm-goo {
+        transform-origin: 12px 12px;
+        animation: sm-goo-pool 1800ms cubic-bezier(.5, 0, .5, 1) infinite;
+      }
+
+      /* single mid-cycle keyframe: the easing eases off at both extremes,
+         so it breathes instead of snapping out and holding */
+      .sm-drop { animation: sm-drop-lead 1800ms cubic-bezier(.5, 0, .5, 1) infinite; }
+      .sm-drop-trail { animation-name: sm-drop-trail; }
+
+      /* the strand of liquid left hanging between the two drops — stretches
+         from nothing to the full span, the filter fillets it into the drops */
+      .sm-neck {
+        transform-origin: 12px 12px;
+        animation: sm-neck-stretch 1800ms cubic-bezier(.5, 0, .5, 1) infinite;
+      }
+
+      @keyframes sm-drop-lead {
+        0%, 100% { transform: translateX(0); }
+        50%      { transform: translateX(5.6px); }
+      }
+
+      @keyframes sm-drop-trail {
+        0%, 100% { transform: translateX(0); }
+        50%      { transform: translateX(-5.6px); }
+      }
+
+      @keyframes sm-neck-stretch {
+        0%, 100% { transform: scale(0, 1.5); }
+        50%      { transform: scale(1, 1); }
+      }
+
+      @keyframes sm-goo-pool {
+        0%, 100% { transform: scale(1.12); }
+        50%      { transform: scale(1); }
+      }
+
+      /* ===== Variant C alt: quarter-turn between splits =====
+         Split, collapse back to one dot, and only then swing 90° while merged,
+         so the next split runs along a fresh axis. The rotation animation spans
+         four splits (4 × 2400ms) and ends at -405°, which is -45° plus a full
+         turn — so it loops seamlessly and keeps turning forever. */
+      .sm-liquid-orbit {
+        animation: sm-orbit 6400ms cubic-bezier(.65, 0, .35, 1) infinite;
+      }
+
+      /* stretched cycle: expand, hold apart, collapse, then a short merged
+         beat — the turn snaps over inside that beat */
+      .sm-liquid-orbit .sm-goo  { animation-name: sm-goo-pool-hold;    animation-duration: 1600ms; }
+      .sm-liquid-orbit .sm-drop { animation-name: sm-drop-lead-hold;   animation-duration: 1600ms; }
+      .sm-liquid-orbit .sm-drop-trail { animation-name: sm-drop-trail-hold; }
+      .sm-liquid-orbit .sm-neck { animation-name: sm-neck-stretch-hold; animation-duration: 1600ms; }
+
+      /* Instant quarter-turn: the paired keyframes are 0.01% apart (~1ms), and
+         it fires while merged — a lone dot is rotationally symmetric, so the
+         flip is invisible and the next split just arrives on a new axis. */
+      @keyframes sm-orbit {
+        0%,       23.125% { transform: rotate(-45deg); }
+        23.135%,  48.125% { transform: rotate(-135deg); }
+        48.135%,  73.125% { transform: rotate(-225deg); }
+        73.135%,  98.125% { transform: rotate(-315deg); }
+        98.135%,  100%    { transform: rotate(-405deg); }
+      }
+
+      @keyframes sm-drop-lead-hold {
+        0%        { transform: translateX(0); }
+        33%, 50%  { transform: translateX(5.6px); }
+        85%, 100% { transform: translateX(0); }
+      }
+
+      @keyframes sm-drop-trail-hold {
+        0%        { transform: translateX(0); }
+        33%, 50%  { transform: translateX(-5.6px); }
+        85%, 100% { transform: translateX(0); }
+      }
+
+      @keyframes sm-neck-stretch-hold {
+        0%        { transform: scale(0, 1.5); }
+        33%, 50%  { transform: scale(1, 1); }
+        85%, 100% { transform: scale(0, 1.5); }
+      }
+
+      @keyframes sm-goo-pool-hold {
+        0%        { transform: scale(1.12); }
+        33%, 50%  { transform: scale(1); }
+        85%, 100% { transform: scale(1.12); }
+      }
+
+      /* ===== Variant C shift: the blob walks end to end =====
+         Apart with a strand between → both drops pool at one end → apart
+         again → pool at the *other* end, forever. Each drop takes turns
+         making the trip, so the mass appears to slosh across the axis. */
+      /* runs horizontally rather than on the 45° axis */
+      .small-emblem svg.sm-liquid-shift { transform: none; }
+
+      .sm-liquid-shift .sm-goo  { animation-name: sm-goo-pool-shift;  animation-duration: 3600ms; }
+      .sm-liquid-shift .sm-drop { animation-name: sm-drop-lead-shift; animation-duration: 3600ms; }
+      .sm-liquid-shift .sm-drop-trail { animation-name: sm-drop-trail-shift; }
+      .sm-liquid-shift .sm-neck { animation-name: sm-neck-shift;      animation-duration: 3600ms; }
+
+      /* holds itself at the +end, then travels over to the −end */
+      @keyframes sm-drop-lead-shift {
+        0%,   8%  { transform: translateX(5.6px); }
+        25%, 33%  { transform: translateX(5.6px); }
+        50%, 58%  { transform: translateX(5.6px); }
+        75%, 83%  { transform: translateX(-5.6px); }
+        100%      { transform: translateX(5.6px); }
+      }
+
+      /* makes its trip first: over to the +end, back, then holds */
+      @keyframes sm-drop-trail-shift {
+        0%,   8%  { transform: translateX(-5.6px); }
+        25%, 33%  { transform: translateX(5.6px); }
+        50%, 58%  { transform: translateX(-5.6px); }
+        75%, 83%  { transform: translateX(-5.6px); }
+        100%      { transform: translateX(-5.6px); }
+      }
+
+      /* strand spans the gap, then collapses onto whichever end is pooling */
+      @keyframes sm-neck-shift {
+        0%,   8%  { transform: translateX(0px) scale(1, 1); }
+        25%, 33%  { transform: translateX(5.6px) scale(0, 1.6); }
+        50%, 58%  { transform: translateX(0px) scale(1, 1); }
+        75%, 83%  { transform: translateX(-5.6px) scale(0, 1.6); }
+        100%      { transform: translateX(0px) scale(1, 1); }
+      }
+
+      /* pooled states read heavier */
+      @keyframes sm-goo-pool-shift {
+        0%,   8%  { transform: scale(1); }
+        25%, 33%  { transform: scale(1.12); }
+        50%, 58%  { transform: scale(1); }
+        75%, 83%  { transform: scale(1.12); }
+        100%      { transform: scale(1); }
+      }
+
       @media (prefers-reduced-motion: reduce) {
         .small-emblem svg.spin { animation: none; }
         .sm-petal { animation: none; fill-opacity: 1; stroke-dashoffset: 0; }
+        .sm-liquid, .sm-liquid .sm-goo, .sm-drop, .sm-neck { animation: none; }
+        .sm-neck { display: none; }
       }
 
       .spinner {
@@ -522,10 +684,15 @@
         <h2 class="panel-title">Small Loaders</h2>
 
         <div class="tabs sub" role="tablist" aria-label="Small loader variant">
-          <button class="tab" role="tab" aria-selected="true"  data-small="a-rotate">Variant A - Rotating</button>
+          <!-- Variants A and B (emblem petals) hidden — kept in SMALL_EMBLEMS if needed again
+          <button class="tab" role="tab" aria-selected="false" data-small="a-rotate">Variant A - Rotating</button>
           <button class="tab" role="tab" aria-selected="false" data-small="a-fade">Variant A - Fade</button>
           <button class="tab" role="tab" aria-selected="false" data-small="b-rotate">Variant B - Rotating</button>
           <button class="tab" role="tab" aria-selected="false" data-small="b-fade">Variant B - Fade</button>
+          -->
+          <button class="tab" role="tab" aria-selected="true"  data-small="c-orbit">Variant C - Liquid Turn</button>
+          <button class="tab" role="tab" aria-selected="false" data-small="c-liquid">Variant C - Liquid</button>
+          <button class="tab" role="tab" aria-selected="false" data-small="c-shift">Variant C - Liquid Shift</button>
         </div>
 
         <div class="small-loader panel-content">
@@ -620,8 +787,46 @@
 
       const smallMount = document.getElementById("small-emblem");
 
+      // Variant C — two drops behind a gooey filter, no emblem geometry.
+      // mode "orbit" adds the quarter-turn between splits.
+      function buildLiquid(mode) {
+        const svg = document.createElementNS(NS, "svg");
+        svg.setAttribute("viewBox", "0 0 24 24");
+        svg.setAttribute("fill", "none");
+        const MODE_CLASS = { orbit: " sm-liquid-orbit", shift: " sm-liquid-shift" };
+        svg.setAttribute("class", "sm-liquid" + (MODE_CLASS[mode] || ""));
+        svg.innerHTML = `
+          <defs>
+            <linearGradient id="sm-liquid-grad" x1="4" y1="20" x2="20" y2="4" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#A1F2FF" />
+              <stop offset="1" stop-color="#5EB6B6" />
+            </linearGradient>
+            <!-- blur, then crush the alpha ramp so near shapes fuse into one blob -->
+            <filter id="sm-liquid-goo" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="1.6" result="blur" />
+              <feColorMatrix in="blur" type="matrix" values="
+                1 0 0 0 0
+                0 1 0 0 0
+                0 0 1 0 0
+                0 0 0 18 -7" />
+            </filter>
+          </defs>
+          <g class="sm-goo" filter="url(#sm-liquid-goo)" fill="url(#sm-liquid-grad)">
+            <ellipse class="sm-neck" cx="12" cy="12" rx="5.6" ry="1" />
+            <circle class="sm-drop sm-drop-trail" cx="12" cy="12" r="3.3" />
+            <circle class="sm-drop" cx="12" cy="12" r="3.3" />
+          </g>`;
+        return svg;
+      }
+
       function renderSmallEmblem(key) {
         const [shape, mode] = key.split("-");
+
+        if (shape === "c") {
+          smallMount.replaceChildren(buildLiquid(mode));
+          return;
+        }
+
         const petals = SMALL_EMBLEMS[shape];
 
         const svg = document.createElementNS(NS, "svg");
@@ -663,7 +868,7 @@
         smallMount.replaceChildren(svg);
       }
 
-      renderSmallEmblem("a-rotate");
+      renderSmallEmblem("c-orbit");
 
       // ── Tabs ──
       document.querySelectorAll('[role="tablist"]').forEach(group => {
@@ -691,6 +896,8 @@
             document.querySelectorAll('.large-variant').forEach(v => {
               v.toggleAttribute('data-active', v.dataset.variant === tab.dataset.variant);
             });
+            // lets CSS size the shared emblem per variant
+            document.querySelector('.large-stack').dataset.variant = tab.dataset.variant;
           }
         });
       });
