@@ -11,6 +11,20 @@
     <link rel="manifest" href="favicons/site.webmanifest" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="css/style.css" />
+
+    <!-- three is only fetched if the particle background is switched on -->
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+      }
+    }
+    </script>
+    <script>
+      // applied before first paint so a saved light theme doesn't flash dark
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+    </script>
   <style>
     /* ---- Boot loader overlay (from loader.html) ---- */
     #boot-loader {
@@ -25,8 +39,8 @@
     }
     /* Animated boot emblem — each petal draws on (stroke-dashoffset) then fills */
     #boot-loader .fw-boot-emblem {
-      width: 104px;
-      height: 104px;
+      width: 72px;
+      height: 72px;
       overflow: visible;
       user-select: none;
       -webkit-user-drag: none;
@@ -34,22 +48,17 @@
     #boot-loader .fw-petal {
       fill: url(#fwEmbGrad);
       fill-opacity: 0;
-      stroke: #5DF0F9;
-      stroke-width: 1.1;
-      stroke-linejoin: round;
-      stroke-dasharray: 1;
-      stroke-dashoffset: 1;
-      animation: fw-petal-draw 2400ms cubic-bezier(.65, 0, .35, 1) infinite;
+      stroke: none;
+      animation: fw-petal-fade 2400ms cubic-bezier(.65, 0, .35, 1) infinite;
     }
-    @keyframes fw-petal-draw {
-      0%   { stroke-dashoffset: 1; fill-opacity: 0; }
-      38%  { stroke-dashoffset: 0; fill-opacity: 0; }
-      58%  { fill-opacity: 1; }
-      82%  { stroke-dashoffset: 0; fill-opacity: 1; stroke-opacity: 1; }
-      100% { stroke-dashoffset: 0; fill-opacity: 1; stroke-opacity: 0; }
+    @keyframes fw-petal-fade {
+      0%   { fill-opacity: 0; }
+      55%  { fill-opacity: 1; }
+      80%  { fill-opacity: 1; }
+      100% { fill-opacity: 0; }
     }
     @media (prefers-reduced-motion: reduce) {
-      #boot-loader .fw-petal { animation: none; fill-opacity: 1; stroke-dashoffset: 0; }
+      #boot-loader .fw-petal { animation: none; fill-opacity: 1; }
     }
     /* fade + remove from flow once booting is done */
     body:not(.booting) #boot-loader {
@@ -57,66 +66,60 @@
       pointer-events: none;
     }
 
-    /* ---- Skeleton loader (default theme, 1s, radial gradient) ---- */
+    /* ---- Skeleton loader — fade variant (from loaders.html) ---- */
     :root {
       --sk-tint: 153, 173, 183;
-      --skeleton-base: radial-gradient(circle at center, rgba(var(--sk-tint), 0) 0%, rgba(var(--sk-tint), 0.10) 100%);
-      --shine-color: rgba(255, 255, 255, 0.1);
       --skeleton-radius: 0.5rem;
-      --shine-size: 0px;
-      --shine-edge-blur: 150px;
-      --shine-angle: 135deg;
-      --skeleton-shine-position: 0;
+      --sk-duration: 1s;
+      --sidebar-w: 64px;
     }
 
-    @property --skeleton-shine-position {
-      syntax: "<number>";
-      inherits: true;
-      initial-value: 0;
+    /* darker ink so the placeholders still register on the light background */
+    :root[data-theme="light"] { --sk-tint: 14, 39, 43; }
+
+    @keyframes skeletonFade {
+      0%, 100% { opacity: 0.5; }
+      50%      { opacity: 1; }
     }
 
-    @keyframes skeletonAnimation {
-      0% { --skeleton-shine-position: 0; }
-      50%, 100% { --skeleton-shine-position: 1; }
+    /* Each card is one pulsing block at elevation 1 — nothing inside it gets
+       its own fill, so there's no second step stacked within the card. */
+    body.loading .card {
+      background: var(--elevation-1);
+      /* a skeleton is a plain block — never outlined, whatever the tweak says */
+      border-color: transparent;
+      animation: skeletonFade var(--sk-duration) ease-in-out infinite;
     }
+    body.loading .card::after { display: none; }
 
-    /* run the shine sweep only while loading */
-    body.loading {
-      animation: skeletonAnimation 1s ease-in infinite;
-    }
-
-    /* Elements that become skeleton placeholders while loading */
+    /* items sitting on the page rather than in a card are their own block */
     body.loading h1,
-    body.loading .badge,
+    body.loading .topbar-sub,
+    body.loading .btn-primary {
+      background-color: transparent;
+      background-image: linear-gradient(
+        rgba(var(--sk-tint), 0.11),
+        rgba(var(--sk-tint), 0.11)
+      );
+      border-radius: var(--skeleton-radius);
+      color: transparent !important;
+      animation: skeletonFade var(--sk-duration) ease-in-out infinite;
+    }
+
+    /* card contents keep their footprint but stay invisible */
     body.loading .card-title,
     body.loading .stat-label,
     body.loading .stat-value,
-    body.loading .stat-delta,
-    body.loading .tl-wrap,
-    body.loading .chart-wrap,
-    body.loading th,
-    body.loading td {
-      --animation-position: calc(
-        var(--skeleton-shine-position) * (100vw + (var(--shine-size) + var(--shine-edge-blur)) * 2)
-        - (var(--shine-size) + var(--shine-edge-blur))
-      );
-      background-attachment: fixed, scroll;
-      background-color: transparent;
-      background-image:
-        linear-gradient(
-          var(--shine-angle),
-          transparent,
-          transparent calc(var(--animation-position) - var(--shine-edge-blur)),
-          var(--shine-color) calc(var(--animation-position)),
-          var(--shine-color) calc(var(--animation-position) + var(--shine-size)),
-          transparent calc(var(--animation-position) + var(--shine-size) + var(--shine-edge-blur))
-        ),
-        var(--skeleton-base, none);
-      border-radius: var(--skeleton-radius);
+    body.loading .stat-delta {
       color: transparent !important;
     }
 
-    /* hide the real content of skeletonised containers, keep their footprint */
+    body.loading th,
+    body.loading td {
+      color: transparent !important;
+      border-color: transparent;
+    }
+
     body.loading .tl-wrap *,
     body.loading .chart-wrap *,
     body.loading th *,
@@ -132,6 +135,449 @@
       min-height: 44px;
     }
 
+    .topbar-sub {
+      margin: 4px 0 0;
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--muted);
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 18px;
+      background: var(--primary);
+      border: 0;
+      /* matches .card */
+      border-radius: 12px;
+      /* fixed white rather than --fg-text, which flips dark in light mode */
+      color: #fff;
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover { background: #0a8f99; }
+    .btn-primary:focus-visible { outline: 1px solid var(--glow); outline-offset: 2px; }
+
+    /* ---- Ranked site shortlist ----
+       Card is elevation-1 (via --surface); the table header sits at
+       elevation-3 and alternating rows at elevation-2. */
+    .rank-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .rank-title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+
+    .rank-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .rank-icon-btn,
+    .rank-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 34px;
+      background: var(--elevation-2);
+      border: 1px solid transparent;
+      border-radius: 9px;
+      color: var(--fg-text);
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .rank-icon-btn { width: 34px; padding: 0; }
+    .rank-btn { padding: 0 14px; }
+    .rank-icon-btn:hover,
+    .rank-btn:hover { background: var(--elevation-3); }
+
+    .rank-btn.is-muted {
+      background: var(--primary-light);
+      color: var(--muted);
+      cursor: not-allowed;
+    }
+    .rank-btn.is-muted:hover { background: var(--primary-light); }
+
+    body[data-card-border] .rank-icon-btn,
+    body[data-card-border] .rank-btn { border-color: var(--border); }
+
+    .rank-wrap {
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .rank-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .rank-table th {
+      padding: 14px 12px;
+      background: var(--elevation-3);
+      border-bottom: none;
+      color: var(--fg-text);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0;
+      text-transform: none;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .rank-table td {
+      padding: 14px 12px;
+      background: var(--elevation-2);
+      border-bottom: 1px solid var(--border);
+      font-weight: 400;
+      vertical-align: middle;
+    }
+    .rank-table tbody tr:last-child td { border-bottom: none; }
+    .rank-table tbody tr:hover td { background: var(--elevation-3); }
+
+    .rank-table .col-center { text-align: center; }
+    .rank-table th.col-center { text-align: center; }
+    .rank-table .col-check { width: 40px; }
+    .rank-table .col-num { width: 40px; color: var(--muted); }
+    .rank-table .num { font-variant-numeric: tabular-nums; }
+
+    .site-name { font-weight: 500; }
+    .site-place {
+      margin-top: 3px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* checkbox */
+    .tick {
+      appearance: none;
+      -webkit-appearance: none;
+      display: grid;
+      place-content: center;
+      width: 16px;
+      height: 16px;
+      margin: 0;
+      background: var(--elevation-3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .tick:checked { background: var(--primary); border-color: var(--primary); }
+    .tick:checked::after {
+      content: '';
+      width: 9px;
+      height: 5px;
+      border-left: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      transform: translateY(-1px) rotate(-45deg);
+    }
+
+    /* feasibility dial */
+    .score {
+      position: relative;
+      display: inline-grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+    }
+    .score svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+    .score circle {
+      fill: none;
+      stroke-width: 2.5;
+    }
+    .score-track { stroke: var(--elevation-3); }
+    .score-fill {
+      stroke: var(--glow);
+      stroke-linecap: round;
+      /* pathLength=100 lets the score double as the dash length */
+      stroke-dasharray: var(--v) 100;
+    }
+    .score b {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--glow);
+    }
+
+    /* competition */
+    .tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 400;
+    }
+    .tag.low  { background: rgba(4, 118, 126, 0.28);  color: #7fd8de; }
+    .tag.med  { background: rgba(224, 160, 64, 0.18); color: #e0a040; }
+    .tag.high { background: rgba(224, 96, 96, 0.18);  color: #e88a8a; }
+
+    .view-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: var(--primary-light);
+      border: 1px solid var(--primary);
+      border-radius: 8px;
+      color: var(--glow);
+      font-family: inherit;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .view-btn:hover { background: rgba(4, 118, 126, 0.45); }
+    .view-btn .spark { font-size: 10px; }
+
+    /* the whole card is one skeleton block while loading */
+    body.loading .rank-head,
+    body.loading .rank-wrap { visibility: hidden; }
+
+    /* ---- Sidebar ---- */
+    body.page-dashboard { padding-left: var(--sidebar-w); }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 25;
+      width: var(--sidebar-w);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      /* top padding centres the mark on the Tweaks button opposite it */
+      padding: 24px 0 16px;
+      background: var(--surface);
+      -webkit-backdrop-filter: var(--card-blur);
+      backdrop-filter: var(--card-blur);
+      /* transparent until the Border tweak turns it on, same as the cards */
+      border-right: 1px solid transparent;
+    }
+    body[data-card-border] .sidebar { border-right-color: var(--border); }
+
+    .side-mark {
+      width: 30px;
+      height: 30px;
+      margin-bottom: 24px;
+      color: var(--fg);
+    }
+    .side-mark svg { display: block; width: 100%; height: 100%; }
+
+    .side-btn {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      border-radius: 10px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    /* These sit ON the sidebar, which is already elevation-1. The tokens are
+       translucent, so they composite with it — elevation-1 here lands at
+       roughly a true elevation-2 against the page. */
+    .side-btn:hover,
+    .side-btn.is-active {
+      background: var(--elevation-1);
+      color: var(--fg-text);
+    }
+    .side-btn:focus-visible { outline: 1px solid var(--primary); outline-offset: -2px; }
+
+    .side-divider {
+      width: 32px;
+      height: 1px;
+      margin: 10px 0;
+      background: var(--border);
+      flex: none;
+    }
+
+    /* pushes the help/settings pair to the bottom */
+    .side-spacer { flex: 1; }
+
+    /* ---- Top-right controls ---- */
+    .top-controls {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ---- Tweaks panel ---- */
+    .tweaks-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: var(--elevation-1);
+      -webkit-backdrop-filter: blur(50px);
+      backdrop-filter: blur(50px);
+      /* like the cards: outlined only when the Border tweak is on */
+      border: 1px solid transparent;
+      border-radius: 999px;
+      color: var(--fg-text);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 300;
+      letter-spacing: 0.12em;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .tweaks-btn:hover { background: var(--elevation-3); }
+    .tweaks-btn:focus-visible { outline: 1px solid var(--primary); outline-offset: 2px; }
+
+    body[data-card-border] .tweaks-btn,
+    body[data-card-border] .theme-toggle { border-color: var(--border); }
+
+    .tweaks-panel {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      z-index: 30;
+      width: 236px;
+      padding: 16px 18px 14px;
+      background: var(--elevation-2);
+      -webkit-backdrop-filter: blur(30px);
+      backdrop-filter: blur(30px);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+    }
+    .tweaks-panel.open {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+    }
+
+    .tweaks-title {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .tweak-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 0;
+      font-size: 13px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    /* sub-option — indented under the tweak it depends on */
+    .tweak-sub {
+      padding-left: 16px;
+      margin-top: -4px;
+    }
+
+    .tweak-row.is-disabled,
+    .tweak-sub.is-disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+    .tweak-row.is-disabled .switch { cursor: not-allowed; }
+    .tweak-sub.is-disabled .seg { pointer-events: none; }
+
+    /* segmented picker for the background style */
+    .seg {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 3px;
+      margin: 2px 0 4px;
+      background: var(--elevation-1);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+    }
+    .seg-btn {
+      flex: 1 1 calc(50% - 4px);
+      padding: 6px 8px;
+      background: transparent;
+      border: 0;
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .seg-btn:hover { color: var(--fg-text); }
+    .seg-btn.is-on {
+      background: var(--elevation-4);
+      color: var(--fg-text);
+    }
+
+    /* particle field, behind the page content but above the page background */
+    .bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      display: block;
+    }
+
+    .switch {
+      appearance: none;
+      -webkit-appearance: none;
+      position: relative;
+      flex: none;
+      width: 36px;
+      height: 20px;
+      margin: 0;
+      background: var(--elevation-5);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--fg);
+      transition: transform 0.2s ease;
+    }
+    .switch:checked { background: var(--primary); border-color: var(--primary); }
+    .switch:checked::after { transform: translateX(16px); }
+    .switch:focus-visible { outline: 1px solid var(--primary); outline-offset: 2px; }
+
     .tl-wrap {
       position: relative;
       margin-top: 8px;
@@ -142,13 +588,13 @@
       transform: translateY(-50%);
       left: 0; right: 0;
       height: 2px;
-      background: rgba(255,255,255,0.08);
+      background: var(--border);
       border-radius: 2px;
     }
     .tl-fill {
       height: 100%;
       width: 65%;
-      background: #04767E;
+      background: var(--primary);
       border-radius: 2px;
     }
     .tl-milestones {
@@ -165,39 +611,40 @@
     .tl-dot {
       width: 14px; height: 14px;
       border-radius: 50%;
-      background: #151a1d;
-      border: 2px solid rgba(255,255,255,0.12);
+      background: var(--bg);
+      border: 2px solid var(--border);
       flex-shrink: 0;
       position: relative;
       z-index: 1;
     }
     .tl-ms.done .tl-dot {
-      background: #04767E;
-      border-color: #04767E;
+      background: var(--primary);
+      border-color: var(--primary);
     }
     .tl-ms.active .tl-dot {
       width: 16px; height: 16px;
       margin-top: -1px;
-      background: #04767E;
+      background: var(--primary);
       border-color: #5ee0e8;
-      box-shadow: 0 0 0 5px rgba(4,118,126,0.25);
+      box-shadow: 0 0 0 5px var(--primary-light);
     }
     .tl-name {
       font-size: 11px;
       font-weight: 500;
-      color: rgba(255,255,255,0.35);
+      color: var(--muted);
       white-space: nowrap;
       text-align: center;
     }
-    .tl-ms.active .tl-name { color: #fff; font-weight: 600; }
+    .tl-ms.active .tl-name { color: var(--fg-text); font-weight: 600; }
     .tl-date {
       font-size: 10px;
-      color: rgba(255,255,255,0.2);
+      color: var(--muted);
+      opacity: 0.6;
       white-space: nowrap;
       text-align: center;
       margin-top: -4px;
     }
-    .tl-ms.active .tl-date { color: rgba(4,185,195,0.65); }
+    .tl-ms.active .tl-date { color: var(--glow); opacity: 1; }
   </style>
   </head>
   <body class="page-dashboard loading booting">
@@ -215,9 +662,17 @@
 
       <main class="main">
         <div class="topbar">
-          <h1>Trial Overview</h1>
+          <div>
+            <h1>LUMINA-201</h1>
+            <p class="topbar-sub">Study ID NCT05871230&middot;Asset BIO-2011&middot;Non-small cell lung cancer (1L metastatic)</p>
+          </div>
           <div class="topbar-right">
-            <span class="badge">Enrolling</span>
+            <button class="btn-primary" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 6.5V3m0 0h-3.5M21 3l-4.5 4.5M13 3h-2.8c-2.52 0-3.78 0-4.74.49a4.5 4.5 0 0 0-1.968 1.967C3 6.417 3 7.677 3 10.2v3.6c0 2.52 0 3.78.492 4.743a4.5 4.5 0 0 0 1.967 1.967C6.418 21 7.678 21 10.194 21h3.612c2.516 0 3.774 0 4.735-.49a4.5 4.5 0 0 0 1.967-1.967C21 17.58 21 16.32 21 13.8V11"/>
+              </svg>
+              Share
+            </button>
           </div>
         </div>
 
@@ -351,14 +806,302 @@
             </div>
           </div>
         </div>
+
+        <!-- RANKED SITE SHORTLIST -->
+        <div class="card rank-card">
+          <div class="rank-head">
+            <h2 class="rank-title">Ranked site shortlist</h2>
+            <div class="rank-actions">
+              <button class="rank-icon-btn" type="button" aria-label="Search sites">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="m21 21-4.35-4.35M19 11a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"/>
+                </svg>
+              </button>
+              <button class="rank-btn" type="button">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 5v14M5 12h14"/>
+                </svg>
+                Add sites
+              </button>
+              <button class="rank-btn is-muted" type="button" disabled>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v4h-4"/>
+                </svg>
+                Re-optimize
+              </button>
+            </div>
+          </div>
+
+          <div class="rank-wrap">
+            <table class="rank-table">
+              <thead>
+                <tr>
+                  <th class="col-check"><input type="checkbox" class="tick" checked /></th>
+                  <th class="col-num">#</th>
+                  <th>Site / country</th>
+                  <th class="col-center">Feasibility ↓</th>
+                  <th class="col-center">Est. patients</th>
+                  <th class="col-center">PSPM</th>
+                  <th class="col-center">Est. cost</th>
+                  <th class="col-center">Competition</th>
+                  <th class="col-center">Aika Reasoning</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><input type="checkbox" class="tick" checked /></td>
+                  <td class="col-num">1</td>
+                  <td>
+                    <div class="site-name">MD Anderson Cancer Center</div>
+                    <div class="site-place">Houston, TX, United States</div>
+                  </td>
+                  <td class="col-center">
+                    <span class="score" style="--v: 95">
+                      <svg viewBox="0 0 36 36" aria-hidden="true">
+                        <circle class="score-track" cx="18" cy="18" r="15.5" />
+                        <circle class="score-fill" cx="18" cy="18" r="15.5" pathLength="100" />
+                      </svg>
+                      <b>95</b>
+                    </span>
+                  </td>
+                  <td class="col-center num">67–85</td>
+                  <td class="col-center num">8.4</td>
+                  <td class="col-center num">~$4.5M</td>
+                  <td class="col-center"><span class="tag med">Medium</span></td>
+                  <td class="col-center"><button class="view-btn" type="button"><span class="spark">✦</span>View</button></td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox" class="tick" checked /></td>
+                  <td class="col-num">2</td>
+                  <td>
+                    <div class="site-name">Memorial Sloan Kettering</div>
+                    <div class="site-place">New York, NY, United States</div>
+                  </td>
+                  <td class="col-center">
+                    <span class="score" style="--v: 94">
+                      <svg viewBox="0 0 36 36" aria-hidden="true">
+                        <circle class="score-track" cx="18" cy="18" r="15.5" />
+                        <circle class="score-fill" cx="18" cy="18" r="15.5" pathLength="100" />
+                      </svg>
+                      <b>94</b>
+                    </span>
+                  </td>
+                  <td class="col-center num">62–80</td>
+                  <td class="col-center num">7.9</td>
+                  <td class="col-center num">~$4.2M</td>
+                  <td class="col-center"><span class="tag high">High</span></td>
+                  <td class="col-center"><button class="view-btn" type="button"><span class="spark">✦</span>View</button></td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox" class="tick" checked /></td>
+                  <td class="col-num">3</td>
+                  <td>
+                    <div class="site-name">Dana-Farber Cancer Institute</div>
+                    <div class="site-place">Boston, MA, United States</div>
+                  </td>
+                  <td class="col-center">
+                    <span class="score" style="--v: 92">
+                      <svg viewBox="0 0 36 36" aria-hidden="true">
+                        <circle class="score-track" cx="18" cy="18" r="15.5" />
+                        <circle class="score-fill" cx="18" cy="18" r="15.5" pathLength="100" />
+                      </svg>
+                      <b>92</b>
+                    </span>
+                  </td>
+                  <td class="col-center num">56–72</td>
+                  <td class="col-center num">7.1</td>
+                  <td class="col-center num">~$3.8M</td>
+                  <td class="col-center"><span class="tag high">High</span></td>
+                  <td class="col-center"><button class="view-btn" type="button"><span class="spark">✦</span>View</button></td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox" class="tick" checked /></td>
+                  <td class="col-num">4</td>
+                  <td>
+                    <div class="site-name">N.N. Blokhin Oncology Center</div>
+                    <div class="site-place">Moscow, Russia</div>
+                  </td>
+                  <td class="col-center">
+                    <span class="score" style="--v: 87">
+                      <svg viewBox="0 0 36 36" aria-hidden="true">
+                        <circle class="score-track" cx="18" cy="18" r="15.5" />
+                        <circle class="score-fill" cx="18" cy="18" r="15.5" pathLength="100" />
+                      </svg>
+                      <b>87</b>
+                    </span>
+                  </td>
+                  <td class="col-center num">37–47</td>
+                  <td class="col-center num">4.7</td>
+                  <td class="col-center num">~$1.5M</td>
+                  <td class="col-center"><span class="tag low">Low</span></td>
+                  <td class="col-center"><button class="view-btn" type="button"><span class="spark">✦</span>View</button></td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox" class="tick" checked /></td>
+                  <td class="col-num">5</td>
+                  <td>
+                    <div class="site-name">Charité Universitätsmedizin</div>
+                    <div class="site-place">Berlin, Germany</div>
+                  </td>
+                  <td class="col-center">
+                    <span class="score" style="--v: 86">
+                      <svg viewBox="0 0 36 36" aria-hidden="true">
+                        <circle class="score-track" cx="18" cy="18" r="15.5" />
+                        <circle class="score-fill" cx="18" cy="18" r="15.5" pathLength="100" />
+                      </svg>
+                      <b>86</b>
+                    </span>
+                  </td>
+                  <td class="col-center num">36–46</td>
+                  <td class="col-center num">4.6</td>
+                  <td class="col-center num">~$1.8M</td>
+                  <td class="col-center"><span class="tag med">Medium</span></td>
+                  <td class="col-center"><button class="view-btn" type="button"><span class="spark">✦</span>View</button></td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox" class="tick" checked /></td>
+                  <td class="col-num">6</td>
+                  <td>
+                    <div class="site-name">National Cancer Center Hospital</div>
+                    <div class="site-place">Tokyo, Japan</div>
+                  </td>
+                  <td class="col-center">
+                    <span class="score" style="--v: 85">
+                      <svg viewBox="0 0 36 36" aria-hidden="true">
+                        <circle class="score-track" cx="18" cy="18" r="15.5" />
+                        <circle class="score-fill" cx="18" cy="18" r="15.5" pathLength="100" />
+                      </svg>
+                      <b>85</b>
+                    </span>
+                  </td>
+                  <td class="col-center num">33–43</td>
+                  <td class="col-center num">4.2</td>
+                  <td class="col-center num">~$1.5M</td>
+                  <td class="col-center"><span class="tag high">High</span></td>
+                  <td class="col-center"><button class="view-btn" type="button"><span class="spark">✦</span>View</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </main>
 
-    <a href="index.html" class="back-btn">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Back
-    </a>
+    <!-- Icons from Untitled UI (untitledui.com/icons, MIT) -->
+    <aside class="sidebar">
+      <span class="side-mark" aria-hidden="true">
+        <svg viewBox="0 0 109 108" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <g id="side-petals"></g>
+        </svg>
+      </span>
+
+      <button class="side-btn is-active" type="button" aria-label="Overview">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M8.4 3H4.6c-.56 0-.84 0-1.054.109a1 1 0 0 0-.437.437C3 3.76 3 4.04 3 4.6v3.8c0 .56 0 .84.109 1.054a1 1 0 0 0 .437.437C3.76 10 4.04 10 4.6 10h3.8c.56 0 .84 0 1.054-.109a1 1 0 0 0 .437-.437C10 9.24 10 8.96 10 8.4V4.6c0-.56 0-.84-.109-1.054a1 1 0 0 0-.437-.437C9.24 3 8.96 3 8.4 3Zm11 0h-3.8c-.56 0-.84 0-1.054.109a1 1 0 0 0-.437.437C14 3.76 14 4.04 14 4.6v3.8c0 .56 0 .84.109 1.054a1 1 0 0 0 .437.437C14.76 10 15.04 10 15.6 10h3.8c.56 0 .84 0 1.054-.109a1 1 0 0 0 .437-.437C21 9.24 21 8.96 21 8.4V4.6c0-.56 0-.84-.109-1.054a1 1 0 0 0-.437-.437C20.24 3 19.96 3 19.4 3Zm0 11h-3.8c-.56 0-.84 0-1.054.109a1 1 0 0 0-.437.437C14 14.76 14 15.04 14 15.6v3.8c0 .56 0 .84.109 1.054a1 1 0 0 0 .437.437C14.76 21 15.04 21 15.6 21h3.8c.56 0 .84 0 1.054-.109a1 1 0 0 0 .437-.437C21 20.24 21 19.96 21 19.4v-3.8c0-.56 0-.84-.109-1.054a1 1 0 0 0-.437-.437C20.24 14 19.96 14 19.4 14Zm-11 0H4.6c-.56 0-.84 0-1.054.109a1 1 0 0 0-.437.437C3 14.76 3 15.04 3 15.6v3.8c0 .56 0 .84.109 1.054a1 1 0 0 0 .437.437C3.76 21 4.04 21 4.6 21h3.8c.56 0 .84 0 1.054-.109a1 1 0 0 0 .437-.437C10 20.24 10 19.96 10 19.4v-3.8c0-.56 0-.84-.109-1.054a1 1 0 0 0-.437-.437C9.24 14 8.96 14 8.4 14Z"/>
+        </svg>
+      </button>
+
+      <button class="side-btn" type="button" aria-label="Treatments">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="7" y="2" width="10" height="20" rx="5"/>
+          <path d="M7 12h10"/>
+        </svg>
+      </button>
+
+      <button class="side-btn" type="button" aria-label="Tasks">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m6 15 2 2 4.5-4.5M8 8V5.2c0-1.12 0-1.68.218-2.108a2 2 0 0 1 .874-.874C9.52 2 10.08 2 11.2 2h7.6c1.12 0 1.68 0 2.108.218a2 2 0 0 1 .874.874C22 3.52 22 4.08 22 5.2v7.6c0 1.12 0 1.68-.218 2.108a2 2 0 0 1-.874.874C20.48 16 19.92 16 18.8 16H16M5.2 22h7.6c1.12 0 1.68 0 2.108-.218a2 2 0 0 0 .874-.874C16 20.48 16 19.92 16 18.8v-7.6c0-1.12 0-1.68-.218-2.108a2 2 0 0 0-.874-.874C14.48 8 13.92 8 12.8 8H5.2c-1.12 0-1.68 0-2.108.218a2 2 0 0 0-.874.874C2 9.52 2 10.08 2 11.2v7.6c0 1.12 0 1.68.218 2.108a2 2 0 0 0 .874.874C3.52 22 4.08 22 5.2 22Z"/>
+        </svg>
+      </button>
+
+      <button class="side-btn" type="button" aria-label="Insights">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m6.5 13 .784 1.569c.266.53.399.796.576 1.026a3 3 0 0 0 .545.545c.23.177.495.31 1.026.575L11 17.5l-1.569.785c-.53.265-.796.398-1.026.575a3 3 0 0 0-.545.545c-.177.23-.31.495-.576 1.026L6.5 22l-.784-1.569c-.266-.53-.399-.796-.576-1.026a3 3 0 0 0-.545-.545c-.23-.177-.495-.31-1.026-.575L2 17.5l1.569-.785c.53-.265.796-.398 1.026-.575a3 3 0 0 0 .545-.545c.177-.23.31-.495.576-1.026L6.5 13ZM15 2l1.179 3.064c.282.734.423 1.1.642 1.409a3 3 0 0 0 .706.706c.309.22.675.36 1.409.642L22 9l-3.064 1.179c-.734.282-1.1.423-1.409.642a3 3 0 0 0-.706.706c-.22.309-.36.675-.642 1.409L15 16l-1.179-3.064c-.282-.734-.423-1.1-.642-1.409a3 3 0 0 0-.706-.706c-.309-.22-.675-.36-1.409-.642L8 9l3.064-1.179c.734-.282 1.1-.423 1.409-.642a3 3 0 0 0 .706-.706c.22-.309.36-.675.642-1.409L15 2Z"/>
+        </svg>
+      </button>
+
+      <button class="side-btn" type="button" aria-label="Safety">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m9 11.5 2 2L15.5 9m4.5 3c0 4.908-5.354 8.478-7.302 9.615-.221.129-.332.194-.488.227a1.137 1.137 0 0 1-.42 0c-.156-.034-.267-.098-.488-.227C9.354 20.478 4 16.908 4 12V7.217c0-.799 0-1.199.13-1.542a2 2 0 0 1 .548-.79c.276-.243.65-.383 1.398-.664l5.362-2.01c.208-.078.312-.117.419-.133a1 1 0 0 1 .286 0c.107.016.21.055.419.133l5.362 2.01c.748.28 1.123.421 1.398.664a2 2 0 0 1 .547.79c.131.343.131.743.131 1.542V12Z"/>
+        </svg>
+      </button>
+
+      <button class="side-btn" type="button" aria-label="Sites">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 21V6.2c0-1.12 0-1.68.218-2.108a2 2 0 0 1 .874-.874C5.52 3 6.08 3 7.2 3h5.6c1.12 0 1.68 0 2.108.218a2 2 0 0 1 .874.874C16 4.52 16 5.08 16 6.2V21M2 21h20M10 7.5v4M8 9.5h4"/>
+        </svg>
+      </button>
+
+      <button class="side-btn" type="button" aria-label="Documents">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m13 7-1.116-2.231c-.32-.642-.481-.963-.72-1.198a2 2 0 0 0-.748-.462C10.1 3 9.74 3 9.022 3H5.2c-1.12 0-1.68 0-2.108.218a2 2 0 0 0-.874.874C2 4.52 2 5.08 2 6.2V7m0 0h15.2c1.68 0 2.52 0 3.162.327a3 3 0 0 1 1.311 1.311C22 9.28 22 10.12 22 11.8v4.4c0 1.68 0 2.52-.327 3.162a3 3 0 0 1-1.311 1.311C19.72 21 18.88 21 17.2 21H6.8c-1.68 0-2.52 0-3.162-.327a3 3 0 0 1-1.311-1.311C2 18.72 2 17.88 2 16.2V7Z"/>
+        </svg>
+      </button>
+
+      <button class="side-btn" type="button" aria-label="Messages">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 11.5a8.5 8.5 0 0 1-11.555 7.934c-.174-.066-.26-.1-.33-.116a.901.901 0 0 0-.186-.024 2.314 2.314 0 0 0-.303.021l-5.12.53c-.49.05-.733.075-.877-.013a.5.5 0 0 1-.234-.35c-.026-.166.09-.382.324-.814l1.636-3.027c.134-.25.202-.374.232-.494a.899.899 0 0 0 .028-.326c-.01-.123-.064-.283-.172-.604A8.5 8.5 0 1 1 21 11.5Z"/>
+        </svg>
+      </button>
+
+      <span class="side-divider" aria-hidden="true"></span>
+      <span class="side-spacer"></span>
+
+      <button class="side-btn" type="button" aria-label="Help">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3m.08 4h.01M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10Z"/>
+        </svg>
+      </button>
+
+      <button class="side-btn" type="button" aria-label="Settings">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+          <path d="M18.727 14.727a1.5 1.5 0 0 0 .3 1.655l.055.054a1.816 1.816 0 0 1 0 2.573 1.818 1.818 0 0 1-2.573 0l-.055-.055a1.5 1.5 0 0 0-1.654-.3 1.5 1.5 0 0 0-.91 1.373v.155a1.818 1.818 0 1 1-3.636 0V20.1a1.5 1.5 0 0 0-.981-1.373 1.5 1.5 0 0 0-1.655.3l-.054.055a1.818 1.818 0 0 1-3.106-1.287 1.818 1.818 0 0 1 .533-1.286l.054-.055a1.5 1.5 0 0 0 .3-1.654 1.5 1.5 0 0 0-1.372-.91h-.155a1.818 1.818 0 1 1 0-3.636H3.9a1.5 1.5 0 0 0 1.373-.981 1.5 1.5 0 0 0-.3-1.655l-.055-.054A1.818 1.818 0 1 1 7.491 4.99l.054.054a1.5 1.5 0 0 0 1.655.3h.073a1.5 1.5 0 0 0 .909-1.372v-.155a1.818 1.818 0 0 1 3.636 0V3.9a1.499 1.499 0 0 0 .91 1.373 1.5 1.5 0 0 0 1.654-.3l.054-.055a1.817 1.817 0 0 1 2.573 0 1.819 1.819 0 0 1 0 2.573l-.055.054a1.5 1.5 0 0 0-.3 1.655v.073a1.5 1.5 0 0 0 1.373.909h.155a1.818 1.818 0 0 1 0 3.636H20.1a1.499 1.499 0 0 0-1.373.91Z"/>
+        </svg>
+      </button>
+    </aside>
+
+    <div class="top-controls">
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle colour mode">
+        <svg class="icon-moon" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M12 8.6A5.2 5.2 0 015.4 2 5.5 5.5 0 1012 8.6z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+        </svg>
+        <svg class="icon-sun" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <circle cx="7" cy="7" r="2.9" stroke="currentColor" stroke-width="1.2"/>
+          <path d="M7 .8v1.6M7 11.6v1.6M.8 7h1.6M11.6 7h1.6M2.6 2.6l1.1 1.1M10.3 10.3l1.1 1.1M11.4 2.6l-1.1 1.1M3.7 10.3l-1.1 1.1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <button class="tweaks-btn" id="tweaks-btn" type="button" aria-expanded="false" aria-controls="tweaks-panel">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M2 4h6M11 4h1M2 10h1M6 10h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          <circle cx="9.4" cy="4" r="1.6" stroke="currentColor" stroke-width="1.3"/>
+          <circle cx="4.6" cy="10" r="1.6" stroke="currentColor" stroke-width="1.3"/>
+        </svg>
+        Tweaks
+      </button>
+    </div>
+
+    <aside class="tweaks-panel" id="tweaks-panel">
+      <div class="tweaks-title">Tweaks</div>
+      <label class="tweak-row">
+        Border
+        <input class="switch" type="checkbox" data-tweak="card-border" />
+      </label>
+      <label class="tweak-row tweak-sub is-disabled">
+        Lit
+        <input class="switch" type="checkbox" data-tweak="card-lit" disabled />
+      </label>
+      <label class="tweak-row">
+        BG
+        <input class="switch" type="checkbox" data-tweak="bg" />
+      </label>
+      <div class="tweak-sub is-disabled" id="bg-style-row">
+        <div class="seg">
+          <button type="button" class="seg-btn is-on" data-bg-style="radial">Radial</button>
+          <button type="button" class="seg-btn" data-bg-style="particles">Particles</button>
+        </div>
+      </div>
+    </aside>
 
     <script>
       // Build the animated boot emblem petals (staggered draw-on)
@@ -383,21 +1126,39 @@
           p.style.animationDelay = (i * 110) + "ms";
           g.appendChild(p);
         });
+
+        // same petals, static, as the sidebar mark
+        var mark = document.getElementById("side-petals");
+        FW_PETALS.forEach(function (d) {
+          var p = document.createElementNS(NS, "path");
+          p.setAttribute("d", d);
+          mark.appendChild(p);
+        });
       })();
 
       const PRIMARY      = '#04767E';
       const PRIMARY_DIM  = 'rgba(4,118,126,0.35)';
-      const GRID_COLOR   = 'rgba(255,255,255,0.06)';
-      const TICK_COLOR   = 'rgba(255,255,255,0.35)';
 
-      Chart.defaults.color = TICK_COLOR;
-      Chart.defaults.borderColor = GRID_COLOR;
+      // grid and tick colours follow the active theme
+      const token = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      let GRID_COLOR, TICK_COLOR;
+
       Chart.defaults.font.family = 'system-ui, sans-serif';
       Chart.defaults.font.size   = 11;
 
+      let charts = [];
+
       function initCharts() {
+      GRID_COLOR = token('--border');
+      TICK_COLOR = token('--muted');
+      Chart.defaults.color = TICK_COLOR;
+      Chart.defaults.borderColor = GRID_COLOR;
+
+      charts.forEach(c => c.destroy());
+      charts = [];
+
       // LINE — cumulative enrollment
-      new Chart(document.getElementById('lineChart'), {
+      charts.push(new Chart(document.getElementById('lineChart'), {
         type: 'line',
         data: {
           labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
@@ -421,10 +1182,10 @@
             y: { grid: { color: GRID_COLOR }, beginAtZero: true }
           }
         }
-      });
+      }));
 
       // DOUGHNUT — trial phases
-      new Chart(document.getElementById('doughnutChart'), {
+      charts.push(new Chart(document.getElementById('doughnutChart'), {
         type: 'doughnut',
         data: {
           labels: ['Phase I', 'Phase II', 'Phase III', 'Phase IV'],
@@ -436,7 +1197,7 @@
               'rgba(4,118,126,0.3)',
               'rgba(4,118,126,0.15)',
             ],
-            borderColor: 'rgba(255,255,255,0.06)',
+            borderColor: GRID_COLOR,
             borderWidth: 1,
           }]
         },
@@ -450,10 +1211,10 @@
             }
           }
         }
-      });
+      }));
 
       // BAR — monthly screenings
-      new Chart(document.getElementById('barChart'), {
+      charts.push(new Chart(document.getElementById('barChart'), {
         type: 'bar',
         data: {
           labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
@@ -474,8 +1235,257 @@
             y: { grid: { color: GRID_COLOR }, beginAtZero: true }
           }
         }
-      });
+      }));
       }
+
+      // ===== TWEAKS PANEL =====
+      const tweaksBtn = document.getElementById('tweaks-btn');
+      const tweaksPanel = document.getElementById('tweaks-panel');
+
+      tweaksBtn.addEventListener('click', () => {
+        const open = tweaksPanel.classList.toggle('open');
+        tweaksBtn.setAttribute('aria-expanded', String(open));
+      });
+
+      addEventListener('keydown', e => {
+        if (e.key === 'Escape' && tweaksPanel.classList.contains('open')) tweaksBtn.click();
+      });
+
+      // each switch just flips an attribute on <body>; the CSS does the rest
+      document.querySelectorAll('[data-tweak]').forEach(input => {
+        const attr = 'data-' + input.dataset.tweak;
+        const apply = on => {
+          input.checked = on;
+          document.body.toggleAttribute(attr, on);
+        };
+        apply(localStorage.getItem(attr) === 'on');
+        input.addEventListener('change', () => {
+          apply(input.checked);
+          localStorage.setItem(attr, input.checked ? 'on' : 'off');
+        });
+      });
+
+      /* ===== PARTICLE BACKGROUND =====
+         The wave field from 3D.html, slowed right down and dimmed: no orbit
+         controls, no bloom (its strength was 0 there anyway), a coarser grid,
+         and colours pulled from the active theme. */
+      let field = null;
+
+      async function startParticles() {
+        if (field) return;
+        field = { pending: true };
+
+        const [THREE, { createNoise3D }] = await Promise.all([
+          import('three'),
+          import('https://cdn.jsdelivr.net/npm/simplex-noise@4.0.1/+esm')
+        ]);
+
+        // switched off again while three was still downloading
+        if (!field?.pending) return;
+
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x000000, 0.03);
+
+        const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 1000);
+        camera.position.set(0, 10, 40);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setPixelRatio(Math.min(1.5, devicePixelRatio || 1));
+        renderer.setSize(innerWidth, innerHeight);
+        renderer.domElement.className = 'bg-canvas';
+        document.body.appendChild(renderer.domElement);
+
+        const noise3D = createNoise3D();
+
+        // coarser than 3D.html's 150² — this runs behind a live dashboard
+        const GRID = 90, SPACING = 0.85;
+        const positions = [];
+        for (let x = -GRID / 2; x < GRID / 2; x++) {
+          for (let z = -GRID / 2; z < GRID / 2; z++) {
+            positions.push(
+              x * SPACING + (Math.random() - 0.5) * 0.4,
+              0,
+              z * SPACING + (Math.random() - 0.5) * 0.4
+            );
+          }
+        }
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        const count = geometry.attributes.position.count;
+        const sizes = new Float32Array(count);
+        for (let i = 0; i < count; i++) sizes[i] = 0.02 + Math.random() * 0.7;
+        geometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
+
+        function glowTexture(rgb, light) {
+          const size = 128;
+          const canvas = document.createElement('canvas');
+          canvas.width = canvas.height = size;
+          const ctx = canvas.getContext('2d');
+          const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+          // a hot white core reads on black, but blows out on a pale background
+          if (!light) g.addColorStop(0, 'rgba(255,255,255,1)');
+          g.addColorStop(light ? 0 : 0.2, `rgba(${rgb},1)`);
+          g.addColorStop(light ? 0.45 : 0.4, `rgba(${rgb},0.5)`);
+          g.addColorStop(1, `rgba(${rgb},0)`);
+          ctx.fillStyle = g;
+          ctx.fillRect(0, 0, size, size);
+          return new THREE.CanvasTexture(canvas);
+        }
+
+        const material = new THREE.ShaderMaterial({
+          uniforms: {
+            map:           { value: glowTexture('161,242,255', false) },
+            focalDistance: { value: 40.0 },
+            focalRange:    { value: 20.0 },
+            blurStrength:  { value: 1.0 },
+            fadeDistance:  { value: 60.0 },
+            opacity:       { value: 0.5 }
+          },
+          vertexShader: `
+            attribute float size;
+            uniform float focalDistance;
+            uniform float focalRange;
+            uniform float blurStrength;
+            uniform float fadeDistance;
+            varying float vBlur;
+            varying float vFade;
+            void main() {
+              vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+              float depth = -mvPosition.z;
+              float blur = clamp(abs(depth - focalDistance) / focalRange, 0.0, 1.0);
+              vBlur = blur;
+              vFade = 1.0 - clamp(depth / fadeDistance, 0.0, 1.0);
+              gl_PointSize = size * (400.0 / depth) * (1.0 + blur * blurStrength);
+              gl_Position = projectionMatrix * mvPosition;
+            }
+          `,
+          fragmentShader: `
+            uniform sampler2D map;
+            uniform float opacity;
+            varying float vBlur;
+            varying float vFade;
+            void main() {
+              vec4 c = texture2D(map, gl_PointCoord);
+              c.a *= (1.0 - vBlur * 0.85) * vFade * opacity;
+              gl_FragColor = c;
+            }
+          `,
+          transparent: true,
+          depthWrite: false
+        });
+
+        scene.add(new THREE.Points(geometry, material));
+
+        // Dark: cyan ink added onto black. Light: teal ink laid over the pale
+        // background — additive blending would just wash it out.
+        function applyTheme() {
+          const light = document.documentElement.dataset.theme === 'light';
+          const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+          const colour = new THREE.Color(bg);
+          scene.background = colour;
+          scene.fog.color = colour;
+
+          material.uniforms.map.value.dispose();
+          material.uniforms.map.value = glowTexture(light ? '4,118,126' : '161,242,255', light);
+          material.uniforms.opacity.value = light ? 0.75 : 0.95;
+          material.blending = light ? THREE.NormalBlending : THREE.AdditiveBlending;
+          material.needsUpdate = true;
+        }
+        applyTheme();
+
+        const SPEED = 0.05, AMPLITUDE = 4;
+        const clock = new THREE.Clock();
+        let raf = 0;
+
+        function frame() {
+          raf = requestAnimationFrame(frame);
+          const t = clock.getElapsedTime();
+          const pos = geometry.attributes.position;
+          for (let i = 0; i < pos.count; i++) {
+            pos.setY(i, noise3D(pos.getX(i) * 0.05, pos.getZ(i) * 0.05, t * SPEED) * AMPLITUDE);
+          }
+          pos.needsUpdate = true;
+          renderer.render(scene, camera);
+        }
+        frame();
+
+        const onResize = () => {
+          camera.aspect = innerWidth / innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(innerWidth, innerHeight);
+        };
+        addEventListener('resize', onResize);
+
+        field = {
+          applyTheme,
+          stop() {
+            cancelAnimationFrame(raf);
+            removeEventListener('resize', onResize);
+            renderer.domElement.remove();
+            material.uniforms.map.value.dispose();
+            geometry.dispose();
+            material.dispose();
+            renderer.dispose();
+          }
+        };
+      }
+
+      function stopParticles() {
+        field?.stop?.();
+        field = null;
+      }
+
+      // ===== BG STYLE =====
+      const bgSwitch = document.querySelector('[data-tweak="bg"]');
+      const bgStyleRow = document.getElementById('bg-style-row');
+      const styleBtns = [...document.querySelectorAll('[data-bg-style]')];
+
+      function syncBg() {
+        const on = bgSwitch.checked;
+        const style = localStorage.getItem('bg-style') || 'radial';
+
+        bgStyleRow.classList.toggle('is-disabled', !on);
+        styleBtns.forEach(b => b.classList.toggle('is-on', b.dataset.bgStyle === style));
+        document.body.dataset.bgStyle = style;
+
+        if (on && style === 'particles') startParticles();
+        else stopParticles();
+      }
+
+      styleBtns.forEach(btn => btn.addEventListener('click', () => {
+        localStorage.setItem('bg-style', btn.dataset.bgStyle);
+        syncBg();
+      }));
+      bgSwitch.addEventListener('change', syncBg);
+      syncBg();
+
+      // "Lit" only means anything on top of a border, so it follows Border.
+      // Its own saved value is kept, and comes back when Border is re-enabled.
+      const borderSwitch = document.querySelector('[data-tweak="card-border"]');
+      const litSwitch = document.querySelector('[data-tweak="card-lit"]');
+
+      function syncLit() {
+        const available = borderSwitch.checked;
+        litSwitch.disabled = !available;
+        litSwitch.closest('.tweak-row').classList.toggle('is-disabled', !available);
+        document.body.toggleAttribute('data-card-lit', available && litSwitch.checked);
+      }
+
+      [borderSwitch, litSwitch].forEach(s => s.addEventListener('change', syncLit));
+      syncLit();
+
+      // ===== COLOUR MODE =====
+      let chartsReady = false;
+
+      document.getElementById('theme-toggle').addEventListener('click', () => {
+        const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+        document.documentElement.dataset.theme = next;
+        localStorage.setItem('theme', next);
+        // Chart.js bakes colours in at construction, so rebuild on a theme change
+        if (chartsReady) initCharts();
+        field?.applyTheme?.();
+      });
 
       // Simulate a boot sequence: loader -> skeleton -> full dashboard
       // 1) Loader overlay for ~2.8s (one full emblem draw), then fade to skeleton
@@ -487,6 +1497,7 @@
       setTimeout(() => {
         document.body.classList.remove('loading');
         initCharts();
+        chartsReady = true;
       }, 5300);
     </script>
   </body>

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Composing…</title>
+    <link rel="icon" type="image/png" href="favicons/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="favicons/favicon.svg" />
+    <link rel="shortcut icon" href="favicons/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="favicons/apple-touch-icon.png" />
+    <link rel="manifest" href="favicons/site.webmanifest" />
+    <link rel="stylesheet" href="css/style.css" />
+
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.3.1",
+        "react/jsx-runtime": "https://esm.sh/react@18.3.1/jsx-runtime",
+
+        "thinking-orbs": "https://esm.sh/thinking-orbs@0.2.0?external=react"
+      }
+    }
+    </script>
+    <!-- thinking-orbs is installed locally too (npm install thinking-orbs), but a
+         relative import is blocked when this file is opened over file:// — the CDN
+         build is the same 0.2.0 and works either way. To use the local copy when
+         serving over http, swap the mapping above for:
+           "thinking-orbs": "./node_modules/thinking-orbs/dist/index.es.js"  -->
+
+    <style>
+      /* flat background — drops the radial glow .page-loader ships with */
+      body.page-loader { background: var(--bg); }
+
+      /* the orb paints monochrome ink, so it gets tinted in CSS */
+      #orb canvas { filter: url(#orb-tint); }
+    </style>
+  </head>
+  <body class="page-loader" data-theme="dark">
+    <a href="index.html" class="back-btn">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back
+    </a>
+
+    <div id="orb"></div>
+
+    <!-- Recolours the orb's grey ink to brand teal. Each output channel is the
+         source's luminance times the tint channel, so the orb keeps both its
+         depth shading and its per-dot alpha. -->
+    <svg width="0" height="0" aria-hidden="true" style="position:absolute">
+      <filter id="orb-tint" color-interpolation-filters="sRGB">
+        <feColorMatrix id="orb-tint-matrix" type="matrix" values="
+          0 0 0 0 0
+          0 0 0 0 0
+          0 0 0 0 0
+          0 0 0 1 0" />
+      </filter>
+    </svg>
+
+    <script type="module">
+      import { MODE_DRAWS, resolvePreset } from 'thinking-orbs';
+
+      const TINT = '#5BBCC4';   // brand teal
+      const SIZE = 200;         // rendered size
+      const PRESET_SIZE = 64;   // largest tuning the package ships (64 or 20 only)
+
+      // Feed the tint into the filter: monochrome ink v becomes (v·r, v·g, v·b)
+      const [r, g, b] = [1, 3, 5].map(i => parseInt(TINT.slice(i, i + 2), 16) / 255);
+      document.getElementById('orb-tint-matrix').setAttribute('values', [
+        `${r} 0 0 0 0`,
+        `${g} 0 0 0 0`,
+        `${b} 0 0 0 0`,
+        `0 0 0 1 0`
+      ].join(' '));
+
+      /* The <ThinkingOrb> component locks its canvas to a preset size, so at 200px
+         it would just upscale a 64px canvas. Its frame painters are exported and
+         fully size-parametric, so we borrow the 'composing' tuning and paint it at
+         200px natively instead — same animation, drawn at full resolution. */
+      const { mode, speed, opts } = resolvePreset('composing', PRESET_SIZE);
+      const draw = MODE_DRAWS[mode];
+
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(SIZE * dpr);
+      canvas.height = Math.round(SIZE * dpr);
+      canvas.style.width = canvas.style.height = SIZE + 'px';
+      canvas.style.display = 'block';
+      canvas.setAttribute('role', 'img');
+      canvas.setAttribute('aria-label', 'Composing…');
+      document.getElementById('orb').appendChild(canvas);
+
+      const ctx = canvas.getContext('2d');
+
+      // `true` = dark theme, i.e. light ink for a dark background
+      function paint(t) {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, SIZE, SIZE);
+        draw(ctx, SIZE, t, true, opts);
+      }
+
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        paint(0.6);  // the representative still frame the package uses
+      } else {
+        (function frame() {
+          paint(performance.now() / 1000 * speed);
+          requestAnimationFrame(frame);
+        })();
+      }
+    </script>
+  </body>
+</html>

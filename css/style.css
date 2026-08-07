@@ -2,14 +2,116 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 :root {
-  --bg:            #151a1d;
+  color-scheme: dark;
+
+  --bg:            #000000;
+  /* --fg is the high-emphasis mark colour (logo, icons); body copy uses
+     --fg-text, pulled off pure white so it doesn't glare on black */
   --fg:            #fefefe;
-  --glow:          #a1f2ff;
-  --surface:       rgba(255, 255, 255, 0.03);
+  --fg-text:       #dddddd;
   --border:        rgba(255, 255, 255, 0.1);
   --muted:         rgba(255, 255, 255, 0.4);
   --primary:       #04767E;
   --primary-light: rgba(4, 118, 126, 0.25);
+  --glow:          #a1f2ff;
+  --glow-light:    #99ecf3;
+  --border:        rgb(30, 40, 40);
+
+  --elevation-1:   rgba(240, 250, 255, 0.06);
+  --elevation-2:   rgba(240, 250, 255, 0.03);
+  --elevation-3:   rgba(240, 250, 255, 0.06);
+  --elevation-4:   rgba(240, 250, 255, 0.03);
+  --elevation-5:   rgba(240, 250, 255, 0.03);
+
+  /* cards and panels ride the ramp, so they lift with it in both modes */
+  --surface:       var(--elevation-1);
+  --card-blur:     blur(10px);
+
+  /* "Lit" border: the top-left and bottom-right corners hold the normal
+     border colour, and the run between them falls away to near-nothing.
+     Built from var(--border), so it resolves per mode on its own. */
+  --border-lit:
+    linear-gradient(135deg,
+      var(--border) 0%,
+      color-mix(in srgb, var(--border) 18%, transparent) 34%,
+      color-mix(in srgb, var(--border) 18%, transparent) 66%,
+      var(--border) 100%);
+
+  /* Mesh: overlapping blooms of different sizes and hues, pooled along the
+     bottom edge. Each fades to 0 at its own edge so there are no seams. */
+  --bg-gradient:
+    radial-gradient(85% 70% at 50% 108%, rgba(91, 188, 196, 0.15) 0%, rgba(91, 188, 196, 0) 100%),
+    radial-gradient(65% 55% at 30% 98%,  rgba(4, 118, 126, 0.17)  0%, rgba(4, 118, 126, 0) 100%),
+    radial-gradient(60% 50% at 76% 96%,  rgba(161, 242, 255, 0.08) 0%, rgba(161, 242, 255, 0) 100%),
+    radial-gradient(110% 45% at 50% 122%, rgba(91, 188, 196, 0.09) 0%, rgba(91, 188, 196, 0) 100%);
+}
+
+/* ===== LIGHT MODE ===== */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg:            #e1eef0;
+  --fg:            #0E272B;
+  --fg-text:       #16343A;
+  --border:        rgba(14, 39, 43, 0.12);
+  --muted:         rgba(14, 39, 43, 0.55);
+  --glow:          #0E8F99;
+
+  --elevation-1:   rgba(255, 255, 255, 0.4);
+  --elevation-2:   rgba(255, 255, 255, 0.55);
+  --elevation-3:   rgba(255, 255, 255, 0.7);
+  --elevation-4:   rgba(255, 255, 255, 0.85);
+  --elevation-5:   rgba(255, 255, 255, 1);
+
+  --bg-gradient:
+    radial-gradient(85% 70% at 50% 108%, rgba(4, 118, 126, 0.15)  0%, rgba(4, 118, 126, 0) 100%),
+    radial-gradient(65% 55% at 30% 98%,  rgba(14, 143, 153, 0.12) 0%, rgba(14, 143, 153, 0) 100%),
+    radial-gradient(60% 50% at 76% 96%,  rgba(91, 188, 196, 0.16) 0%, rgba(91, 188, 196, 0) 100%),
+    radial-gradient(110% 45% at 50% 122%, rgba(4, 118, 126, 0.08) 0%, rgba(4, 118, 126, 0) 100%);
+}
+
+/* ===== TWEAKS =====
+   Both are opt-in, driven by an attribute on <body>. */
+
+/* The backdrop sits on its own fixed layer rather than on the body with
+   background-attachment: fixed — a fixed body background composites badly
+   under the cards' backdrop-filter and smears a band across the top of the
+   viewport as the page scrolls. The particle style paints its own canvas. */
+body[data-bg]:not([data-bg-style="particles"])::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+}
+
+body[data-bg][data-bg-style="radial"]::before {
+  background: var(--bg-gradient);
+}
+
+body[data-card-border] .card { border-color: var(--border); }
+
+/* Lit rides on top of the border: a 1px gradient ring, masked so only the
+   border band paints. Sits above the card's own border so the corners read
+   bright while the sides stay dim. */
+body[data-card-lit] .card {
+  position: relative;
+  /* the ring below is the whole border now — a solid one underneath would
+     fill the dim stretch back in */
+  border-color: transparent;
+}
+body[data-card-lit] .card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: var(--border-lit);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
 }
 
 html, body {
@@ -19,7 +121,7 @@ html, body {
 
 body {
   background: var(--bg);
-  color: var(--fg);
+  color: var(--fg-text);
   font-family: system-ui, sans-serif;
 }
 
@@ -37,7 +139,7 @@ body {
   backdrop-filter: blur(50px);
   border-radius: 999px;
   border: 0px solid var(--border);
-  color: var(--fg);
+  color: var(--fg-text);
   font-size: 13px;
   font-weight: 300;
   letter-spacing: 0.12em;
@@ -93,7 +195,7 @@ body {
   backdrop-filter: blur(50px);
   border-radius: 999px;
   border: 0px solid var(--border);
-  color: var(--fg);
+  color: var(--fg-text);
   font-size: 13px;
   font-weight: 300;
   letter-spacing: 0.12em;
@@ -192,7 +294,8 @@ body {
   padding: 80px 32px 64px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  /* matches the 16px gap the card grids use horizontally */
+  gap: 16px;
 }
 
 .topbar {
@@ -224,6 +327,29 @@ body {
   letter-spacing: 0.04em;
 }
 
+/* ===== THEME TOGGLE ===== */
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  background: var(--elevation-1);
+  /* like the cards: outlined only when the Border tweak is on */
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--fg-text);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.theme-toggle:hover { background: var(--elevation-3); }
+.theme-toggle:focus-visible { outline: 1px solid var(--primary); outline-offset: 2px; }
+
+/* each icon shows only in the mode it switches away from */
+.theme-toggle .icon-sun  { display: none; }
+:root[data-theme="light"] .theme-toggle .icon-sun  { display: block; }
+:root[data-theme="light"] .theme-toggle .icon-moon { display: none; }
+
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -232,8 +358,16 @@ body {
 
 .card {
   background: var(--surface);
+  /* transparent by default so toggling the border tweak doesn't shift layout */
+  border: 1px solid transparent;
   border-radius: 12px;
   padding: 20px 22px;
+}
+
+/* -webkit- prefix kept for Safari */
+.page-dashboard .card {
+  -webkit-backdrop-filter: var(--card-blur);
+  backdrop-filter: var(--card-blur);
 }
 
 .stat-label {
@@ -254,7 +388,7 @@ body {
 .stat-delta {
   margin-top: 6px;
   font-size: 12px;
-  color: var(--primary);
+  color: var(--glow);
 }
 
 .chart-grid {

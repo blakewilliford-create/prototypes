@@ -11,95 +11,18 @@
     <link rel="manifest" href="favicons/site.webmanifest" />
     <link rel="stylesheet" href="css/style.css" />
     <style>
-      /* stack the tab bar above the loader instead of centering a single item */
-      body.page-loader {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-      }
-
-      /* ===== TABS (from loaders.html) ===== */
-      .tab-bar {
-        display: flex;
-        justify-content: center;
-        padding: 15px 20px 0;
-      }
-
-      .tabs {
-        display: flex;
-        gap: 4px;
-        padding: 6px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 999px;
-        width: fit-content;
-      }
-
-      .tab {
-        appearance: none;
-        border: none;
-        background: transparent;
-        color: rgba(255, 255, 255, 0.55);
-        font-family: inherit;
-        font-size: 0.875rem;
-        font-weight: 500;
-        padding: 8px 20px;
-        border-radius: 999px;
-        cursor: pointer;
-        transition: background 0.2s ease, color 0.2s ease;
-      }
-
-      .tab:hover { color: rgba(255, 255, 255, 0.85); }
-
-      .tab[aria-selected="true"] {
-        background: rgba(255, 255, 255, 0.12);
-        color: var(--fg);
-      }
-
-      /* ===== PANELS ===== */
-      .panels {
-        flex: 1;
-        display: grid;
-        place-items: center;
-        padding: 24px 20px 40px;
-        min-height: 0;
-      }
-
-      .panel { display: none; }
-      .panel[data-active] { display: grid; place-items: center; }
-
-      /* ===== VERSIONS B & C: inline emblem ===== */
+      /* ===== Page loader — matches the default in loaders.html =====
+         Each petal fades up in sequence; no outline draw. */
       .fw-boot-emblem {
-        width: 100px;
-        height: 100px;
+        width: 96px;
+        height: 96px;
         overflow: visible;
         user-select: none;
         -webkit-user-drag: none;
       }
 
-      /* B — each petal draws its outline (stroke-dashoffset), then fills */
       .fw-petal {
-        fill: url(#fwEmbGradB);
-        fill-opacity: 0;
-        stroke: #5DF0F9;
-        stroke-width: 1.1;
-        stroke-linejoin: round;
-        stroke-dasharray: 1;
-        stroke-dashoffset: 1;
-        animation: fw-petal-draw 2400ms cubic-bezier(.65, 0, .35, 1) infinite;
-      }
-
-      @keyframes fw-petal-draw {
-        0%   { stroke-dashoffset: 1; fill-opacity: 0; }
-        38%  { stroke-dashoffset: 0; fill-opacity: 0; }
-        58%  { fill-opacity: 1; }
-        82%  { stroke-dashoffset: 0; fill-opacity: 1; stroke-opacity: 1; }
-        100% { stroke-dashoffset: 0; fill-opacity: 1; stroke-opacity: 0; }
-      }
-
-      /* C — same emblem and stagger, no outline: the shapes just fade up */
-      .fw-petal-fade {
-        fill: url(#fwEmbGradC);
+        fill: url(#fwEmbGrad);
         fill-opacity: 0;
         stroke: none;
         animation: fw-petal-fade 2400ms cubic-bezier(.65, 0, .35, 1) infinite;
@@ -113,8 +36,7 @@
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .fw-petal { animation: none; fill-opacity: 1; stroke-dashoffset: 0; }
-        .fw-petal-fade { animation: none; fill-opacity: 1; }
+        .fw-petal { animation: none; fill-opacity: 1; }
       }
     </style>
   </head>
@@ -126,52 +48,15 @@
       Back
     </a>
 
-    <div class="tab-bar">
-      <div class="tabs" role="tablist" aria-label="Loader version">
-        <button class="tab" role="tab" aria-selected="true"  aria-controls="panel-a" data-panel="a">Version A</button>
-        <button class="tab" role="tab" aria-selected="false" aria-controls="panel-b" data-panel="b">Version B</button>
-        <button class="tab" role="tab" aria-selected="false" aria-controls="panel-c" data-panel="c">Version C</button>
-      </div>
-    </div>
-
-    <div class="panels">
-      <!-- A: the self-animating SVG file -->
-      <section class="panel" id="panel-a" role="tabpanel" data-active>
-        <img
-          class="emblem"
-          src="SVGs/Emblem.svg"
-          alt="Loading"
-          decoding="async"
-          draggable="false"
-        />
-      </section>
-
-      <!-- B: staggered stroke draw, then fill -->
-      <section class="panel" id="panel-b" role="tabpanel">
-        <svg class="fw-boot-emblem" viewBox="0 0 109 108" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Loading">
-          <defs>
-            <linearGradient id="fwEmbGradB" x1="20" y1="100" x2="90" y2="8" gradientUnits="userSpaceOnUse">
-              <stop stop-color="#A1F2FF" />
-              <stop offset="1" stop-color="#5EB6B6" />
-            </linearGradient>
-          </defs>
-          <g id="petals-b"></g>
-        </svg>
-      </section>
-
-      <!-- C: same stagger, fade only -->
-      <section class="panel" id="panel-c" role="tabpanel">
-        <svg class="fw-boot-emblem" viewBox="0 0 109 108" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Loading">
-          <defs>
-            <linearGradient id="fwEmbGradC" x1="20" y1="100" x2="90" y2="8" gradientUnits="userSpaceOnUse">
-              <stop stop-color="#A1F2FF" />
-              <stop offset="1" stop-color="#5EB6B6" />
-            </linearGradient>
-          </defs>
-          <g id="petals-c"></g>
-        </svg>
-      </section>
-    </div>
+    <svg class="fw-boot-emblem" viewBox="0 0 109 108" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Loading">
+      <defs>
+        <linearGradient id="fwEmbGrad" x1="20" y1="100" x2="90" y2="8" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#A1F2FF" />
+          <stop offset="1" stop-color="#5EB6B6" />
+        </linearGradient>
+      </defs>
+      <g id="petals"></g>
+    </svg>
 
     <script>
       const FW_PETALS = [
@@ -185,34 +70,16 @@
         "M31.3311 19.3C33.2892 20.873 35.6969 21.7076 38.2329 21.7076C38.6743 21.7076 39.1157 21.6836 39.5651 21.6274C44.9982 21.0014 49.2276 15.6244 48.6177 10.1271V10.0468C48.4652 6.67618 46.6595 4.42106 45.1748 3.12096C43.1363 1.34735 40.4158 0.28801 37.8797 0.28801C37.6069 0.28801 37.334 0.30406 37.0692 0.328136C34.3165 0.584947 31.6601 2.05359 29.7822 4.34081C27.9685 6.54778 27.0857 9.29244 27.3505 11.8686C27.6555 14.8299 29.0679 17.4622 31.3391 19.292L31.3311 19.3Z"
       ];
 
+      // Mount the eight petals, each offset so they fade in sequence
       const NS = "http://www.w3.org/2000/svg";
-
-      // Mount the eight petals, each offset so they animate in sequence
-      function mountPetals(groupId, cls) {
-        const g = document.getElementById(groupId);
-        FW_PETALS.forEach((d, i) => {
-          const p = document.createElementNS(NS, "path");
-          p.setAttribute("class", cls);
-          p.setAttribute("d", d);
-          p.setAttribute("pathLength", "1");
-          p.style.animationDelay = (i * 110) + "ms";
-          g.appendChild(p);
-        });
-      }
-
-      mountPetals("petals-b", "fw-petal");
-      mountPetals("petals-c", "fw-petal-fade");
-
-      // ===== TABS =====
-      document.querySelector('[role="tablist"]').addEventListener("click", e => {
-        const tab = e.target.closest(".tab");
-        if (!tab) return;
-
-        document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", "false"));
-        tab.setAttribute("aria-selected", "true");
-
-        document.querySelectorAll(".panel").forEach(p => p.removeAttribute("data-active"));
-        document.getElementById("panel-" + tab.dataset.panel).setAttribute("data-active", "");
+      const petalGroup = document.getElementById("petals");
+      FW_PETALS.forEach((d, i) => {
+        const p = document.createElementNS(NS, "path");
+        p.setAttribute("class", "fw-petal");
+        p.setAttribute("d", d);
+        p.setAttribute("pathLength", "1");
+        p.style.animationDelay = (i * 110) + "ms";
+        petalGroup.appendChild(p);
       });
     </script>
   </body>
