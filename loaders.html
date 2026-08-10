@@ -500,7 +500,7 @@
       }
 
       @keyframes skeletonFade {
-        0%, 100% { opacity: 0.333; }
+        0%, 100% { opacity: 0.5; }
         50%      { opacity: 1; }
       }
 
@@ -583,8 +583,8 @@
       /* Fade mode: pulse each skeleton between two fill strengths (no shine) */
       .sk-grid.fade .skeleton {
         background-image: linear-gradient(
-          rgba(var(--sk-tint), 0.06),
-          rgba(var(--sk-tint), 0.06)
+          rgba(var(--sk-tint), 0.11),
+          rgba(var(--sk-tint), 0.11)
         );
         animation: skeletonFade var(--sk-duration) ease-in-out infinite;
       }
